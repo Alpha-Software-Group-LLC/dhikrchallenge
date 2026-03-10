@@ -4,33 +4,37 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
 <title>The Dhikr Challenge 💕</title>
-<meta name="theme-color" content="#0a0812"/>
+<meta name="theme-color" content="#060f0a"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Outfit:wght@300;400;500;600&family=Amiri:wght@400;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Outfit:wght@300;400;500;600&family=Amiri:wght@400;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
 <style>
 :root{
-  --bg:#0a0812;
-  --bg2:#100e1a;
-  --bg3:#161224;
-  --surface:#1c1830;
-  --raised:#221e38;
-  --border:rgba(255,255,255,0.04);
-  --border2:rgba(255,255,255,0.07);
-  --text:#ede8d8;
-  --text2:#9a937e;
-  --text3:#5c5648;
-  --amber:#d4a046;
-  --amber2:#e8b85a;
-  --amber-dim:rgba(212,160,70,0.08);
-  --amber-mid:rgba(212,160,70,0.18);
-  --amber-glow:rgba(212,160,70,0.35);
-  --green:#5cb870;
-  --green-dim:rgba(92,184,112,0.08);
+  --bg:#060f0a;
+  --bg2:#0a1710;
+  --bg3:#0f1f16;
+  --surface:#122018;
+  --raised:#182b1f;
+  --border:rgba(52,180,100,0.06);
+  --border2:rgba(52,180,100,0.12);
+  --text:#d4ede0;
+  --text2:#7aaa8e;
+  --text3:#3d6650;
+  --amber:#c8a84b;
+  --amber2:#e0bf6a;
+  --amber-dim:rgba(200,168,75,0.08);
+  --amber-mid:rgba(200,168,75,0.2);
+  --amber-glow:rgba(200,168,75,0.4);
+  --green:#34b464;
+  --green2:#4dd47e;
+  --green-dim:rgba(52,180,100,0.08);
+  --green-mid:rgba(52,180,100,0.18);
+  --green-glow:rgba(52,180,100,0.35);
   --rose:#c47a7a;
   --rose-dim:rgba(196,122,122,0.08);
+  --mono:'JetBrains Mono',monospace;
   --font:'Outfit',sans-serif;
   --serif:'Cormorant Garamond',Georgia,serif;
   --arabic:'Amiri','Lora',serif;
@@ -44,16 +48,20 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);-webkit-font
 ::selection{background:var(--amber);color:var(--bg)}
 ::-webkit-scrollbar{width:3px}
 ::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+::-webkit-scrollbar-thumb{background:var(--green-dim);border-radius:2px}
 button{font-family:var(--font);cursor:pointer;-webkit-tap-highlight-color:transparent}
 
-/* Geometric pattern overlay */
+/* Islamic tech HUD — grid + geometric overlay */
 body::before{
-  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:0.015;
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   background-image:
-    repeating-conic-gradient(from 0deg at 50% 50%, transparent 0deg, transparent 60deg, rgba(212,160,70,0.3) 60deg, rgba(212,160,70,0.3) 60.5deg, transparent 60.5deg, transparent 120deg),
-    repeating-conic-gradient(from 30deg at 50% 50%, transparent 0deg, transparent 60deg, rgba(212,160,70,0.2) 60deg, rgba(212,160,70,0.2) 60.5deg, transparent 60.5deg, transparent 120deg);
-  background-size:80px 80px, 80px 80px;
+    linear-gradient(rgba(52,180,100,0.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(52,180,100,0.03) 1px,transparent 1px);
+  background-size:40px 40px;
+}
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:0.4;
+  background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(52,180,100,0.07),transparent);
 }
 
 @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
@@ -73,7 +81,7 @@ body::before{
 
 /* Geometric Islamic star SVG pattern for backgrounds */
 .geo-pattern{
-  background-image:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5 L35 25 L55 30 L35 35 L30 55 L25 35 L5 30 L25 25Z' fill='none' stroke='rgba(212,160,70,0.06)' stroke-width='0.5'/%3E%3C/svg%3E");
+  background-image:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5 L35 25 L55 30 L35 35 L30 55 L25 35 L5 30 L25 25Z' fill='none' stroke='rgba(52,180,100,0.07)' stroke-width='0.5'/%3E%3C/svg%3E");
   background-size:60px 60px;
 }
 </style>
@@ -266,85 +274,142 @@ function TasbihCounter({dhikr,onComplete,onClose}){
   const[count,setCount]=useState(0);
   const[ripples,setRipples]=useState([]);
   const[completed,setCompleted]=useState(false);
-  // Speech synthesis handles audio — no refs needed
+  const[muted,setMuted]=useState(false);
   const pct=Math.min(count/dhikr.target,1);
 
-  // Arabic text spoken by Web Speech API — actual pronunciation of the dhikr word
-  // Falls back to a soft tone click if speech not available
-  const DHIKR_SPEECH={
+  // ── AUDIO ENGINE ──────────────────────────────────────────────────────
+  // Arabic: Google Translate TTS (free, no key, real MP3 audio)
+  // English: Web Speech API with deepest available voice
+  // Audio cached after first fetch so subsequent taps are instant
+
+  const DHIKR_ARABIC={
+    astaghfirullah:   "أستغفر الله",
+    la_ilaha_illallah:"لا إله إلا الله",
     subhanallah:      "سبحان الله",
     alhamdulillah:    "الحمد لله",
     allahu_akbar:     "الله أكبر",
-    la_ilaha_illallah:"لا إله إلا الله",
-    astaghfirullah:   "أستغفر الله",
     salawat:          "اللهم صل على محمد",
     hawqala:          "لا حول ولا قوة إلا بالله",
     quran_reading:    "بسم الله الرحمن الرحيم",
   };
 
-  // Pick best Arabic voice available
-  const getArabicVoice=()=>{
-    const voices=window.speechSynthesis?.getVoices()||[];
-    return(
-      voices.find(v=>v.lang==="ar-SA")||
-      voices.find(v=>v.lang==="ar-EG")||
-      voices.find(v=>v.lang.startsWith("ar"))||
-      null
-    );
+  const DHIKR_ENGLISH={
+    astaghfirullah:   "I seek forgiveness from Allah",
+    la_ilaha_illallah:"There is no god... but Allah",
+    subhanallah:      "Glory be to Allah",
+    alhamdulillah:    "All praise is due to Allah",
+    allahu_akbar:     "Allah... is the Greatest",
+    salawat:          "O Allah... send blessings upon Muhammad",
+    hawqala:          "There is no power... nor strength... except with Allah",
+    quran_reading:    "In the name of Allah... the Most Gracious... the Most Merciful",
   };
 
-  // Soft tap click using Web Audio (always works, immediate)
+  const audioCache=useRef({});
+  const activeAudio=useRef(null);
+
+  // Misbaha bead tap sound
   const playTapClick=()=>{
     try{
       const ctx=new(window.AudioContext||window.webkitAudioContext)();
       const osc=ctx.createOscillator();
       const gain=ctx.createGain();
-      osc.connect(gain);gain.connect(ctx.destination);
-      osc.type="sine";osc.frequency.value=880;
-      gain.gain.setValueAtTime(0.08,ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.06);
-      osc.start();osc.stop(ctx.currentTime+0.06);
-      setTimeout(()=>{try{ctx.close();}catch(e){}},200);
+      const filter=ctx.createBiquadFilter();
+      filter.type="bandpass"; filter.frequency.value=1100; filter.Q.value=4;
+      osc.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
+      osc.type="triangle"; osc.frequency.value=820;
+      gain.gain.setValueAtTime(0.10,ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.10);
+      osc.start(); osc.stop(ctx.currentTime+0.10);
+      setTimeout(()=>{try{ctx.close();}catch(e){}},300);
     }catch(e){}
   };
 
-  // Speak the dhikr in Arabic on each tap
-  const speakDhikr=(text,rate=0.82,pitch=1.05,onEnd)=>{
-    if(!window.speechSynthesis)return;
-    window.speechSynthesis.cancel();
-    const utt=new SpeechSynthesisUtterance(text);
-    utt.lang="ar-SA";
-    utt.rate=rate;
-    utt.pitch=pitch;
-    utt.volume=1.0;
-    const voice=getArabicVoice();
-    if(voice)utt.voice=voice;
-    if(onEnd)utt.onend=onEnd;
-    window.speechSynthesis.speak(utt);
-  };
-
   useEffect(()=>{
-    // Warm up speech synthesis voice list
     if(window.speechSynthesis){
       window.speechSynthesis.getVoices();
       window.speechSynthesis.onvoiceschanged=()=>window.speechSynthesis.getVoices();
     }
     return()=>{
-      if(window.speechSynthesis)window.speechSynthesis.cancel();
+      if(window.speechSynthesis) window.speechSynthesis.cancel();
+      if(activeAudio.current){ activeAudio.current.pause(); activeAudio.current=null; }
     };
   },[]);
 
-  const playTapAudio=()=>{
-    playTapClick();
-    // Speak Arabic dhikr text — slight delay so click lands first
-    const text=DHIKR_SPEECH[dhikr.id]||dhikr.arabic;
-    setTimeout(()=>speakDhikr(text,0.82,1.05),40);
+  // Fetch Arabic as real MP3 from Google Translate TTS — no key needed
+  const fetchArabicAudio=async(text)=>{
+    if(audioCache.current[text]) return audioCache.current[text];
+    try{
+      const url=`https://translate.google.com/translate_tts?ie=UTF-8&tl=ar&client=tw-ob&q=${encodeURIComponent(text)}`;
+      const resp=await fetch(url);
+      if(!resp.ok) return null;
+      const blob=await resp.blob();
+      const objUrl=URL.createObjectURL(blob);
+      audioCache.current[text]=objUrl;
+      return objUrl;
+    }catch(e){ return null; }
   };
 
-  const playCompletionAudio=()=>{
-    // On completion: speak the full dhikr slowly and beautifully
-    const text=DHIKR_SPEECH[dhikr.id]||dhikr.arabic;
-    speakDhikr(text,0.7,1.1);
+  const playAudio=(url,onEnd)=>{
+    if(activeAudio.current){ activeAudio.current.pause(); activeAudio.current=null; }
+    const a=new Audio(url);
+    a.playbackRate=0.82;
+    a.volume=1.0;
+    a.onended=()=>{ activeAudio.current=null; if(onEnd) onEnd(); };
+    a.onerror=()=>{ activeAudio.current=null; if(onEnd) onEnd(); };
+    a.play().catch(()=>{ if(onEnd) onEnd(); });
+    activeAudio.current=a;
+  };
+
+  const getDeepEnglishVoice=()=>{
+    const voices=window.speechSynthesis?.getVoices()||[];
+    return(
+      voices.find(v=>v.name.includes("Daniel"))||
+      voices.find(v=>v.name.includes("Alex"))||
+      voices.find(v=>v.name.includes("Fred"))||
+      voices.find(v=>v.name.includes("David"))||
+      voices.find(v=>v.lang==="en-US"&&v.localService)||
+      voices.find(v=>v.lang.startsWith("en"))||
+      null
+    );
+  };
+
+  const speakEnglish=(text,onEnd)=>{
+    if(!window.speechSynthesis){ if(onEnd) onEnd(); return; }
+    window.speechSynthesis.cancel();
+    const utt=new SpeechSynthesisUtterance(text);
+    utt.lang="en-US"; utt.rate=0.82; utt.pitch=0.65; utt.volume=1.0;
+    const voice=getDeepEnglishVoice();
+    if(voice) utt.voice=voice;
+    let fired=false;
+    const done=()=>{ if(!fired){fired=true; if(onEnd) onEnd();} };
+    utt.onend=done; utt.onerror=done;
+    window.speechSynthesis.speak(utt);
+  };
+
+  // Arabic MP3 → 2.5s gap → English Web Speech
+  const speakArabicThenEnglish=async(dhikrId,onDone)=>{
+    const arabicText=DHIKR_ARABIC[dhikrId]||"";
+    const englishText=DHIKR_ENGLISH[dhikrId]||"";
+    const arabicUrl=await fetchArabicAudio(arabicText);
+    if(arabicUrl){
+      playAudio(arabicUrl,()=>{
+        setTimeout(()=>speakEnglish(englishText,onDone),2500);
+      });
+    } else {
+      // Fallback: English only if Arabic fetch failed
+      speakEnglish(englishText,onDone);
+    }
+  };
+
+  const playTapAudio=()=>{
+    if(muted)return;
+    playTapClick();
+    setTimeout(()=>speakArabicThenEnglish(dhikr.id,null),80);
+  };
+
+  const playCompletionAudio=(onDone)=>{
+    if(muted){if(onDone)onDone();return;}
+    speakArabicThenEnglish(dhikr.id,onDone);
   };
 
   const tap=()=>{
@@ -358,8 +423,7 @@ function TasbihCounter({dhikr,onComplete,onClose}){
     if(next>=dhikr.target){
       setCompleted(true);
       setTimeout(()=>{
-        playCompletionAudio();
-        setTimeout(()=>onComplete(dhikr),1400);
+        playCompletionAudio(()=>setTimeout(()=>onComplete(dhikr),600));
       },200);
     }
   };
@@ -371,26 +435,37 @@ function TasbihCounter({dhikr,onComplete,onClose}){
   };
 
   return(
-    <div style={{position:"fixed",inset:0,background:"var(--bg)",zIndex:200,display:"flex",flexDirection:"column",maxWidth:480,margin:"0 auto"}}>
+    <div style={{position:"fixed",inset:0,background:"var(--bg)",backgroundImage:"linear-gradient(rgba(52,180,100,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(52,180,100,0.025) 1px,transparent 1px)",backgroundSize:"40px 40px",zIndex:200,display:"flex",flexDirection:"column",maxWidth:480,margin:"0 auto"}}>
       {/* Header */}
       <div style={{padding:"16px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-        <button onClick={onClose} style={{background:"var(--surface)",border:"1px solid var(--border2)",borderRadius:10,padding:"8px 16px",color:"var(--text2)",fontSize:13,fontFamily:"var(--font)"}}>← Back</button>
-        <div style={{fontSize:12,color:"var(--text3)",fontFamily:"var(--font)"}}>{dhikr.category}</div>
+        <button onClick={onClose} style={{background:"var(--surface)",border:"1px solid var(--border2)",borderRadius:8,padding:"8px 16px",color:"var(--text2)",fontSize:11,fontFamily:"var(--mono)",letterSpacing:"0.04em",textTransform:"uppercase"}}>← BACK</button>
+        <div style={{display:"flex",alignItems:"center",gap:10}}>
+          <div style={{fontSize:12,color:"var(--text3)",fontFamily:"var(--font)"}}>{dhikr.category}</div>
+          <button
+            onClick={()=>{
+              if(!muted&&window.speechSynthesis)window.speechSynthesis.cancel();
+              setMuted(m=>!m);
+            }}
+            title={muted?"Unmute recitation":"Mute — recite yourself"}
+            style={{background:muted?"var(--amber-dim)":"var(--surface)",border:`1px solid ${muted?"var(--amber-mid)":"var(--border2)"}`,borderRadius:8,padding:"6px 10px",fontSize:16,cursor:"pointer",lineHeight:1,transition:"all 0.2s"}}>
+            {muted?"🔇":"🔊"}
+          </button>
+        </div>
       </div>
 
       {/* Main counter area */}
       <div style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"0 24px",position:"relative"}}>
         {/* Background geometric pattern */}
         <div style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center",pointerEvents:"none"}}>
-          <div style={{width:300,height:300,borderRadius:"50%",border:"1px solid var(--border)",opacity:0.3,animation:"rotate 60s linear infinite"}}/>
-          <div style={{position:"absolute",width:220,height:220,borderRadius:"50%",border:"1px dashed var(--amber-dim)",opacity:0.4,animation:"rotate 40s linear infinite reverse"}}/>
+          <div style={{width:300,height:300,borderRadius:"50%",border:"1px solid var(--green-mid)",opacity:0.2,animation:"rotate 60s linear infinite"}}/>
+          <div style={{position:"absolute",width:220,height:220,borderRadius:"50%",border:"1px dashed var(--green-dim)",opacity:0.45,animation:"rotate 40s linear infinite reverse"}}/>
         </div>
 
         {/* Arabic text */}
-        <div className="anim-up" style={{fontFamily:"var(--arabic)",fontSize:36,color:"var(--amber2)",textAlign:"center",marginBottom:8,direction:"rtl",lineHeight:1.4}}>
+        <div className="anim-up" style={{fontFamily:"var(--arabic)",fontSize:38,color:"var(--green2)",textAlign:"center",marginBottom:8,direction:"rtl",lineHeight:1.4,textShadow:"0 0 20px var(--green-glow)"}}>
           {dhikr.arabic}
         </div>
-        <div className="anim-up d1" style={{fontFamily:"var(--serif)",fontSize:16,color:"var(--text2)",fontStyle:"italic",marginBottom:4}}>
+        <div className="anim-up d1" style={{fontFamily:"var(--mono)",fontSize:13,color:"var(--text2)",letterSpacing:"0.06em",marginBottom:4}}>
           {dhikr.transliteration}
         </div>
         <div className="anim-up d2" style={{fontSize:12,color:"var(--text3)",marginBottom:40}}>
@@ -401,24 +476,24 @@ function TasbihCounter({dhikr,onComplete,onClose}){
         <div style={{position:"relative"}}>
           {/* Ripple effects */}
           {ripples.map(id=>(
-            <div key={id} style={{position:"absolute",inset:-20,borderRadius:"50%",border:"2px solid var(--amber)",animation:"ripple 0.8s ease-out forwards",pointerEvents:"none"}}/>
+            <div key={id} style={{position:"absolute",inset:-20,borderRadius:"50%",border:"2px solid var(--green)",animation:"ripple 0.8s ease-out forwards",pointerEvents:"none"}}/>
           ))}
 
           <div onClick={handleTap}
             style={{width:180,height:180,borderRadius:"50%",
-              background:`conic-gradient(var(--amber) ${pct*360}deg, var(--surface) ${pct*360}deg)`,
+              background:`conic-gradient(var(--green) ${pct*360}deg, var(--surface) ${pct*360}deg)`,
               display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",
-              boxShadow:completed?"0 0 40px var(--amber-glow)":"0 0 20px rgba(0,0,0,0.3)",
+              boxShadow:completed?"0 0 40px var(--green-glow)":"0 0 24px rgba(0,0,0,0.4)",
               transition:"box-shadow 0.5s",userSelect:"none",WebkitUserSelect:"none",position:"relative"}}>
             {/* Inner circle */}
             <div style={{width:160,height:160,borderRadius:"50%",background:"var(--bg)",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center"}}>
               {!completed?(
                 <>
-                  <div style={{fontSize:48,fontWeight:300,color:"var(--amber2)",fontFamily:"var(--serif)",lineHeight:1,
+                  <div style={{fontSize:48,fontWeight:300,color:"var(--green2)",fontFamily:"var(--mono)",lineHeight:1,
                     animation:count>0?"countPulse 0.3s ease":"none"}}>
                     {count}
                   </div>
-                  <div style={{fontSize:11,color:"var(--text3)",marginTop:4}}>of {dhikr.target}</div>
+                  <div style={{fontSize:11,color:"var(--text3)",marginTop:4,fontFamily:"var(--mono)"}}>/ {dhikr.target}</div>
                 </>
               ):(
                 <div style={{textAlign:"center",animation:"scaleIn 0.5s var(--ease)"}}>
@@ -430,15 +505,15 @@ function TasbihCounter({dhikr,onComplete,onClose}){
           </div>
         </div>
 
-        <div style={{marginTop:32,fontSize:13,color:"var(--text3)",textAlign:"center"}}>
+        <div style={{marginTop:32,fontSize:11,color:"var(--text3)",textAlign:"center",fontFamily:"var(--mono)",letterSpacing:"0.08em",textTransform:"uppercase"}}>
           {completed?"MashaAllah! May Allah accept it.":"Tap the circle to count"}
         </div>
       </div>
 
       {/* XP indicator */}
       <div style={{padding:"16px 24px",textAlign:"center"}}>
-        <div style={{fontSize:12,color:"var(--amber)",fontFamily:"var(--font)",fontWeight:500}}>
-          +{dhikr.xp} XP upon completion
+        <div style={{fontSize:11,color:"var(--green2)",fontFamily:"var(--mono)",fontWeight:400,letterSpacing:"0.08em"}}>
+          +{dhikr.xp} XP ON COMPLETION
         </div>
       </div>
     </div>
@@ -578,7 +653,7 @@ function App(){
         <div className="anim-up d3" style={{background:"var(--surface)",borderRadius:16,padding:20,border:"1px solid var(--border)",marginBottom:16}}>
           <div style={{fontSize:11,color:"var(--amber)",fontFamily:"var(--font)",fontWeight:500,textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:10}}>Why This Dhikr Matters</div>
           <p style={{fontFamily:"var(--body)",fontSize:14,lineHeight:1.75,color:"var(--text)",marginBottom:16}}>{currentDhikr.significance}</p>
-          <div style={{borderTop:"1px solid var(--border)",paddingTop:14}}>
+          <div style={{borderTop:"1px solid var(--border2)",paddingTop:14}}>
             <div style={{fontSize:10,color:"var(--amber)",fontFamily:"var(--font)",fontWeight:500,textTransform:"uppercase",letterSpacing:"0.12em",marginBottom:6}}>From Imam Al-Ghazali</div>
             <p style={{fontFamily:"var(--serif)",fontSize:14,fontStyle:"italic",lineHeight:1.7,color:"var(--text2)"}}>{currentDhikr.ghazali}</p>
           </div>
@@ -673,7 +748,7 @@ function App(){
 
         {/* Ghazali Quote */}
         <div className="anim-up d4" style={{background:"linear-gradient(135deg,var(--bg2),var(--surface))",borderRadius:16,padding:24,border:"1px solid var(--amber-dim)",textAlign:"center"}}>
-          <div style={{fontSize:11,color:"var(--amber)",fontFamily:"var(--font)",fontWeight:500,textTransform:"uppercase",letterSpacing:"0.12em",marginBottom:12}}>Imam Al-Ghazali</div>
+          <div style={{fontSize:11,color:"var(--amber)",fontFamily:"var(--mono)",fontWeight:500,textTransform:"uppercase",letterSpacing:"0.12em",marginBottom:12}}>Imam Al-Ghazali</div>
           <p style={{fontFamily:"var(--serif)",fontSize:16,fontStyle:"italic",lineHeight:1.7,color:"var(--text)",fontWeight:300}}>
             "The heart is like a mirror. When it is polished with dhikr, it reflects the light of the Divine. When it is neglected, it gathers rust until nothing of truth can be seen."
           </p>
@@ -759,7 +834,7 @@ function App(){
   return(
     <div style={{height:"100%",display:"flex",flexDirection:"column",background:"var(--bg)",maxWidth:480,margin:"0 auto",position:"relative"}}>
       {/* Ambient */}
-      <div style={{position:"fixed",top:"20%",left:"50%",transform:"translateX(-50%)",width:400,height:300,borderRadius:"50%",background:"radial-gradient(ellipse,rgba(212,160,70,0.02),transparent 70%)",pointerEvents:"none",zIndex:0}}/>
+      <div style={{position:"fixed",top:"20%",left:"50%",transform:"translateX(-50%)",width:400,height:300,borderRadius:"50%",background:"radial-gradient(ellipse,rgba(52,180,100,0.04),transparent 70%)",pointerEvents:"none",zIndex:0}}/>
 
       {/* Content */}
       <div style={{flex:1,overflow:"hidden",position:"relative",zIndex:1}}>
@@ -775,15 +850,15 @@ function App(){
       <DhikrDetail/>
 
       {/* Bottom nav */}
-      <nav style={{display:"flex",justifyContent:"space-around",padding:"8px 0 env(safe-area-inset-bottom,8px)",background:"rgba(10,8,18,0.92)",backdropFilter:"blur(20px)",borderTop:"1px solid var(--border)",position:"relative",zIndex:50}}>
+      <nav style={{display:"flex",justifyContent:"space-around",padding:"8px 0 env(safe-area-inset-bottom,8px)",background:"rgba(6,15,10,0.95)",backdropFilter:"blur(20px)",borderTop:"1px solid var(--border2)",position:"relative",zIndex:50}}>
         {[
           {k:"home",icon:"🕌",label:"Challenge"},
           {k:"progress",icon:"📿",label:"Journey"},
           {k:"learn",icon:"📖",label:"Learn"},
         ].map(n=>(
           <button key={n.k} onClick={()=>setPage(n.k)} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:2,background:"none",border:"none",padding:"6px 20px",borderRadius:8,
-            color:page===n.k?"var(--amber)":"var(--text3)",fontFamily:"var(--font)",fontSize:10,fontWeight:page===n.k?600:400,transition:"color 0.2s"}}>
-            <span style={{fontSize:20,filter:page===n.k?"drop-shadow(0 0 4px var(--amber-dim))":"none"}}>{n.icon}</span>
+            color:page===n.k?"var(--green2)":"var(--text3)",fontFamily:"var(--font)",fontSize:10,fontWeight:page===n.k?600:400,transition:"color 0.2s"}}>
+            <span style={{fontSize:20,filter:page===n.k?"drop-shadow(0 0 6px var(--green-glow))":"none"}}>{n.icon}</span>
             {n.label}
           </button>
         ))}
