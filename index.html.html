@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+<title>The Dhikr Challenge</title>
+<meta name="theme-color" content="#080c10"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=Syne:wght@400;500;600;700;800&family=Amiri:wght@400;700&family=Noto+Nastaliq+Urdu:wght@400;700&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<style>
+:root{
+  --bg:#080c10;
+  --bg2:#0d1218;
+  --bg3:#111820;
+  --surface:#141c26;
+  --raised:#1a2434;
+  --border:rgba(255,255,255,0.04);
+  --border2:rgba(255,255,255,0.08);
+  --border3:rgba(0,212,140,0.12);
+  --text:#e8f0f8;
+  --text2:#7a9ab8;
+  --text3:#3d5470;
+  --teal:#00d48c;
+  --teal2:#00f0a0;
+  --teal-dim:rgba(0,212,140,0.06);
+  --teal-mid:rgba(0,212,140,0.15);
+  --teal-glow:rgba(0,212,140,0.3);
+  --gold:#c9a84c;
+  --gold2:#e8c96a;
+  --gold-dim:rgba(201,168,76,0.08);
+  --gold-mid:rgba(201,168,76,0.18);
+  --blue:#1a6fff;
+  --blue-dim:rgba(26,111,255,0.08);
+  --red:#e05555;
+  --green:#2ecc71;
+  --green-dim:rgba(46,204,113,0.08);
+  --font:'Syne',sans-serif;
+  --mono:'IBM Plex Mono',monospace;
+  --arabic:'Amiri',serif;
+  --ease:cubic-bezier(0.16,1,0.3,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{overflow:hidden;height:100%}
+body{font-family:var(--font);background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;overflow:hidden;height:100%;line-height:1.5}
+#root{height:100%;overflow:hidden}
+::selection{background:var(--teal);color:var(--bg)}
+::-webkit-scrollbar{width:2px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+button{font-family:var(--font);cursor:pointer;-webkit-tap-highlight-color:transparent}
+
+/* Scanline overlay */
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.03) 2px,rgba(0,0,0,0.03) 4px);
+}
+
+/* Islamic geometric grid */
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:0.018;
+  background-image:
+    url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolygon points='40,4 52,16 68,16 68,32 80,40 68,48 68,64 52,64 40,76 28,64 12,64 12,48 0,40 12,32 12,16 28,16' fill='none' stroke='rgba(0,212,140,0.8)' stroke-width='0.6'/%3E%3Ccircle cx='40' cy='40' r='8' fill='none' stroke='rgba(0,212,140,0.4)' stroke-width='0.4'/%3E%3C/svg%3E");
+  background-size:80px 80px;
+}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes scaleIn{from{opacity:0;transform:scale(0.9)}to{opacity:1;transform:scale(1)}}
+@keyframes breathe{0%,100%{transform:scale(1);opacity:0.3}50%{transform:scale(1.1);opacity:0.6}}
+@keyframes rotate{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes rotateReverse{from{transform:rotate(360deg)}to{transform:rotate(0deg)}}
+@keyframes countPulse{0%{transform:scale(1)}40%{transform:scale(1.12)}100%{transform:scale(1)}}
+@keyframes ripple{0%{transform:scale(1);opacity:0.5}100%{transform:scale(3);opacity:0}}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+@keyframes scan{0%{top:-100%}100%{top:200%}}
+@keyframes glow{0%,100%{opacity:0.5;filter:blur(20px)}50%{opacity:1;filter:blur(30px)}}
+@keyframes hexRotate{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+@keyframes dataStream{0%{background-position:0 0}100%{background-position:0 100px}}
+
+.anim-up{animation:fadeUp 0.5s var(--ease) both}
+.d1{animation-delay:.06s}.d2{animation-delay:.12s}.d3{animation-delay:.18s}.d4{animation-delay:.24s}.d5{animation-delay:.30s}
+
+/* Terminal-style card borders */
+.tech-card{
+  background:var(--surface);
+  border:1px solid var(--border2);
+  border-radius:12px;
+  position:relative;
+}
+.tech-card::before{
+  content:'';position:absolute;top:0;left:20px;right:20px;height:1px;
+  background:linear-gradient(90deg,transparent,var(--teal-mid),transparent);
+}
+
+/* Glitch text effect */
+.glitch{position:relative}
+
+/* Corner accents */
+.corner-tl::before{content:'';position:absolute;top:-1px;left:-1px;width:16px;height:16px;border-top:2px solid var(--teal);border-left:2px solid var(--teal);border-radius:3px 0 0 0}
+.corner-br::after{content:'';position:absolute;bottom:-1px;right:-1px;width:16px;height:16px;border-bottom:2px solid var(--teal);border-right:2px solid var(--teal);border-radius:0 0 3px 0}
+
+.hex-border{
+  clip-path:polygon(6% 0%,94% 0%,100% 50%,94% 100%,6% 100%,0% 50%);
+}
+
+/* Nav badge */
+.nav-active-bar{
+  position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:20px;height:2px;background:var(--teal);border-radius:0 0 2px 2px;
+}
+
+/* Blinking cursor */
+.cursor::after{
+  content:'_';animation:blink 1s step-end infinite;color:var(--teal);
+}
+
+/* Textarea / input */
+textarea,input{
+  font-family:var(--font);
+  background:var(--raised);
+  border:1px solid var(--border2);
+  border-radius:8px;
+  color:var(--text);
+  padding:12px;
+  width:100%;
+  resize:none;
+  outline:none;
+  font-size:13px;
+  transition:border-color 0.2s;
+}
+textarea:focus,input:focus{border-color:var(--teal-mid)}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const{useState,useEffect,useRef,useCallback,useMemo}=React;
+
+// ═══════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════
+const ADHKAR=[
+  {id:"astaghfirullah",arabic:"أَسْتَغْفِرُ ٱللَّهَ",transliteration:"Astaghfirullah",meaning:"I seek forgiveness from Allah",target:30,xp:60,category:"Repentance",significance:"The Prophet ﷺ said: 'By Allah, I seek forgiveness from Allah and turn to Him in repentance more than seventy times a day.' (Bukhari). Istighfar purifies the heart, removes anxiety, opens doors of mercy, and brings relief from every difficulty.",ghazali:"Al-Ghazali wrote in Ihya Ulum al-Din that istighfar is the polish of the heart — just as a mirror tarnishes without cleaning, the heart darkens without sincere repentance.",difficulty:"easy",icon:"🤲"},
+  {id:"la_ilaha_illallah",arabic:"لَا إِلَٰهَ إِلَّا ٱللَّهُ",transliteration:"La ilaha illallah",meaning:"There is no god but Allah",target:10,xp:50,category:"Tawheed",significance:"The best dhikr is La ilaha illallah (Tirmidhi). This is the declaration of Tawheed — the foundation of Islam and the heaviest statement on the scales on the Day of Judgment.",ghazali:"Al-Ghazali taught that this kalimah is not merely spoken by the tongue but must penetrate the heart until there is no attachment, hope, or fear except through Allah alone.",difficulty:"easy",icon:"☪️"},
+  {id:"subhanallah",arabic:"سُبْحَانَ ٱللَّهِ",transliteration:"SubhanAllah",meaning:"Glory be to Allah",target:33,xp:65,category:"Glorification",significance:"SubhanAllah fills the scales of good deeds. The Prophet ﷺ said: 'Two words that are light on the tongue, heavy on the scales, and beloved to the Most Merciful: SubhanAllahi wa bihamdihi, SubhanAllahil Azeem.' (Bukhari & Muslim)",ghazali:"Al-Ghazali explained that tasbeeh is the soul's recognition that Allah is far above any imperfection — when the heart truly grasps this, every creation becomes a sign of His perfection.",difficulty:"easy",icon:"✨"},
+  {id:"alhamdulillah",arabic:"ٱلْحَمْدُ لِلَّهِ",transliteration:"Alhamdulillah",meaning:"All praise is due to Allah",target:33,xp:65,category:"Gratitude",significance:"Alhamdulillah fills the space between the heavens and the earth (Muslim). Gratitude (shukr) is one of the highest stations of the soul — it transforms perspective and brings increase in blessings.",ghazali:"In the Ihya, al-Ghazali teaches that true hamd is not just verbal praise but a state of the heart that recognizes every blessing — even trials — as coming from the All-Wise.",difficulty:"easy",icon:"💛"},
+  {id:"allahu_akbar",arabic:"ٱللَّهُ أَكْبَرُ",transliteration:"Allahu Akbar",meaning:"Allah is the Greatest",target:33,xp:65,category:"Magnification",significance:"Completing SubhanAllah 33×, Alhamdulillah 33×, and Allahu Akbar 33× after every salah is a sunnah that the Prophet ﷺ taught to the Companions when they asked for the best deeds.",ghazali:"Al-Ghazali writes that when the servant says Allahu Akbar with true presence of heart, everything other than Allah diminishes in their sight — this is the essence of spiritual freedom.",difficulty:"easy",icon:"🌙"},
+  {id:"salawat",arabic:"اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ",transliteration:"Allahumma salli 'ala Muhammad",meaning:"O Allah, send blessings upon Muhammad ﷺ",target:20,xp:70,category:"Salawat",significance:"Whoever sends one salawat upon me, Allah sends ten blessings upon him (Muslim). Friday is especially virtuous for abundant salawat upon the Prophet ﷺ.",ghazali:"Al-Ghazali explains in the Ihya that love of the Prophet ﷺ is incomplete without frequent remembrance — and the highest form of remembrance is salawat, which connects the servant to the best of creation.",difficulty:"easy",icon:"🕌"},
+  {id:"hawqala",arabic:"لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِٱللَّهِ",transliteration:"La hawla wa la quwwata illa billah",meaning:"There is no power nor strength except with Allah",target:10,xp:55,category:"Tawakkul",significance:"The Prophet ﷺ called this phrase a 'treasure from the treasures of Paradise' (Bukhari & Muslim). It is the ultimate expression of reliance upon Allah in every matter.",ghazali:"Al-Ghazali described this as the station of true tawakkul — the servant who internalizes this dhikr ceases to see any power in creation and relies entirely upon the Creator.",difficulty:"easy",icon:"🌟"},
+];
+
+const DAILY_CHALLENGES=[
+  {id:"dc1",dhikrId:"astaghfirullah",active:true,day:"MON",participants:247,completed:180,bonus:"Morning Repentance"},
+  {id:"dc2",dhikrId:"subhanallah",active:false,day:"TUE",participants:198,completed:0,bonus:"Evening Glory"},
+  {id:"dc3",dhikrId:"alhamdulillah",active:false,day:"WED",participants:0,completed:0,bonus:"Gratitude Reset"},
+  {id:"dc4",dhikrId:"allahu_akbar",active:false,day:"THU",participants:0,completed:0,bonus:"Post-Salah"},
+  {id:"dc5",dhikrId:"salawat",active:false,day:"FRI",participants:0,completed:0,bonus:"Jumu'ah Special"},
+  {id:"dc6",dhikrId:"hawqala",active:false,day:"SAT",participants:0,completed:0,bonus:"Weekly Reset"},
+  {id:"dc7",dhikrId:"la_ilaha_illallah",active:false,day:"SUN",participants:0,completed:0,bonus:"Tawheed Day"},
+];
+
+const WEEKLY_CHALLENGE={
+  id:"wc1",
+  title:"The Thousand Names",
+  arabic:"أَلْفُ ذِكْر",
+  description:"Complete all 7 daily adhkar this week — building the full circle of remembrance from Tawheed to Tawakkul.",
+  target:7,
+  completed:1,
+  xpReward:500,
+  badge:"Hafiz al-Adhkar",
+  badgeArabic:"حَافِظُ الأَذْكَار",
+  participants:1247,
+  endsIn:"6 days",
+};
+
+const RANKS=[
+  {level:1,name:"Mubtadi'",arabic:"مُبْتَدِئ",label:"Beginner",min:0,icon:"🌱"},
+  {level:2,name:"Salik",arabic:"سَالِك",label:"Traveler",min:200,icon:"🚶"},
+  {level:3,name:"Dhakir",arabic:"ذَاكِر",label:"Rememberer",min:500,icon:"📿"},
+  {level:4,name:"Mureed",arabic:"مُرِيد",label:"Seeker",min:1000,icon:"🌙"},
+  {level:5,name:"Sabir",arabic:"صَابِر",label:"Patient",min:2000,icon:"⭐"},
+  {level:6,name:"Shakir",arabic:"شَاكِر",label:"Grateful",min:3500,icon:"💛"},
+  {level:7,name:"Arif",arabic:"عَارِف",label:"Knower",min:5500,icon:"✨"},
+  {level:8,name:"Mukhlis",arabic:"مُخْلِص",label:"Sincere",min:8000,icon:"🌟"},
+];
+
+const FORUM_POSTS=[
+  {id:1,author:"Ahmad_K",rank:"Dhakir",arabic:"ذَاكِر",time:"2h ago",content:"SubhanAllah, I've been doing the morning adhkar consistently for 30 days now. The clarity of mind I feel is indescribable. For anyone struggling with consistency — try tying it to your Fajr salah. Don't move from your prayer spot until you finish.",likes:34,replies:[{author:"Sister_Maryam",rank:"Salik",time:"1h ago",content:"JazakAllah khair for this tip! The prayer spot technique changed everything for me too. MashaAllah."},]},
+  {id:2,author:"Fatima_786",rank:"Mureed",arabic:"مُرِيد",time:"5h ago",content:"Question for the community: is it better to do dhikr with concentration and few counts, or more counts with wandering mind? I've been reading the Ihya and Al-Ghazali seems to emphasize quality of heart presence over quantity.",likes:28,replies:[{author:"UstadZaid",rank:"Arif",time:"4h ago",content:"Excellent question. Al-Ghazali explicitly addresses this — he says one moment of dhikr with full qalb presence is worth more than a thousand with a heedless heart. But we should not use this as an excuse to do less. Begin with quantity and let quality develop naturally."}]},
+  {id:3,author:"Ibrahim_Al",rank:"Sabir",arabic:"صَابِر",time:"1d ago",content:"Completed the weekly challenge for the 3rd time! The weekly challenges are the real game changer — they force you to do ALL the adhkar not just your favorites. My weak spot was always the Hawqala but now it flows naturally. Alhamdulillah.",likes:67,replies:[]},
+  {id:4,author:"ZainabMH",rank:"Salik",arabic:"سَالِك",time:"2d ago",content:"New here, assalamu alaykum everyone. I downloaded this app because I realized I was spending 3+ hours on social media and almost zero time on dhikr. The gamification honestly works — I now choose dhikr over scrolling. The XP system gives me the same dopamine hit but for something real.",likes:91,replies:[{author:"Ahmad_K",rank:"Dhakir",time:"1d ago",content:"Wa alaykum assalam! This is exactly why this platform exists. Welcome to the community, sister/brother. The journey of a thousand dhikr begins with one. 🌟"}]},
+];
+
+const getRank=(xp)=>{
+  let rank=RANKS[0];
+  for(const r of RANKS){if(xp>=r.min)rank=r;else break;}
+  const next=RANKS[RANKS.indexOf(rank)+1];
+  const progress=next?((xp-rank.min)/(next.min-rank.min)):1;
+  return{...rank,progress:Math.min(progress,1),next};
+};
+
+// ═══════════════════════════════════════════════
+// GEOMETRIC COMPONENTS
+// ═══════════════════════════════════════════════
+function HexProgress({size=100,progress=0,children}){
+  const r=size/2-4;
+  const cx=size/2,cy=size/2;
+  const circumference=2*Math.PI*r;
+  const offset=circumference*(1-progress);
+  return(
+    <div style={{position:"relative",width:size,height:size}}>
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{transform:"rotate(-90deg)"}}>
+        <circle cx={cx} cy={cy} r={r} fill="none" stroke="var(--raised)" strokeWidth="2"/>
+        <circle cx={cx} cy={cy} r={r} fill="none" stroke="var(--teal)" strokeWidth="2"
+          strokeDasharray={circumference} strokeDashoffset={offset}
+          strokeLinecap="round"
+          style={{transition:"stroke-dashoffset 1s var(--ease)",filter:"drop-shadow(0 0 4px var(--teal))"}}/>
+      </svg>
+      <div style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center"}}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function IslamicOrnament({color="var(--teal)",size=40,opacity=0.3}){
+  return(
+    <svg width={size} height={size} viewBox="0 0 40 40" style={{opacity}}>
+      <polygon points="20,2 26,14 38,14 29,22 32,34 20,27 8,34 11,22 2,14 14,14" fill="none" stroke={color} strokeWidth="0.8"/>
+      <circle cx="20" cy="20" r="6" fill="none" stroke={color} strokeWidth="0.6"/>
+      <line x1="20" y1="2" x2="20" y2="38" stroke={color} strokeWidth="0.3" strokeDasharray="2,3"/>
+      <line x1="2" y1="20" x2="38" y2="20" stroke={color} strokeWidth="0.3" strokeDasharray="2,3"/>
+    </svg>
+  );
+}
+
+// ═══════════════════════════════════════════════
+// TASBIH COUNTER
+// ═══════════════════════════════════════════════
+function TasbihCounter({dhikr,onComplete,onClose}){
+  const[count,setCount]=useState(0);
+  const[ripples,setRipples]=useState([]);
+  const[completed,setCompleted]=useState(false);
+  const pct=Math.min(count/dhikr.target,1);
+
+  const handleTap=()=>{
+    if(completed)return;
+    if(navigator.vibrate)navigator.vibrate(12);
+    const next=count+1;
+    setCount(next);
+    const id=Date.now();
+    setRipples(prev=>[...prev,id]);
+    setTimeout(()=>setRipples(prev=>prev.filter(r=>r!==id)),900);
+    if(next>=dhikr.target){
+      setCompleted(true);
+      setTimeout(()=>onComplete(dhikr),1000);
+    }
+  };
+
+  return(
+    <div style={{position:"fixed",inset:0,background:"var(--bg)",zIndex:200,display:"flex",flexDirection:"column",maxWidth:480,margin:"0 auto"}}>
+      {/* Header bar */}
+      <div style={{padding:"14px 16px",display:"flex",justifyContent:"space-between",alignItems:"center",borderBottom:"1px solid var(--border)",background:"var(--bg2)"}}>
+        <button onClick={onClose} style={{background:"var(--raised)",border:"1px solid var(--border2)",borderRadius:8,padding:"7px 14px",color:"var(--text2)",fontSize:12,fontFamily:"var(--mono)"}}>← BACK</button>
+        <span style={{fontFamily:"var(--mono)",fontSize:11,color:"var(--text3)",letterSpacing:"0.1em"}}>{dhikr.category.toUpperCase()}</span>
+        <div style={{fontFamily:"var(--mono)",fontSize:12,color:"var(--teal)"}}>{count}/{dhikr.target}</div>
+      </div>
+
+      {/* Counter area */}
+      <div style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"0 24px",position:"relative",overflow:"hidden"}}>
+        {/* Ambient rings */}
+        <div style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center",pointerEvents:"none"}}>
+          <div style={{width:280,height:280,borderRadius:"50%",border:"1px solid var(--border2)",animation:"rotate 90s linear infinite"}}/>
+          <div style={{position:"absolute",width:220,height:220,borderRadius:"50%",border:"1px dashed var(--teal-mid)",animation:"rotateReverse 60s linear infinite"}}/>
+          <div style={{position:"absolute",width:160,height:160,borderRadius:"50%",border:"1px solid var(--border)",animation:"rotate 40s linear infinite"}}/>
+        </div>
+
+        {/* Arabic */}
+        <div style={{fontFamily:"var(--arabic)",fontSize:34,color:"var(--gold2)",textAlign:"center",marginBottom:6,direction:"rtl",lineHeight:1.4,textShadow:"0 0 30px rgba(201,168,76,0.3)"}}>
+          {dhikr.arabic}
+        </div>
+        <div style={{fontFamily:"var(--mono)",fontSize:13,color:"var(--text2)",marginBottom:4,letterSpacing:"0.05em"}}>
+          {dhikr.transliteration}
+        </div>
+        <div style={{fontSize:11,color:"var(--text3)",marginBottom:44}}>{dhikr.meaning}</div>
+
+        {/* Main tap */}
+        <div style={{position:"relative"}}>
+          {ripples.map(id=>(
+            <div key={id} style={{position:"absolute",inset:-24,borderRadius:"50%",border:"1px solid var(--teal)",animation:"ripple 0.9s ease-out forwards",pointerEvents:"none"}}/>
+          ))}
+          <div onClick={handleTap}
+            style={{width:170,height:170,borderRadius:"50%",
+              background:`conic-gradient(var(--teal) ${pct*360}deg, var(--surface) ${pct*360}deg)`,
+              display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",
+              boxShadow:completed?"0 0 50px var(--teal-glow), 0 0 100px rgba(0,212,140,0.1)":"0 0 20px rgba(0,0,0,0.4)",
+              transition:"box-shadow 0.6s",userSelect:"none",WebkitUserSelect:"none",position:"relative"}}>
+            <div style={{width:150,height:150,borderRadius:"50%",background:"var(--bg)",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center"}}>
+              {!completed?(
+                <>
+                  <div style={{fontFamily:"var(--mono)",fontSize:52,fontWeight:300,color:"var(--teal)",lineHeight:1,animation:count>0?"countPulse 0.25s ease":"none",textShadow:"0 0 20px var(--teal-glow)"}}>
+                    {count}
+                  </div>
+                  <div style={{fontFamily:"var(--mono)",fontSize:10,color:"var(--text3)",marginTop:4,letterSpacing:"0.08em"}}>OF {dhikr.target}</div>
+                </>
+              ):(
+                <div style={{textAlign:"center",animation:"scaleIn 0.5s var(--ease)"}}>
+                  <div style={{fontSize:34,marginBottom:4}}>✨</div>
+                  <div style={{fontFamily:"var(--mono)",fontSize:11,color:"var(--teal)",letterSpacing:"0.1em"}}>COMPLETE</div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div style={{marginTop:30,fontFamily:"var(--mono)",fontSize:11,color:"var(--text3)",textAlign:"center",letterSpacing:"0.08em"}}>
+          {completed?"MASHAALLAH — MAY ALLAH ACCEPT":"TAP TO COUNT"}
+        </div>
+      </div>
+
+      {/* XP bar */}
+      <div style={{padding:"14px 20px",borderTop:"1px solid var(--border)",background:"var(--bg2)",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+        <span style={{fontFamily:"var(--mono)",fontSize:11,color:"var(--text3)"}}>REWARD</span>
+        <span style={{fontFamily:"var(--mono)",fontSize:12,color:"var(--teal)"}}>+{dhikr.xp} XP</span>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════
+// MAIN APP
+// ═══════════════════════════════════════════════
+function App(){
+  const[page,setPage]=useState("home");
+  const[completedDhikr,setCompletedDhikr]=useState(["la_ilaha_illallah"]);
+  const[streak,setStreak]=useState(4);
+  const[activeTasbih,setActiveTasbih]=useState(null);
+  const[showDetail,setShowDetail]=useState(null);
+  const[totalCompletions,setTotalCompletions]=useState(11);
+  const[forumPosts,setForumPosts]=useState(FORUM_POSTS);
+  const[newPost,setNewPost]=useState("");
+  const[expandedPost,setExpandedPost]=useState(null);
+  const[likedPosts,setLikedPosts]=useState([]);
+  const[replyText,setReplyText]=useState("");
+
+  const totalXP=useMemo(()=>{
+    let base=completedDhikr.reduce((sum,id)=>{
+      const d=ADHKAR.find(x=>x.id===id);return sum+(d?d.xp:0);
+    },0);
+    return base+(totalCompletions*45);
+  },[completedDhikr,totalCompletions]);
+
+  const rank=useMemo(()=>getRank(totalXP),[totalXP]);
+  const todayChallenge=DAILY_CHALLENGES.find(c=>c.active);
+  const todayDhikr=ADHKAR.find(d=>d.id===todayChallenge?.dhikrId)||ADHKAR[0];
+
+  const completeDhikr=(dhikr)=>{
+    if(!completedDhikr.includes(dhikr.id)){
+      setCompletedDhikr(prev=>[...prev,dhikr.id]);
+      setTotalCompletions(prev=>prev+1);
+    }
+    setActiveTasbih(null);
+  };
+
+  // ─── HOME PAGE ───────────────────────────────────────────────
+  function HomePage(){
+    const done=completedDhikr.includes(todayDhikr.id);
+    const weeklyPct=WEEKLY_CHALLENGE.completed/WEEKLY_CHALLENGE.target;
+
+    return(
+      <div style={{height:"100%",overflowY:"auto",padding:"0 0 100px"}}>
+        {/* Top header */}
+        <div style={{padding:"16px 16px 0",background:"var(--bg2)",borderBottom:"1px solid var(--border)"}}>
+          <div className="anim-up" style={{display:"flex",justifyContent:"space-between",alignItems:"center",paddingBottom:14}}>
+            <div>
+              <div style={{fontFamily:"var(--arabic)",fontSize:13,color:"var(--teal)",marginBottom:2,direction:"rtl",textShadow:"0 0 12px var(--teal-glow)"}}>بِسْمِ ٱللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+              <div style={{fontFamily:"var(--font)",fontSize:20,fontWeight:700,letterSpacing:"-0.02em"}}>THE DHIKR CHALLENGE</div>
+            </div>
+            <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:6}}>
+              {streak>0&&<div style={{background:"var(--raised)",border:"1px solid var(--border2)",borderRadius:20,padding:"4px 10px",display:"flex",alignItems:"center",gap:5}}>
+                <span style={{fontSize:11}}>🔥</span>
+                <span style={{fontFamily:"var(--mono)",fontSize:11,color:"var(--gold2)",fontWeight:600}}>{streak} DAY</span>
+              </div>}
+              <div style={{background:"var(--teal-dim)",border:"1px solid var(--teal-mid)",borderRadius:20,padding:"4px 10px"}}>
+                <span style={{fontFamily:"var(--mono)",fontSize:11,color:"var(--teal)"}}>{rank.arabic} · {totalXP} XP</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style={{padding:"16px"}}>
+          {/* TODAY'S CHALLENGE */}
+          <div className="anim-up d1" style={{position:"relative",background:"linear-gradient(135deg,var(--bg3),var(--surface))",borderRadius:14,padding:20,border:"1px solid var(--border2)",marginBottom:14,overflow:"hidden"}}>
+            {/* Corner accents */}
+            <div style={{position:"absolute",top:0,left:0,width:16,height:16,borderTop:"2px solid var(--teal)",borderLeft:"2px solid var(--teal)",borderRadius:"4px 0 0 0"}}/>
+            <div style={{position:"absolute",bottom:0,right:0,width:16,height:16,borderBottom:"2px solid var(--teal)",borderRight:"2px solid var(--teal)",borderRadius:"0 0 4px 0"}}/>
+            {/* Glow */}
+            <div style={{position:"absolute",top:-60,right:-60,width:180,height:180,borderRadius:"50%",background:"radial-gradient(circle,rgba(0,212,140,0.04),transparent 70%)",animation:"breathe 6s ease-in-out infinite",pointerEvents:"none"}}/>
+
+            <div style={{position:"relative",zIndex:2}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:14}}>
+                <div>
+                  <div style={{fontFamily:"var(--mono)",fontSize:10,color:"var(--teal)",fontWeight:600,letterSpacing:"0.12em",marginBottom:6}}>// DAILY CHALLENGE · {todayChallenge?.bonus?.toUpperCase()}</div>
+                  <div style={{fontFamily:"var(--arabic)",fontSize:28,color:"var(--gold2)",direction:"rtl",lineHeight:1.3,textShadow:"0 0 20px rgba(201,168,76,0.2)"}}>{todayDhikr.arabic}</div>
+                </div>
+                <div style={{width:48,height:48,borderRadius:10,background:"var(--raised)",border:"1px solid var(--border2)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,flexShrink:0}}>{todayDhikr.icon}</div>
+              </div>
+              <div style={{fontFamily:"var(--mono)",fontSize:13,color:"var(--text)",marginBottom:2,letterSpacing:"0.03em"}}>{todayDhikr.transliteration}</div>
+              <div style={{fontFamily:"var(--font)",fontSize:12,color:"var(--text3)",marginBottom:16}}>{todayDhikr.meaning} — {todayDhikr.target}×</div>
+
+              {/* Participants */}
+              <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:14}}>
+                <div style={{flex:1,height:3,background:"var(--raised)",borderRadius:2,overflow:"hidden"}}>
+                  <div style={{height:"100%",width:`${(todayChallenge?.completed/todayChallenge?.participants*100)||0}%`,background:"linear-gradient(90deg,var(--teal),var(--teal2))",transition:"width 1s"}}/>
+                </div>
+                <span style={{fontFamily:"var(--mono)",fontSize:10,color:"var(--text3)",whiteSpace:"nowrap"}}>{todayChallenge?.completed}/{todayChallenge?.participants} DONE</span>
+              </div>
+
+              {!done?(
+                <button onClick={()=>setActiveTasbih(todayDhikr)}
+                  style={{width:"100%",padding:"13px",borderRadius:8,border:"none",background:"var(--teal)",color:"var(--bg)",fontSize:13,fontWeight:700,fontFamily:"var(--font)",letterSpacing:"0.04em",boxShadow:"0 0 20px var(--teal-glow)"}}>
+                  BEGIN DHIKR · {todayDhikr.target}× 📿
+                </button>
+              ):(
+                <div style={{background:"var(--green-dim)",border:"1px solid rgba(46,204,113,0.2)",borderRadius:8,padding:"12px 14px",display:"flex",alignItems:"center",gap:10}}>
+                  <span style={{fontSize:16}}>✅</span>
+                  <div>
+                    <div style={{fontFamily:"var(--font)",fontSize:13,color:"var(--green)",fontWeight:600}}>MASHAALLAH — CHALLENGE COMPLETE</div>
+                    <div style={{fontFamily:"var(--mono)",fontSize:10,color:"var(--text3)"}}>+{todayDhikr.xp} XP EARNED</div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* WEEKLY CHALLENGE */}
+          <div className="anim-up d2" style={{background:"var(--surface)",borderRadius:14,padding:18,border:"1px solid var(--gold-mid)",marginBottom:14,position:"relative",overflow:"hidden"}}>
+            <div style={{position:"absolute",top:-20,right:-20,opacity:0.06}}>
+              <IslamicOrnament color="var(--gold2)" size={80} opacity={1}/>
+            </div>
+            <div style={{fontFamily:"var(--mono)",fontSize:10,color:"var(--gold2)",letterSpacing:"0.12em",marginBottom:10}}>⬡ WEEKLY CHALLENGE · {WEEKLY_CHALLENGE.endsIn.toUpperCase()} REMAINING</div>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:8}}>
+              <div>
+                <div style={{fontFamily:"var(--arabic)",fontSize:18,color:"var(--gold2)",direction:"rtl",marginBottom:4}}>{WEEKLY_CHALLENGE.arabic}</div>
+                <div style={{fontFamily:"var(--font)",fontSize:14,fontWeight:600,color:"var(--text)"}}>{WEEKLY_CHALLENGE.title}</div>
+              </div>
+              <div style={{textAlign:"center",background:"var(--raised)",borderRadius:8,padding:"8px 12px",border:"1px solid var(--gold-dim)"}}>
+                <div style={{fontFamily:"var(--mono)",fontSize:16,color:"var(--gold2)",fontWeight:600}}>{WEEKLY_CHALLENGE.completed}/{WEEKLY_CHALLENGE.target}</div>
+                <div style={{fontFamily:"var(--mono)",fontSize:9,color:"var(--text3)"}}>DAYS</div>
+              </div>
+            </div>
+            <div style={{fontFamily:"var(--font)",fontSize:12,color:"var(--text2)",lineHeight:1.6,marginBottom:12}}>{WEEKLY_CHALLENGE.description}</div>
+            {/* Progress */}
+            <div style={{height:4,background:"var(--raised)",borderRadius:2,marginBottom:8,overflow:"hidden"}}>
+              <div style={{height:"100%",width:`${weeklyPct*100}%`,background:"linear-gradient(90deg,var(--gold),var(--gold2))",transition:"width 1s",boxShadow:"0 0 8px rgba(201,168,76,0.4)"}}/>
+            </div>
+            <div style={{display:"flex",justifyContent:"space-between"}}>
+              <span style={{fontFamily:"var(--mono)",fontSize:10,color:"var(--text3)"}}>{WEEKLY_CHALLENGE.participants.toLocaleString()} PARTICIPANTS</span>
+              <span style={{fontFamily:"var(--mono)",fontSize:10,color:"var(--gold2)"}}>+{WEEKLY_CHALLENGE.xpReward} XP REWARD</span>
+            </div>
+          </div>
+
+          {/* THIS WEEK'S DAYS */}
+          <div className="anim-up d3" style={{marginBottom:14}}>
+            <div style={{fontFamily:"var(--mono)",fontSize:10,color:"var(--text3)",letterSpacing:"0.1em",marginBottom:10}}>// WEEK SCHEDULE</div>
+            <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:5}}>
+              {DAILY_CHALLENGES.map((dc,i)=>{
+                const dhikr=ADHKAR.find(d=>d.id===dc.dhikrId);
+                const isToday=dc.active;
+                const isDone=completedDhikr.includes(dc.dhikrId);
+                return(
+                  <div key={dc.id} style={{
+                    borderRadius:8,padding:"8px 4px",textAlign:"center",
+                    background:isToday?"var(--teal-dim)":isDone?"var(--raised)":"var(--surface)",
+                    border:`1px solid ${isToday?"var(--teal-mid)":isDone?"var(--border2)":"var(--border)"}`,
+                    position:"relative"}}>
+                    {isDone&&<div style={{position:"absolute",top:2,right:2,width:6,height:6,borderRadius:"50%",background:"var(--green)"}}/>}
+                    <div style={{fontFamily:"var(--mono)",fontSize:9,color:isToday?"var(--teal)":"var(--text3)",fontWeight:isToday?600:400,letterSpacing:"0.05em"}}>{dc.day}</div>
+                    <div style={{fontSize:14,marginTop:2}}>{dhikr?.icon}</div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* ALL ADHKAR */}
+          <div className="anim-up d4">
+            <div style={{fontFamily:"var(--mono)",fontSize:10,color:"var(--text3)",letterSpacing:"0.1em",marginBottom:10}}>// ALL ADHKAR</div>
+            {ADHKAR.map(d=>{
+              const done=completedDhikr.includes(d.id);
+              return(
+                <div key={d.id} onClick={()=>setShowDetail(d)}
+                  style={{display:"flex",alignItems:"center",gap:14,padding:"12px 0",borderBottom:"1px solid var(--border)",cursor:"pointer"}}>
+                  <div style={{width:38,height:38,borderRadius:8,background:done?"var(--teal-dim)":"var(--raised)",border:`1px solid ${done?"var(--teal-mid)":"var(--border)"}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0}}>{d.icon}</div>
+                  <div style={{flex:1}}>
+                    <div style={{display:"flex",alignItems:"center",gap:6}}>
+                      <span style={{fontFamily:"var(--font)",fontSize:13,fontWeight:600,color:done?"var(--teal)":"var(--text)"}}>{d.transliteration}</span>
+                      {done&&<span style={{fontFamily:"var(--mono)",fontSize:8,padding:"1px 5px",borderRadius:3,background:"var(--teal-dim)",color:"var(--teal)",letterSpacing:"0.08em"}}>DONE</span>}
+                    </div>
+                    <div style={{fontFamily:"var(--arabic)",fontSize:13,color:"var(--text3)",direction:"rtl",textAlign:"left"}}>{d.arabic}</div>
+                  </div>
+                  <div style={{fontFamily:"var(--mono)",fontSize:11,color:"var(--teal)"}}>+{d.xp}</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ─── ABOUT PAGE ──────────────────────────────────────────────
+  function AboutPage(){
+    return(
+      <div style={{height:"100%",overflowY:"auto",padding:"0 0 100px"}}>
+        {/* Hero */}
+        <div style={{padding:"28px 20px",background:"linear-gradient(180deg,var(--bg2),var(--bg))",borderBottom:"1px solid var(--border)",position:"relative",overflow:"hidden",textAlign:"center"}}>
+          <div style={{position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",width:300,height:300,borderRadius:"50%",background:"radial-gradient(circle,rgba(0,212,140,0.04),transparent 70%)",animation:"breathe 8s ease-in-out infinite"}}/>
+          <div style={{position:"absolute",top:10,right:10,opacity:0.15}}>
+            <IslamicOrnament color="var(--teal)" size={80} opacity={1}/>
+          </div>
+          <div style={{position:"absolute",bottom:10,left:10,opacity:0.1}}>
+            <IslamicOrnament color="var(--gold)" size={60} opacity={1}/>
+          </div>
+          <div className="anim-up" style={{fontFamily:"var(--arabic)",fontSize:24,color:"var(--teal)",marginBottom:8,direction:"rtl",textShadow:"0 0 20px var(--teal-glow)",lineHeight:1.5}}>
+            أَلَا بِذِكْرِ ٱللَّهِ تَطْمَئِنُّ ٱلْقُلُوبُ
+          </div>
+          <div className="anim-up d1" style={{fontFamily:"var(--font)",fontSize:13,color:"var(--text2)",fontStyle:"italic",marginBottom:20,lineHeight:1.6}}>
+            "Verily, in the remembrance of Allah do hearts find rest." — Qur'an 13:28
+          </div>
+          <div className="anim-up d2" style={{fontFamily:"var(--mono)",fontSize:10,color:"var(--teal)",letterSpacing:"0.15em"}}>// ABOUT THE DHIKR CHALLENGE</div>
+        </div>
+
+        <div style={{padding:"20px 18px"}}>
+          {/* What is Dhikr */}
+          <div className="anim-up" style={{marginBottom:18,background:"var(--surface)",borderRadius:12,padding:18,border:"1px solid var(--border2)",position:"relative"}}>
+            <div style={{position:"absolute",top:0,left:16,right:16,height:"1px",background:"linear-gradient(90deg,transparent,var(--teal-mid),transparent)"}}/>
+            <div style={{fontFamily:"var(--mono)",fontSize:10,color:"var(--teal)",letterSpacing:"0.12em",marginBottom:12}}>01 // WHAT IS DHIKR?</div>
+            <div style={{fontFamily:"var(--arabic)",fontSize:22,color:"var(--gold2)",direction:"rtl",marginBottom:12,lineHeight:1.5,textShadow:"0 0 15px rgba(201,168,76,0.2)"}}>ذِكْر</div>
+            <p style={{fontFamily:"var(--font)",fontSize:13,lineHeight:1.8,color:"var(--text2)",marginBottom:12}}>
+              Dhikr (ذِكْر) — meaning <em style={{color:"var(--text)"}}>remembrance</em> — is the act of consciously calling Allah to mind through words, phrases, and supplications taught by the Prophet Muhammad ﷺ. It is the pulse of Islamic spirituality: the bridge between the outer form of worship and the inner state of the heart.
+            </p>
+            <p style={{fontFamily:"var(--font)",fontSize:13,lineHeight:1.8,color:"var(--text2)"}}>
+              The Qur'an commands believers: <em style={{color:"var(--teal)"}}>"Remember Allah with much remembrance"</em> (33:41). Unlike salah, which has set times, dhikr has no limit — it can permeate every moment of waking life, turning the mundane into worship and the ordinary into the sacred.
+            </p>
+          </div>
+
+          {/* Benefits */}
+          <div className="anim-up d1" style={{marginBottom:18,background:"var(--surface)",borderRadius:12,padding:18,border:"1px solid var(--border2)",position:"relative"}}>
+            <div style={{position:"absolute",top:0,left:16,right:16,height:"1px",background:"linear-gradient(90deg,transparent,var(--gold-mid),transparent)"}}/>
+            <div style={{fontFamily:"var(--mono)",fontSize:10,color:"var(--gold2)",letterSpacing:"0.12em",marginBottom:12}}>02 // BENEFITS OF DHIKR</div>
+            {[
+              {icon:"🧠",title:"Clears the Mind",desc:"Repetitive sacred phrases anchor attention and dissolve anxious thought, creating mental stillness."},
+              {icon:"💚",title:"Heals the Heart",desc:"Al-Ghazali taught that dhikr is the polish of the heart — consistent practice removes the rust of heedlessness (ghaflah)."},
+              {icon:"⚖️",title:"Weighs Heavy on the Scales",desc:"The Prophet ﷺ taught that SubhanAllah and Alhamdulillah are light on the tongue but heavy on the Mizan on Judgment Day."},
+              {icon:"🛡️",title:"Protection",desc:"Dhikr is a shield — it distances the believer from shaitan and creates a spiritual barrier around daily life."},
+              {icon:"🌟",title:"Ranks in Paradise",desc:"Each dhikr earns hasanat. The consistent practitioner accumulates a spiritual treasury invisible to the world."},
+            ].map((b,i)=>(
+              <div key={i} style={{display:"flex",gap:12,paddingBottom:12,marginBottom:12,borderBottom:i<4?"1px solid var(--border)":"none"}}>
+                <div style={{width:36,height:36,borderRadius:8,background:"var(--raised)",border:"1px solid var(--border2)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,flexShrink:0}}>{b.icon}</div>
+                <div>
+                  <div style={{fontFamily:"var(--font)",fontSize:13,fontWeight:600,color:"var(--text)",marginBottom:3}}>{b.title}</div>
+                  <div style={{fontFamily:"var(--font)",fontSize:12,color:"var(--text2)",lineHeight:1.6}}>{b.desc}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* The Challenge Concept */}
+          <div className="anim-up d2" style={{marginBottom:18,background:"var(--surface)",borderRadius:12,padding:18,border:"1px solid var(--border2)",position:"relative"}}>
+            <div style={{position:"absolute",top:0,left:16,right:16,height:"1px",background:"linear-gradient(90deg,transparent,var(--teal-mid),transparent)"}}/>
+            <div style={{fontFamily:"var(--mono)",fontSize:10,color:"var(--teal)",letterSpacing:"0.12em",marginBottom:12}}>03 // THE CHALLENGE CONCEPT</div>
+            <p style={{fontFamily:"var(--font)",fontSize:13,lineHeight:1.8,color:"var(--text2)",marginBottom:14}}>
+              The Dhikr Challenge is built on a simple but powerful idea: <em style={{color:"var(--text)"}}>modern tools, ancient practice</em>. We've observed that people spend hours on habit-tracking apps, fitness streaks, and gaming achievements — yet struggle to maintain basic remembrance of Allah.
+            </p>
+            <div style={{background:"var(--raised)",borderRadius:8,padding:14,border:"1px solid var(--teal-dim)",marginBottom:14}}>
+              <div style={{fontFamily:"var(--mono)",fontSize:10,color:"var(--teal)",marginBottom:8,letterSpacing:"0.1em"}}>// HOW IT WORKS</div>
+              {[
+                "Each day brings a focused dhikr challenge from the Sunnah",
+                "Complete the daily target to earn XP and maintain your streak",
+                "Weekly challenges require completing all 7 daily adhkar",
+                "Progress through spiritual ranks drawn from al-Ghazali's maqamat",
+                "The community forum holds you accountable and inspires consistency",
+              ].map((item,i)=>(
+                <div key={i} style={{display:"flex",gap:10,marginBottom:i<4?8:0}}>
+                  <span style={{fontFamily:"var(--mono)",fontSize:11,color:"var(--teal)",flexShrink:0}}>→</span>
+                  <span style={{fontFamily:"var(--font)",fontSize:12,color:"var(--text2)",lineHeight:1.6}}>{item}</span>
+                </div>
+              ))}
+            </div>
+            <p style={{fontFamily:"var(--font)",fontSize:12,color:"var(--text3)",lineHeight:1.7,fontStyle:"italic"}}>
+              The goal is not to reduce dhikr to a game. The goal is to use the science of habit formation and community accountability to help modern Muslims build what the Companions never needed to build — a structured remembrance practice in the age of infinite distraction.
+            </p>
+          </div>
+
+          {/* Al-Ghazali Quote */}
+          <div className="anim-up d3" style={{background:"linear-gradient(135deg,var(--bg3),var(--surface))",borderRadius:12,padding:22,border:"1px solid var(--gold-dim)",textAlign:"center",position:"relative",overflow:"hidden"}}>
+            <div style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center",opacity:0.04,pointerEvents:"none"}}>
+              <IslamicOrnament color="var(--gold2)" size={160} opacity={1}/>
+            </div>
+            <div style={{fontFamily:"var(--mono)",fontSize:10,color:"var(--gold2)",letterSpacing:"0.12em",marginBottom:14}}>IMAM AL-GHAZALI · IHYA ULUM AL-DIN</div>
+            <p style={{fontFamily:"var(--font)",fontSize:14,fontStyle:"italic",lineHeight:1.8,color:"var(--text)",fontWeight:400,marginBottom:10}}>
+              "The heart is like a mirror. When it is polished with dhikr, it reflects the light of the Divine. When it is neglected, it gathers rust until nothing of truth can be seen."
+            </p>
+            <div style={{fontFamily:"var(--arabic)",fontSize:16,color:"var(--gold)",direction:"rtl",lineHeight:1.6}}>القلب كالمرآة — يصقله الذكر</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ─── FORUM PAGE ──────────────────────────────────────────────
+  function ForumPage(){
+    const submitPost=()=>{
+      if(!newPost.trim())return;
+      const post={
+        id:Date.now(),author:"You",rank:rank.name,arabic:rank.arabic,
+        time:"Just now",content:newPost.trim(),likes:0,replies:[]
+      };
+      setForumPosts(prev=>[post,...prev]);
+      setNewPost("");
+    };
+
+    const toggleLike=(postId)=>{
+      if(likedPosts.includes(postId)){
+        setLikedPosts(prev=>prev.filter(id=>id!==postId));
+        setForumPosts(prev=>prev.map(p=>p.id===postId?{...p,likes:p.likes-1}:p));
+      } else {
+        setLikedPosts(prev=>[...prev,postId]);
+        setForumPosts(prev=>prev.map(p=>p.id===postId?{...p,likes:p.likes+1}:p));
+      }
+    };
+
+    const submitReply=(postId)=>{
+      if(!replyText.trim())return;
+      setForumPosts(prev=>prev.map(p=>p.id===postId?{...p,replies:[...p.replies,{author:"You",rank:rank.name,time:"Just now",content:replyText.trim()}]}:p));
+      setReplyText("");
+    };
+
+    return(
+      <div style={{height:"100%",overflowY:"auto",padding:"0 0 100px"}}>
+        {/* Header */}
+        <div style={{padding:"16px",background:"var(--bg2)",borderBottom:"1px solid var(--border)"}}>
+          <div className="anim-up" style={{fontFamily:"var(--mono)",fontSize:10,color:"var(--text3)",letterSpacing:"0.1em",marginBottom:4}}>// COMMUNITY</div>
+          <div className="anim-up d1" style={{fontFamily:"var(--font)",fontSize:18,fontWeight:700}}>UMMAH FORUM</div>
+          <div className="anim-up d2" style={{fontFamily:"var(--font)",fontSize:12,color:"var(--text3)",marginTop:2}}>Share reflections · Ask questions · Inspire others</div>
+        </div>
+
+        <div style={{padding:"14px"}}>
+          {/* Post composer */}
+          <div className="anim-up" style={{background:"var(--surface)",borderRadius:12,padding:14,border:"1px solid var(--border2)",marginBottom:14}}>
+            <div style={{display:"flex",gap:10,marginBottom:10}}>
+              <div style={{width:32,height:32,borderRadius:8,background:"var(--teal-dim)",border:"1px solid var(--teal-mid)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                <span style={{fontFamily:"var(--arabic)",fontSize:12,color:"var(--teal)"}}>{rank.icon}</span>
+              </div>
+              <div style={{flex:1}}>
+                <div style={{fontFamily:"var(--font)",fontSize:12,fontWeight:600,color:"var(--text)"}}>You</div>
+                <div style={{fontFamily:"var(--mono)",fontSize:10,color:"var(--teal)"}}>{rank.arabic} · {rank.name}</div>
+              </div>
+            </div>
+            <textarea
+              value={newPost}
+              onChange={e=>setNewPost(e.target.value)}
+              placeholder="Share a reflection, tip, or question with the community..."
+              rows={3}
+              style={{marginBottom:10}}
+            />
+            <div style={{display:"flex",justifyContent:"flex-end"}}>
+              <button onClick={submitPost}
+                style={{padding:"9px 18px",borderRadius:7,border:"none",background:newPost.trim()?"var(--teal)":"var(--raised)",color:newPost.trim()?"var(--bg)":"var(--text3)",fontSize:12,fontWeight:600,fontFamily:"var(--font)",transition:"all 0.2s"}}>
+                POST
+              </button>
+            </div>
+          </div>
+
+          {/* Live stats */}
+          <div className="anim-up d1" style={{display:"flex",gap:8,marginBottom:14}}>
+            {[{v:"1,247",l:"Members",c:"var(--teal)"},{v:"4",l:"Online",c:"var(--green)"},{v:"89",l:"Posts Today",c:"var(--gold2)"}].map((s,i)=>(
+              <div key={i} style={{flex:1,background:"var(--surface)",borderRadius:8,padding:"10px 8px",border:"1px solid var(--border)",textAlign:"center"}}>
+                <div style={{fontFamily:"var(--mono)",fontSize:14,fontWeight:600,color:s.c}}>{s.v}</div>
+                <div style={{fontFamily:"var(--mono)",fontSize:9,color:"var(--text3)",marginTop:2,letterSpacing:"0.06em"}}>{s.l}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Posts */}
+          {forumPosts.map((post,pi)=>(
+            <div key={post.id} className={`anim-up d${Math.min(pi+2,5)}`} style={{background:"var(--surface)",borderRadius:12,padding:16,border:"1px solid var(--border2)",marginBottom:10}}>
+              {/* Author */}
+              <div style={{display:"flex",gap:10,marginBottom:12}}>
+                <div style={{width:36,height:36,borderRadius:9,background:"var(--raised)",border:"1px solid var(--border2)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                  <span style={{fontFamily:"var(--arabic)",fontSize:14,color:"var(--teal)"}}>{post.arabic}</span>
+                </div>
+                <div style={{flex:1}}>
+                  <div style={{display:"flex",alignItems:"center",gap:8}}>
+                    <span style={{fontFamily:"var(--font)",fontSize:13,fontWeight:600,color:"var(--text)"}}>{post.author}</span>
+                    <span style={{fontFamily:"var(--mono)",fontSize:9,padding:"2px 6px",borderRadius:4,background:"var(--teal-dim)",color:"var(--teal)",letterSpacing:"0.06em"}}>{post.rank}</span>
+                  </div>
+                  <div style={{fontFamily:"var(--mono)",fontSize:10,color:"var(--text3)"}}>{post.time}</div>
+                </div>
+              </div>
+
+              {/* Content */}
+              <p style={{fontFamily:"var(--font)",fontSize:13,lineHeight:1.75,color:"var(--text2)",marginBottom:12}}>{post.content}</p>
+
+              {/* Actions */}
+              <div style={{display:"flex",gap:8}}>
+                <button onClick={()=>toggleLike(post.id)}
+                  style={{display:"flex",alignItems:"center",gap:5,padding:"6px 12px",borderRadius:6,border:`1px solid ${likedPosts.includes(post.id)?"var(--teal-mid)":"var(--border)"}`,background:likedPosts.includes(post.id)?"var(--teal-dim)":"transparent",color:likedPosts.includes(post.id)?"var(--teal)":"var(--text3)",fontSize:12,fontFamily:"var(--mono)"}}>
+                  ♡ {post.likes}
+                </button>
+                <button onClick={()=>setExpandedPost(expandedPost===post.id?null:post.id)}
+                  style={{display:"flex",alignItems:"center",gap:5,padding:"6px 12px",borderRadius:6,border:"1px solid var(--border)",background:"transparent",color:"var(--text3)",fontSize:12,fontFamily:"var(--mono)"}}>
+                  💬 {post.replies.length}
+                </button>
+              </div>
+
+              {/* Replies */}
+              {expandedPost===post.id&&(
+                <div style={{marginTop:14,paddingTop:14,borderTop:"1px solid var(--border)"}}>
+                  {post.replies.map((r,ri)=>(
+                    <div key={ri} style={{display:"flex",gap:10,marginBottom:12,paddingLeft:10,borderLeft:"2px solid var(--teal-mid)"}}>
+                      <div style={{flex:1}}>
+                        <div style={{display:"flex",gap:6,marginBottom:4}}>
+                          <span style={{fontFamily:"var(--font)",fontSize:12,fontWeight:600,color:"var(--text)"}}>{r.author}</span>
+                          <span style={{fontFamily:"var(--mono)",fontSize:9,color:"var(--text3)"}}>{r.time}</span>
+                        </div>
+                        <p style={{fontFamily:"var(--font)",fontSize:12,color:"var(--text2)",lineHeight:1.65}}>{r.content}</p>
+                      </div>
+                    </div>
+                  ))}
+                  {/* Reply input */}
+                  <div style={{display:"flex",gap:8,marginTop:8}}>
+                    <textarea
+                      value={replyText}
+                      onChange={e=>setReplyText(e.target.value)}
+                      placeholder="Write a reply..."
+                      rows={2}
+                      style={{flex:1,fontSize:12}}
+                    />
+                    <button onClick={()=>submitReply(post.id)}
+                      style={{padding:"8px 14px",borderRadius:7,border:"none",background:replyText.trim()?"var(--teal)":"var(--raised)",color:replyText.trim()?"var(--bg)":"var(--text3)",fontSize:12,fontWeight:600,fontFamily:"var(--font)",alignSelf:"flex-end",transition:"all 0.2s",flexShrink:0}}>
+                      REPLY
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // ─── PROGRESS PAGE ───────────────────────────────────────────
+  function ProgressPage(){
+    return(
+      <div style={{height:"100%",overflowY:"auto",padding:"0 0 100px"}}>
+        <div style={{padding:"16px",background:"var(--bg2)",borderBottom:"1px solid var(--border)"}}>
+          <div className="anim-up" style={{fontFamily:"var(--mono)",fontSize:10,color:"var(--text3)",letterSpacing:"0.1em",marginBottom:4}}>// SPIRITUAL JOURNEY</div>
+          <div className="anim-up d1" style={{fontFamily:"var(--font)",fontSize:18,fontWeight:700}}>YOUR PROGRESS</div>
+        </div>
+
+        <div style={{padding:"16px"}}>
+          {/* Rank Card */}
+          <div className="anim-up d1" style={{background:"var(--surface)",borderRadius:14,padding:24,border:"1px solid var(--border2)",marginBottom:14,textAlign:"center",position:"relative",overflow:"hidden"}}>
+            <div style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center",opacity:0.04,pointerEvents:"none"}}>
+              <IslamicOrnament color="var(--teal)" size={200} opacity={1}/>
+            </div>
+            <div style={{position:"absolute",top:0,left:0,right:0,height:"1px",background:"linear-gradient(90deg,transparent,var(--teal-mid),transparent)"}}/>
+            <div style={{position:"relative",zIndex:2}}>
+              <HexProgress size={110} progress={rank.progress}>
+                <span style={{fontSize:36}}>{rank.icon}</span>
+              </HexProgress>
+              <div style={{fontFamily:"var(--arabic)",fontSize:24,color:"var(--teal)",marginTop:12,textShadow:"0 0 15px var(--teal-glow)"}}>{rank.arabic}</div>
+              <div style={{fontFamily:"var(--font)",fontSize:16,color:"var(--text)",marginTop:4,fontWeight:700}}>{rank.name} <span style={{fontWeight:400,color:"var(--text2)",fontSize:13}}>· {rank.label}</span></div>
+              <div style={{fontFamily:"var(--mono)",fontSize:12,color:"var(--text2)",marginTop:6}}>
+                {totalXP} XP {rank.next?`· ${rank.next.min-totalXP} to ${rank.next.name}`:"· HIGHEST STATION"}
+              </div>
+              {rank.next&&(
+                <div style={{marginTop:12,height:3,background:"var(--raised)",borderRadius:2,overflow:"hidden"}}>
+                  <div style={{height:"100%",width:`${rank.progress*100}%`,background:"linear-gradient(90deg,var(--teal),var(--teal2))",transition:"width 1s",boxShadow:"0 0 6px var(--teal-glow)"}}/>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Stats */}
+          <div className="anim-up d2" style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginBottom:14}}>
+            {[{v:totalCompletions,l:"COMPLETIONS",i:"📿"},{v:streak,l:"DAY STREAK",i:"🔥"},{v:completedDhikr.length,l:"TODAY",i:"✨"}].map((s,i)=>(
+              <div key={i} style={{background:"var(--surface)",borderRadius:10,padding:"14px 8px",border:"1px solid var(--border2)",textAlign:"center"}}>
+                <div style={{fontSize:18,marginBottom:4}}>{s.i}</div>
+                <div style={{fontFamily:"var(--mono)",fontSize:18,fontWeight:600,color:"var(--teal)"}}>{s.v}</div>
+                <div style={{fontFamily:"var(--mono)",fontSize:9,color:"var(--text3)",marginTop:2,letterSpacing:"0.06em"}}>{s.l}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Stations */}
+          <div className="anim-up d3" style={{background:"var(--surface)",borderRadius:12,padding:18,border:"1px solid var(--border2)",marginBottom:14}}>
+            <div style={{fontFamily:"var(--mono)",fontSize:10,color:"var(--teal)",letterSpacing:"0.12em",marginBottom:14}}>// STATIONS OF THE SOUL · MAQAMAT</div>
+            {RANKS.map((r,i)=>{
+              const reached=totalXP>=r.min;
+              const current=rank.level===r.level;
+              return(
+                <div key={r.level} style={{display:"flex",alignItems:"center",gap:10,padding:"9px 0",borderBottom:i<RANKS.length-1?"1px solid var(--border)":"none",opacity:reached?1:0.3}}>
+                  <div style={{width:32,height:32,borderRadius:7,background:current?"var(--teal-dim)":"var(--raised)",border:`1px solid ${current?"var(--teal-mid)":"var(--border)"}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:14}}>{r.icon}</div>
+                  <div style={{flex:1}}>
+                    <div style={{fontFamily:"var(--font)",fontSize:12,fontWeight:current?700:400,color:current?"var(--teal)":"var(--text)"}}>{r.name} <span style={{fontSize:11,fontWeight:400,color:"var(--text3)"}}>· {r.label}</span></div>
+                    <div style={{fontFamily:"var(--arabic)",fontSize:12,color:"var(--text3)",direction:"rtl",textAlign:"left"}}>{r.arabic}</div>
+                  </div>
+                  <div style={{fontFamily:"var(--mono)",fontSize:10,color:"var(--text3)"}}>{r.min}</div>
+                  {current&&<div style={{width:8,height:8,borderRadius:"50%",background:"var(--teal)",flexShrink:0,boxShadow:"0 0 6px var(--teal)"}}/>}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Ghazali */}
+          <div className="anim-up d4" style={{background:"var(--surface)",borderRadius:12,padding:20,border:"1px solid var(--gold-dim)",textAlign:"center"}}>
+            <div style={{fontFamily:"var(--mono)",fontSize:10,color:"var(--gold2)",letterSpacing:"0.12em",marginBottom:12}}>IMAM AL-GHAZALI</div>
+            <p style={{fontFamily:"var(--font)",fontSize:13,fontStyle:"italic",lineHeight:1.8,color:"var(--text)",fontWeight:400}}>
+              "The heart is like a mirror. When it is polished with dhikr, it reflects the light of the Divine. When it is neglected, it gathers rust until nothing of truth can be seen."
+            </p>
+            <div style={{fontFamily:"var(--mono)",fontSize:10,color:"var(--text3)",marginTop:10}}>— Ihya Ulum al-Din</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ─── DETAIL MODAL ────────────────────────────────────────────
+  function DhikrDetail(){
+    if(!showDetail)return null;
+    const d=showDetail;
+    const done=completedDhikr.includes(d.id);
+    return(
+      <div onClick={()=>setShowDetail(null)} style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.8)",backdropFilter:"blur(12px)",zIndex:150,display:"flex",alignItems:"flex-end",justifyContent:"center"}}>
+        <div onClick={e=>e.stopPropagation()} style={{width:"100%",maxWidth:480,background:"var(--bg2)",borderRadius:"16px 16px 0 0",padding:"24px 20px env(safe-area-inset-bottom,24px)",maxHeight:"88vh",overflowY:"auto",border:"1px solid var(--border2)",borderBottom:"none",animation:"slideUp 0.35s var(--ease)"}}>
+          <div style={{width:36,height:3,borderRadius:2,background:"var(--border2)",margin:"0 auto 20px"}}/>
+          <div style={{textAlign:"center",marginBottom:18}}>
+            <div style={{fontSize:36,marginBottom:8}}>{d.icon}</div>
+            <div style={{fontFamily:"var(--arabic)",fontSize:30,color:"var(--gold2)",direction:"rtl",lineHeight:1.3,textShadow:"0 0 20px rgba(201,168,76,0.2)"}}>{d.arabic}</div>
+            <div style={{fontFamily:"var(--mono)",fontSize:14,color:"var(--text)",marginTop:6,letterSpacing:"0.03em"}}>{d.transliteration}</div>
+            <div style={{fontSize:12,color:"var(--text3)",marginTop:4}}>{d.meaning}</div>
+            <div style={{display:"inline-flex",marginTop:8,padding:"3px 10px",borderRadius:20,background:"var(--teal-dim)",border:"1px solid var(--teal-mid)"}}>
+              <span style={{fontFamily:"var(--mono)",fontSize:10,color:"var(--teal)",letterSpacing:"0.08em"}}>{d.category.toUpperCase()}</span>
+            </div>
+          </div>
+
+          <div style={{background:"var(--surface)",borderRadius:10,padding:16,marginBottom:12,border:"1px solid var(--border)"}}>
+            <div style={{fontFamily:"var(--mono)",fontSize:9,color:"var(--teal)",letterSpacing:"0.12em",marginBottom:8}}>// SIGNIFICANCE</div>
+            <p style={{fontFamily:"var(--font)",fontSize:13,lineHeight:1.8,color:"var(--text2)"}}>{d.significance}</p>
+          </div>
+
+          <div style={{background:"var(--surface)",borderRadius:10,padding:16,marginBottom:18,border:"1px solid var(--gold-dim)"}}>
+            <div style={{fontFamily:"var(--mono)",fontSize:9,color:"var(--gold2)",letterSpacing:"0.12em",marginBottom:8}}>// IMAM AL-GHAZALI</div>
+            <p style={{fontFamily:"var(--font)",fontSize:13,fontStyle:"italic",lineHeight:1.8,color:"var(--text2)"}}>{d.ghazali}</p>
+          </div>
+
+          <div style={{display:"flex",gap:10}}>
+            {!done&&(
+              <button onClick={()=>{setShowDetail(null);setActiveTasbih(d)}}
+                style={{flex:1,padding:"13px",borderRadius:8,border:"none",background:"var(--teal)",color:"var(--bg)",fontSize:13,fontWeight:700,fontFamily:"var(--font)",boxShadow:"0 0 16px var(--teal-glow)"}}>
+                START · {d.target}{d.unit?" "+d.unit:"×"} 📿
+              </button>
+            )}
+            <button onClick={()=>setShowDetail(null)}
+              style={{flex:done?1:0,minWidth:50,padding:"13px",borderRadius:8,border:"1px solid var(--border2)",background:"var(--surface)",color:"var(--text2)",fontSize:12,fontFamily:"var(--font)"}}>
+              {done?"MASHAALLAH ✅":"CLOSE"}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ─── RENDER ──────────────────────────────────────────────────
+  const NAV=[
+    {k:"home",icon:"⬡",label:"CHALLENGE"},
+    {k:"about",icon:"◈",label:"ABOUT"},
+    {k:"forum",icon:"◉",label:"UMMAH"},
+    {k:"progress",icon:"◆",label:"JOURNEY"},
+  ];
+
+  return(
+    <div style={{height:"100%",display:"flex",flexDirection:"column",background:"var(--bg)",maxWidth:480,margin:"0 auto",position:"relative"}}>
+      {/* Ambient glow */}
+      <div style={{position:"fixed",top:"15%",left:"50%",transform:"translateX(-50%)",width:500,height:400,borderRadius:"50%",background:"radial-gradient(ellipse,rgba(0,212,140,0.015),transparent 70%)",pointerEvents:"none",zIndex:0}}/>
+
+      {/* Content */}
+      <div style={{flex:1,overflow:"hidden",position:"relative",zIndex:1}}>
+        {page==="home"&&<HomePage/>}
+        {page==="about"&&<AboutPage/>}
+        {page==="forum"&&<ForumPage/>}
+        {page==="progress"&&<ProgressPage/>}
+      </div>
+
+      {/* Tasbih overlay */}
+      {activeTasbih&&<TasbihCounter dhikr={activeTasbih} onComplete={completeDhikr} onClose={()=>setActiveTasbih(null)}/>}
+
+      {/* Detail modal */}
+      <DhikrDetail/>
+
+      {/* Nav */}
+      <nav style={{display:"flex",justifyContent:"space-around",padding:"8px 0 env(safe-area-inset-bottom,8px)",background:"rgba(8,12,16,0.96)",backdropFilter:"blur(20px)",borderTop:"1px solid var(--border2)",position:"relative",zIndex:50}}>
+        {NAV.map(n=>(
+          <button key={n.k} onClick={()=>setPage(n.k)}
+            style={{display:"flex",flexDirection:"column",alignItems:"center",gap:3,background:"none",border:"none",padding:"6px 12px",borderRadius:8,position:"relative",
+              color:page===n.k?"var(--teal)":"var(--text3)",fontFamily:"var(--mono)",fontSize:9,fontWeight:600,letterSpacing:"0.08em",transition:"color 0.2s"}}>
+            {page===n.k&&<div style={{position:"absolute",top:0,left:"50%",transform:"translateX(-50%)",width:16,height:2,background:"var(--teal)",borderRadius:"0 0 2px 2px",boxShadow:"0 0 6px var(--teal)"}}/>}
+            <span style={{fontSize:16,filter:page===n.k?"drop-shadow(0 0 6px var(--teal))":"none"}}>{n.icon}</span>
+            {n.label}
+          </button>
+        ))}
+      </nav>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
