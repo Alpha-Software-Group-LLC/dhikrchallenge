@@ -1,0 +1,73 @@
+:root{
+  --bg:#060f0a;
+  --bg2:#0a1710;
+  --bg3:#0f1f16;
+  --surface:#122018;
+  --raised:#182b1f;
+  --border:rgba(52,180,100,0.06);
+  --border2:rgba(52,180,100,0.12);
+  --text:#d4ede0;
+  --text2:#7aaa8e;
+  --text3:#3d6650;
+  --amber:#c8a84b;
+  --amber2:#e0bf6a;
+  --amber-dim:rgba(200,168,75,0.08);
+  --amber-mid:rgba(200,168,75,0.2);
+  --amber-glow:rgba(200,168,75,0.4);
+  --green:#34b464;
+  --green2:#4dd47e;
+  --green-dim:rgba(52,180,100,0.08);
+  --green-mid:rgba(52,180,100,0.18);
+  --green-glow:rgba(52,180,100,0.35);
+  --rose:#c47a7a;
+  --rose-dim:rgba(196,122,122,0.08);
+  --mono:'JetBrains Mono',monospace;
+  --font:'Outfit',sans-serif;
+  --serif:'Cormorant Garamond',Georgia,serif;
+  --arabic:'Amiri','Lora',serif;
+  --body:'Lora',Georgia,serif;
+  --ease:cubic-bezier(0.16,1,0.3,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{overflow:hidden;height:100%}
+body{font-family:var(--font);background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;overflow:hidden;height:100%;line-height:1.5}
+#root{height:100%;overflow:hidden}
+::selection{background:var(--amber);color:var(--bg)}
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--green-dim);border-radius:2px}
+button{font-family:var(--font);cursor:pointer;-webkit-tap-highlight-color:transparent}
+
+/* Islamic tech HUD — grid + geometric overlay */
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:
+    linear-gradient(rgba(52,180,100,0.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(52,180,100,0.03) 1px,transparent 1px);
+  background-size:40px 40px;
+}
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:0.4;
+  background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(52,180,100,0.07),transparent);
+}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes scaleIn{from{opacity:0;transform:scale(0.92)}to{opacity:1;transform:scale(1)}}
+@keyframes glow{0%,100%{opacity:0.3}50%{opacity:0.7}}
+@keyframes breathe{0%,100%{transform:scale(1);opacity:0.4}50%{transform:scale(1.08);opacity:0.7}}
+@keyframes rotate{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes countPulse{0%{transform:scale(1)}50%{transform:scale(1.08)}100%{transform:scale(1)}}
+@keyframes beadDrop{0%{transform:scale(0) translateY(-10px);opacity:0}60%{transform:scale(1.15) translateY(0);opacity:1}100%{transform:scale(1) translateY(0);opacity:1}}
+@keyframes starBurst{0%{transform:scale(0) rotate(0deg);opacity:1}100%{transform:scale(2) rotate(180deg);opacity:0}}
+@keyframes ripple{0%{transform:scale(1);opacity:0.4}100%{transform:scale(2.5);opacity:0}}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+
+.anim-up{animation:fadeUp 0.5s var(--ease) both}
+.d1{animation-delay:.05s}.d2{animation-delay:.1s}.d3{animation-delay:.15s}.d4{animation-delay:.2s}.d5{animation-delay:.25s}
+
+/* Geometric Islamic star SVG pattern for backgrounds */
+.geo-pattern{
+  background-image:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5 L35 25 L55 30 L35 35 L30 55 L25 35 L5 30 L25 25Z' fill='none' stroke='rgba(52,180,100,0.07)' stroke-width='0.5'/%3E%3C/svg%3E");
+  background-size:60px 60px;
+}
