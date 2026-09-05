@@ -43,6 +43,7 @@ quran_reading:"/audio/quran_reading.mp3",
 salawat:"/audio/salawat.mp3",
 hawqala:"/audio/hawqala.mp3"
 };
+const ARABIC_AUDIO_CREDIT="Human recitation by Hamad Al-Duraim";
 async function loadArabicAudio(text){
 if(arabicAudioCache[text])return arabicAudioCache[text];
 const dhikr=ADHKAR.find(item=>item.arabic===text);
@@ -113,6 +114,7 @@ style={{display:"inline-flex",alignItems:"center",gap:6,padding:compact?"7px 9px
 <span>{loading?"…":playing?"■":"▶"}</span>
 <span>{loading?"Loading":playing?"Stop":"Play"}</span>
 </button>
+{!compact&&<div style={{fontSize:10,color:"var(--text3)",whiteSpace:"nowrap"}}>{ARABIC_AUDIO_CREDIT}</div>}
 </div>
 );
 }
