@@ -1,26 +1,26 @@
 :root{
-  --bg:#060f0a;
-  --bg2:#0a1710;
-  --bg3:#0f1f16;
-  --surface:#122018;
-  --raised:#182b1f;
-  --border:rgba(52,180,100,0.06);
-  --border2:rgba(52,180,100,0.12);
-  --text:#d4ede0;
-  --text2:#7aaa8e;
-  --text3:#3d6650;
-  --amber:#c8a84b;
-  --amber2:#e0bf6a;
-  --amber-dim:rgba(200,168,75,0.08);
-  --amber-mid:rgba(200,168,75,0.2);
-  --amber-glow:rgba(200,168,75,0.4);
-  --green:#34b464;
-  --green2:#4dd47e;
-  --green-dim:rgba(52,180,100,0.08);
-  --green-mid:rgba(52,180,100,0.18);
-  --green-glow:rgba(52,180,100,0.35);
-  --rose:#c47a7a;
-  --rose-dim:rgba(196,122,122,0.08);
+  --bg:#09111f;
+  --bg2:#0e192b;
+  --bg3:#15243a;
+  --surface:#122139;
+  --raised:#1a2c46;
+  --border:rgba(184,204,230,0.08);
+  --border2:rgba(184,204,230,0.16);
+  --text:#f4f1e8;
+  --text2:#aab8cb;
+  --text3:#718198;
+  --amber:#f2c969;
+  --amber2:#ffda82;
+  --amber-dim:rgba(242,201,105,0.1);
+  --amber-mid:rgba(242,201,105,0.28);
+  --amber-glow:rgba(242,201,105,0.42);
+  --green:#61d4a1;
+  --green2:#83e8b9;
+  --green-dim:rgba(97,212,161,0.1);
+  --green-mid:rgba(97,212,161,0.22);
+  --green-glow:rgba(97,212,161,0.35);
+  --rose:#ec9b9b;
+  --rose-dim:rgba(236,155,155,0.1);
   --mono:'JetBrains Mono',monospace;
   --font:'Outfit',sans-serif;
   --serif:'Cormorant Garamond',Georgia,serif;
@@ -41,14 +41,14 @@ button{font-family:var(--font);cursor:pointer;-webkit-tap-highlight-color:transp
 /* Islamic tech HUD — grid + geometric overlay */
 body::before{
   content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
-  background-image:
-    linear-gradient(rgba(52,180,100,0.03) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(52,180,100,0.03) 1px,transparent 1px);
-  background-size:40px 40px;
+   background-image:
+     linear-gradient(rgba(184,204,230,0.028) 1px,transparent 1px),
+     linear-gradient(90deg,rgba(184,204,230,0.028) 1px,transparent 1px);
+   background-size:48px 48px;
 }
 body::after{
   content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:0.4;
-  background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(52,180,100,0.07),transparent);
+   background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(97,212,161,0.1),transparent);
 }
 
 @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}

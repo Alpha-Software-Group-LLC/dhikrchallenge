@@ -506,8 +506,8 @@ Start Counting · {d.target}{d.unit?" "+d.unit:"×"} 📿
 );
 }
 return(
-<div style={{height:"100%",display:"flex",flexDirection:"column",background:"var(--bg)",maxWidth:480,margin:"0 auto",position:"relative"}}>
-<div style={{position:"fixed",top:"20%",left:"50%",transform:"translateX(-50%)",width:400,height:300,borderRadius:"50%",background:"radial-gradient(ellipse,rgba(52,180,100,0.04),transparent 70%)",pointerEvents:"none",zIndex:0}}/>
+<div style={{height:"100%",display:"flex",flexDirection:"column",background:"var(--bg)",maxWidth:1180,margin:"0 auto",position:"relative",boxShadow:"0 0 80px rgba(0,0,0,.18)"}}>
+<div style={{position:"fixed",top:"20%",left:"50%",transform:"translateX(-50%)",width:560,height:380,borderRadius:"50%",background:"radial-gradient(ellipse,rgba(97,212,161,0.05),transparent 70%)",pointerEvents:"none",zIndex:0}}/>
 {loadingProgress&&<div style={{position:"absolute",top:12,left:"50%",transform:"translateX(-50%)",zIndex:100,background:"var(--surface)",border:"1px solid var(--border2)",borderRadius:20,padding:"7px 14px",fontSize:11,color:"var(--text2)"}}>Syncing your journey…</div>}
 {progressError&&<button onClick={()=>setProgressError("")} style={{position:"absolute",top:12,left:16,right:16,zIndex:100,background:"var(--rose-dim)",border:"1px solid rgba(196,122,122,.25)",borderRadius:10,padding:"9px 12px",fontSize:11,color:"var(--rose)"}}>{progressError} · Dismiss</button>}
 <div style={{flex:1,overflow:"hidden",position:"relative",zIndex:1}}>
@@ -518,7 +518,7 @@ return(
 </div>
 {activeTasbih&&<TasbihCounter dhikr={activeTasbih} onComplete={completeDhikr} onClose={()=>setActiveTasbih(null)}/>}
 <DhikrDetail/>
-<nav style={{display:"flex",justifyContent:"space-around",padding:"8px 0 env(safe-area-inset-bottom,8px)",background:"rgba(6,15,10,0.95)",backdropFilter:"blur(20px)",borderTop:"1px solid var(--border2)",position:"relative",zIndex:50}}>
+<nav style={{display:"flex",justifyContent:"center",gap:4,padding:"8px 0 env(safe-area-inset-bottom,8px)",background:"rgba(9,17,31,0.95)",backdropFilter:"blur(20px)",borderTop:"1px solid var(--border2)",position:"relative",zIndex:50}}>
 {[
 {k:"home",icon:"🕌",label:"Today"},
 {k:"circles",icon:"🤝",label:"Circles"},
@@ -526,7 +526,7 @@ return(
 {k:"learn",icon:"📖",label:"Library"},
 ].map(n=>(
 <button key={n.k} onClick={()=>setPage(n.k)} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:2,background:"none",border:"none",padding:"6px 20px",borderRadius:8,
-color:page===n.k?"var(--green2)":"var(--text3)",fontFamily:"var(--font)",fontSize:10,fontWeight:page===n.k?600:400,transition:"color 0.2s"}}>
+color:page===n.k?"var(--green2)":"var(--text3)",fontFamily:"var(--font)",fontSize:10,fontWeight:page===n.k?600:400,transition:"color 0.2s",minWidth:88}}>
 <span style={{fontSize:20,filter:page===n.k?"drop-shadow(0 0 6px var(--green-glow))":"none"}}>{n.icon}</span>
 {n.label}
 </button>

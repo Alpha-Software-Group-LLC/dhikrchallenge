@@ -33,9 +33,21 @@ style={{transition:"stroke-dashoffset 1s var(--ease)",filter:`drop-shadow(0 0 6p
 );
 }
 const arabicAudioCache={};
+const ARABIC_AUDIO={
+astaghfirullah:"/audio/astaghfirullah.mp3",
+la_ilaha_illallah:"/audio/la_ilaha_illallah.mp3",
+subhanallah:"/audio/subhanallah.mp3",
+alhamdulillah:"/audio/alhamdulillah.mp3",
+allahu_akbar:"/audio/allahu_akbar.mp3",
+quran_reading:"/audio/quran_reading.mp3",
+salawat:"/audio/salawat.mp3",
+hawqala:"/audio/hawqala.mp3"
+};
 async function loadArabicAudio(text){
 if(arabicAudioCache[text])return arabicAudioCache[text];
-const url=`https://translate.google.com/translate_tts?ie=UTF-8&tl=ar&client=tw-ob&q=${encodeURIComponent(text)}`;
+const dhikr=ADHKAR.find(item=>item.arabic===text);
+const url=dhikr&&ARABIC_AUDIO[dhikr.id];
+if(!url)throw new Error("Arabic audio unavailable");
 arabicAudioCache[text]=url;
 return url;
 }
@@ -160,13 +172,10 @@ if(activeAudio.current){ activeAudio.current.pause(); activeAudio.current=null; 
 const fetchArabicAudio=async(text)=>{
 if(audioCache.current[text]) return audioCache.current[text];
 try{
-const url=`https://translate.google.com/translate_tts?ie=UTF-8&tl=ar&client=tw-ob&q=${encodeURIComponent(text)}`;
-const resp=await fetch(url);
-if(!resp.ok) return null;
-const blob=await resp.blob();
-const objUrl=URL.createObjectURL(blob);
-audioCache.current[text]=objUrl;
-return objUrl;
+const dhikr=ADHKAR.find(item=>item.arabic===text);
+const url=dhikr&&ARABIC_AUDIO[dhikr.id];
+if(url)audioCache.current[text]=url;
+return url||null;
 }catch(e){ return null; }
 };
 const playAudio=(url,onEnd)=>{
