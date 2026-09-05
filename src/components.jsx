@@ -43,7 +43,7 @@ quran_reading:"/audio/quran_reading.mp3",
 salawat:"/audio/salawat.mp3",
 hawqala:"/audio/hawqala.mp3"
 };
-const ARABIC_AUDIO_CREDIT="Human recitation by Hamad Al-Duraim";
+const ARABIC_AUDIO_CREDIT="Clear human recitation · Hamad Al-Duraim";
 async function loadArabicAudio(text){
 if(arabicAudioCache[text])return arabicAudioCache[text];
 const dhikr=ADHKAR.find(item=>item.arabic===text);
@@ -82,7 +82,7 @@ window.speechSynthesis.speak(utterance);
 const playArabic=(onEnd)=>{
 loadArabicAudio(dhikr.arabic).then(url=>{
 const audio=new Audio(url);
-audio.playbackRate=.82;
+audio.playbackRate=1;
 audio.onended=()=>{audioRef.current=null;if(onEnd)onEnd();};
 audio.onerror=()=>{audioRef.current=null;speakBrowser(dhikr.arabic,"ar-SA",onEnd);};
 audioRef.current=audio;
@@ -183,7 +183,7 @@ return url||null;
 const playAudio=(url,onEnd)=>{
 if(activeAudio.current){ activeAudio.current.pause(); activeAudio.current=null; }
 const a=new Audio(url);
-a.playbackRate=0.82;
+a.playbackRate=1;
 a.volume=1.0;
 a.onended=()=>{ activeAudio.current=null; if(onEnd) onEnd(); };
 a.onerror=()=>{ activeAudio.current=null; if(onEnd) onEnd(); };
