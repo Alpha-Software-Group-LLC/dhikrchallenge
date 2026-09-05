@@ -96,7 +96,7 @@ return(
 <div style={{fontSize:13,color:"var(--text2)",marginBottom:16}}>{currentDhikr.meaning} — {currentDhikr.target}×</div>
 <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:10,marginBottom:16}}>
 <span style={{fontSize:10,color:"var(--text3)"}}>Arabic-only recitation available</span>
-<ArabicAudioButton text={currentDhikr.arabic} compact/>
+<RecitationControls dhikr={currentDhikr} compact/>
 </div>
 {!challengeCompleted?(
 <button onClick={()=>setActiveTasbih(currentDhikr)} style={{width:"100%",padding:"14px",borderRadius:10,border:"none",background:"var(--amber)",color:"var(--bg)",fontSize:14,fontWeight:600,fontFamily:"var(--font)",letterSpacing:"0.02em"}}>
@@ -123,7 +123,7 @@ return <div className="anim-up d2" style={{background:"var(--surface)",borderRad
 <div style={{fontFamily:"var(--arabic)",fontSize:22,color:"var(--text)",direction:"rtl",textAlign:"left"}}>{d.arabic}</div>
 <div style={{fontSize:12,color:"var(--text2)"}}>{d.transliteration} · {d.target}{d.unit?" "+d.unit:"×"}</div>
 </div>
-<ArabicAudioButton text={d.arabic} compact/>
+<RecitationControls dhikr={d} compact/>
 </div>
 {!done?<button onClick={()=>setActiveTasbih(d)} style={{width:"100%",padding:12,borderRadius:9,border:"1px solid var(--green-mid)",background:"var(--green-dim)",color:"var(--green2)",fontWeight:600}}>Begin Dhikr · +{d.xp} XP</button>
 :<div style={{padding:11,borderRadius:9,background:"var(--green-dim)",color:"var(--green)",textAlign:"center",fontSize:12}}>Completed — MashaAllah! ✅</div>}
@@ -333,7 +333,7 @@ return(
 <div style={{fontFamily:"var(--serif)",fontSize:18,color:"var(--text)",marginTop:6,fontStyle:"italic"}}>{d.transliteration}</div>
 <div style={{fontSize:13,color:"var(--text2)",marginTop:4}}>{d.meaning}</div>
 <div style={{display:"flex",justifyContent:"center",marginTop:14}}>
-<ArabicAudioButton text={d.arabic}/>
+<RecitationControls dhikr={d}/>
 </div>
 </div>
 <div style={{background:"var(--green-dim)",borderRadius:12,padding:16,marginBottom:16,border:"1px solid var(--green-mid)"}}>

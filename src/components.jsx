@@ -43,46 +43,76 @@ const objectUrl=URL.createObjectURL(blob);
 arabicAudioCache[text]=objectUrl;
 return objectUrl;
 }
-function ArabicAudioButton({text,compact=false}){
+function RecitationControls({dhikr,compact=false}){
+const[mode,setMode]=useState("arabic");
 const[playing,setPlaying]=useState(false);
 const[loading,setLoading]=useState(false);
 const audioRef=useRef(null);
+const timeoutRef=useRef(null);
+const stop=()=>{
+if(audioRef.current){audioRef.current.pause();audioRef.current=null;}
+if(window.speechSynthesis)window.speechSynthesis.cancel();
+if(timeoutRef.current)clearTimeout(timeoutRef.current);
+setPlaying(false);
+};
+const speakBrowser=(text,lang,onEnd)=>{
+if(!window.speechSynthesis){if(onEnd)onEnd();return;}
+window.speechSynthesis.cancel();
+const utterance=new SpeechSynthesisUtterance(text);
+utterance.lang=lang;
+utterance.rate=lang.startsWith("ar")?.78:.84;
+utterance.pitch=lang.startsWith("ar")?1:.9;
+const voices=window.speechSynthesis.getVoices();
+const voice=voices.find(item=>item.lang.toLowerCase().startsWith(lang.slice(0,2)))||
+voices.find(item=>item.lang.toLowerCase().startsWith(lang.slice(0,2)));
+if(voice)utterance.voice=voice;
+utterance.onend=onEnd;
+utterance.onerror=onEnd;
+window.speechSynthesis.speak(utterance);
+};
+const playArabic=(onEnd)=>{
+loadArabicAudio(dhikr.arabic).then(url=>{
+const audio=new Audio(url);
+audio.playbackRate=.82;
+audio.onended=()=>{audioRef.current=null;if(onEnd)onEnd();};
+audio.onerror=()=>{audioRef.current=null;speakBrowser(dhikr.arabic,"ar-SA",onEnd);};
+audioRef.current=audio;
+audio.play().catch(()=>{audioRef.current=null;speakBrowser(dhikr.arabic,"ar-SA",onEnd);});
+}).catch(()=>speakBrowser(dhikr.arabic,"ar-SA",onEnd));
+};
+const playEnglish=(onEnd)=>speakBrowser(dhikr.meaning,"en-US",onEnd);
 const play=async(ev)=>{
 ev.stopPropagation();
-if(audioRef.current){
-audioRef.current.pause();
-audioRef.current=null;
-setPlaying(false);
-return;
-}
+if(playing){stop();return;}
 setLoading(true);
-try{
-const url=await loadArabicAudio(text);
-const audio=new Audio(url);
-audio.playbackRate=0.82;
-audio.onended=()=>{audioRef.current=null;setPlaying(false);};
-audio.onerror=()=>{audioRef.current=null;setPlaying(false);};
-audioRef.current=audio;
-await audio.play();
 setPlaying(true);
-}catch(error){
-setPlaying(false);
-}finally{setLoading(false);}
+const done=()=>{setPlaying(false);setLoading(false);};
+if(mode==="english")playEnglish(done);
+else if(mode==="both")playArabic(()=>{timeoutRef.current=setTimeout(()=>playEnglish(done),1200);});
+else playArabic(done);
 };
-useEffect(()=>()=>audioRef.current?.pause(),[]);
+useEffect(()=>()=>stop(),[]);
 return(
-<button onClick={play} aria-label={playing?"Pause Arabic recitation":"Play Arabic recitation"}
-style={{display:"inline-flex",alignItems:"center",gap:7,padding:compact?"7px 10px":"9px 12px",borderRadius:9,border:"1px solid var(--amber-mid)",background:"var(--amber-dim)",color:"var(--amber2)",fontSize:compact?11:12,fontFamily:"var(--font)",fontWeight:600}}>
-<span>{loading?"…":playing?"Ⅱ":"▶"}</span>
-<span>{loading?"Loading":"Arabic recitation"}</span>
+<div onClick={ev=>ev.stopPropagation()} style={{display:"inline-flex",alignItems:"center",gap:6}}>
+<select value={mode} onChange={ev=>{stop();setMode(ev.target.value);}} aria-label="Recitation language"
+style={{padding:compact?"6px 7px":"8px 9px",borderRadius:8,border:"1px solid var(--amber-mid)",background:"var(--amber-dim)",color:"var(--amber2)",fontSize:compact?10:11,fontFamily:"var(--font)",fontWeight:600,outline:"none"}}>
+<option value="arabic">Arabic</option>
+<option value="english">English</option>
+<option value="both">Both</option>
+</select>
+<button onClick={play} aria-label={playing?"Stop recitation":"Play recitation"}
+style={{display:"inline-flex",alignItems:"center",gap:6,padding:compact?"7px 9px":"9px 12px",borderRadius:9,border:"1px solid var(--amber-mid)",background:"var(--amber-dim)",color:"var(--amber2)",fontSize:compact?11:12,fontFamily:"var(--font)",fontWeight:600}}>
+<span>{loading?"…":playing?"■":"▶"}</span>
+<span>{loading?"Loading":playing?"Stop":"Play"}</span>
 </button>
+</div>
 );
 }
 function TasbihCounter({dhikr,onComplete,onClose}){
 const[count,setCount]=useState(0);
 const[ripples,setRipples]=useState([]);
 const[completed,setCompleted]=useState(false);
-const[muted,setMuted]=useState(false);
+const[recitationMode,setRecitationMode]=useState("arabic");
 const pct=Math.min(count/dhikr.target,1);
 const DHIKR_ARABIC={
 astaghfirullah:   "أستغفر الله",
@@ -186,14 +216,21 @@ playAudio(arabicUrl,onDone);
 if(onDone)onDone();
 }
 };
+const speakSelected=(dhikrId,onDone)=>{
+if(recitationMode==="english"){
+speakEnglish(DHIKR_ENGLISH[dhikrId]||"",onDone);
+}else if(recitationMode==="both"){
+speakArabic(dhikrId,()=>setTimeout(()=>speakEnglish(DHIKR_ENGLISH[dhikrId]||"",onDone),1200));
+}else{
+speakArabic(dhikrId,onDone);
+}
+};
 const playTapAudio=()=>{
-if(muted)return;
 playTapClick();
-setTimeout(()=>speakArabic(dhikr.id,null),80);
+setTimeout(()=>speakSelected(dhikr.id,null),80);
 };
 const playCompletionAudio=(onDone)=>{
-if(muted){if(onDone)onDone();return;}
-speakArabic(dhikr.id,onDone);
+speakSelected(dhikr.id,onDone);
 };
 const tap=()=>{
 if(completed)return;
@@ -219,15 +256,13 @@ return(
 <button onClick={onClose} style={{background:"var(--surface)",border:"1px solid var(--border2)",borderRadius:8,padding:"8px 16px",color:"var(--text2)",fontSize:11,fontFamily:"var(--mono)",letterSpacing:"0.04em",textTransform:"uppercase"}}>← BACK</button>
 <div style={{display:"flex",alignItems:"center",gap:10}}>
 <div style={{fontSize:12,color:"var(--text3)",fontFamily:"var(--font)"}}>{dhikr.category}</div>
-<button
-onClick={()=>{
-if(!muted&&window.speechSynthesis)window.speechSynthesis.cancel();
-setMuted(m=>!m);
-}}
-title={muted?"Unmute recitation":"Mute — recite yourself"}
-style={{background:muted?"var(--amber-dim)":"var(--surface)",border:`1px solid ${muted?"var(--amber-mid)":"var(--border2)"}`,borderRadius:8,padding:"6px 10px",fontSize:16,cursor:"pointer",lineHeight:1,transition:"all 0.2s"}}>
-{muted?"🔇":"🔊"}
-</button>
+<select value={recitationMode} onChange={ev=>{if(window.speechSynthesis)window.speechSynthesis.cancel();setRecitationMode(ev.target.value);}}
+aria-label="Choose recitation language"
+style={{background:"var(--amber-dim)",border:"1px solid var(--amber-mid)",borderRadius:8,padding:"7px 8px",fontSize:11,color:"var(--amber2)",fontFamily:"var(--font)",fontWeight:600,outline:"none"}}>
+<option value="arabic">Arabic</option>
+<option value="english">English</option>
+<option value="both">Both</option>
+</select>
 </div>
 </div>
 <div style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"0 24px",position:"relative"}}>
