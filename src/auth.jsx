@@ -61,7 +61,7 @@ return(
 <div className="anim-up" style={{textAlign:"center",marginBottom:28,position:"relative",zIndex:1}}>
 <div style={{display:"flex",justifyContent:"center",marginBottom:14}}>
 <IslamicStar size={92} progress={1} color="var(--amber)">
-<span style={{fontSize:34}}>📿</span>
+<span style={{fontSize:20}}>✦</span>
 </IslamicStar>
 </div>
 <div style={{fontFamily:"var(--arabic)",fontSize:18,color:"var(--amber)",marginBottom:6,direction:"rtl"}}>بِسْمِ ٱللَّهِ</div>
@@ -106,7 +106,7 @@ style={inputStyle}/>
 )}
 <button onClick={submit} disabled={loading}
 style={{width:"100%",padding:"15px",borderRadius:12,border:"none",background:"var(--amber)",color:"var(--bg)",fontSize:15,fontWeight:600,fontFamily:"var(--font)",letterSpacing:"0.02em",marginTop:4,opacity:loading?.65:1}}>
-{loading?"Please wait…":mode==="signup"?"Begin the Journey 📿":"Sign In →"}
+{loading?"Please wait…":mode==="signup"?"Begin the Journey":"Sign In →"}
 </button>
 <div style={{textAlign:"center",marginTop:16,fontSize:12,color:"var(--text3)",fontFamily:"var(--font)"}}>
 {mode==="signup"?"Already have an account? ":"New here? "}
@@ -116,7 +116,7 @@ style={{color:"var(--amber)",cursor:"pointer",fontWeight:600}}>
 </span>
 </div>
 <div style={{textAlign:"center",marginTop:24,fontSize:10,color:"var(--text3)",fontFamily:"var(--mono)",letterSpacing:"0.04em",lineHeight:1.6,opacity:0.7}}>
-🔒 Your account &amp; progress are securely synced<br/>across your devices.
+Your account &amp; practice are securely synced<br/>across your devices.
 </div>
 </div>
 </div>

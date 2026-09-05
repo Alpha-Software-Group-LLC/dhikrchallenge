@@ -133,7 +133,8 @@ style={{display:"inline-flex",alignItems:"center",gap:6,padding:compact?"7px 9px
 );
 }
 function TasbihCounter({dhikr,onComplete,onClose}){
-const[count,setCount]=useState(0);
+const countStorageKey=`dhikr-counter:${new Date().toISOString().slice(0,10)}:${dhikr.id}`;
+const[count,setCount]=useState(()=>{try{return Math.min(Number(localStorage.getItem(countStorageKey)||0),Math.max(0,dhikr.target-1));}catch(error){return 0;}});
 const[ripples,setRipples]=useState([]);
 const[completed,setCompleted]=useState(false);
 const[recitationMode,setRecitationMode]=useState("arabic");
@@ -261,11 +262,13 @@ const tap=()=>{
 if(completed)return;
 const next=count+1;
 setCount(next);
+try{localStorage.setItem(countStorageKey,String(next));}catch(error){}
 setRipples(prev=>[...prev,Date.now()]);
 setTimeout(()=>setRipples(prev=>prev.slice(1)),800);
 playTapAudio();
 if(next>=dhikr.target){
 setCompleted(true);
+try{localStorage.removeItem(countStorageKey);}catch(error){}
 setTimeout(()=>{
 playCompletionAudio(()=>setTimeout(()=>onComplete(dhikr),600));
 },200);
@@ -325,7 +328,7 @@ animation:count>0?"countPulse 0.3s ease":"none"}}>
 </>
 ):(
 <div style={{textAlign:"center",animation:"scaleIn 0.5s var(--ease)"}}>
-<div style={{fontSize:36,marginBottom:4}}>✨</div>
+<div style={{fontSize:30,marginBottom:4,color:"var(--amber2)"}}>✓</div>
 <div style={{fontSize:13,color:"var(--amber2)",fontWeight:500}}>Completed</div>
 </div>
 )}
@@ -339,11 +342,7 @@ animation:count>0?"countPulse 0.3s ease":"none"}}>
 Take a breath. Let the meaning arrive before the number.
 </div>}
 </div>
-<div style={{padding:"16px 24px",textAlign:"center"}}>
-<div style={{fontSize:11,color:"var(--green2)",fontFamily:"var(--mono)",fontWeight:400,letterSpacing:"0.08em"}}>
-+{dhikr.xp} app points on completion
-</div>
-</div>
+<div style={{padding:"16px 24px",textAlign:"center",fontSize:11,color:"var(--text3)"}}>Your count stays on this device if you pause and return today.</div>
 </div>
 );
 }
@@ -353,7 +352,9 @@ let supabaseClient=null;
 async function getSupabase(){
 if(supabaseClient)return supabaseClient;
 const response=await fetch("/api/config");
-const config=await response.json();
+let config;
+try{config=await response.json();}
+catch(error){throw new Error("Authentication configuration is unavailable in this environment.");}
 if(!response.ok)throw new Error(config.error||"Authentication is unavailable.");
 supabaseClient=window.supabase.createClient(config.url,config.publishableKey,{
 auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}
@@ -394,9 +395,9 @@ return((day%ADHKAR.length)+ADHKAR.length)%ADHKAR.length+1;
 }
 function practiceWindow(){
 const hour=new Date().getHours();
-if(hour<5)return{label:"Before dawn",icon:"🌌",note:"A quiet moment before the day begins."};
-if(hour<12)return{label:"Morning remembrance",icon:"🌤️",note:"Begin with a heart turned toward Allah."};
-if(hour<18)return{label:"Midday reset",icon:"☀️",note:"Return to presence between the day's demands."};
-if(hour<22)return{label:"Evening remembrance",icon:"🌙",note:"Close the day with calm and gratitude."};
-return{label:"Night reflection",icon:"✨",note:"A soft landing before rest."};
+if(hour<5)return{label:"Before dawn",note:"A quiet moment before the day begins."};
+if(hour<12)return{label:"Morning remembrance",note:"Begin with a heart turned toward Allah."};
+if(hour<18)return{label:"Midday reset",note:"Return to presence between the day's demands."};
+if(hour<22)return{label:"Evening remembrance",note:"Close the day with calm and gratitude."};
+return{label:"Night reflection",note:"A soft landing before rest."};
 }

@@ -11,10 +11,11 @@ category:"Repentance",
 significance:"The Prophet ﷺ said: 'By Allah, I seek forgiveness from Allah and turn to Him in repentance more than seventy times a day.' (Bukhari). Istighfar purifies the heart, removes anxiety, opens doors of mercy, and brings relief from every difficulty.",
 practiceReflection:"Repentance begins with telling the truth about our need for Allah; let the words be accompanied by a sincere turn back.",
 difficulty:"easy",
-icon:"🤲",
+ icon:"",
 source:"Sahih al-Bukhari 6307",
 moment:"A gentle return after a mistake or a heavy moment.",
 reflection:"What would it feel like to place this burden down before Allah?"
+ ,words:[["أَسْتَغْفِرُ","astaghfiru","I seek forgiveness"],["ٱللَّهَ","Allaha","Allah"]]
 },
 {
 id:"la_ilaha_illallah",
@@ -27,10 +28,11 @@ category:"Tawheed",
 significance:"The best dhikr is La ilaha illallah (Tirmidhi). This is the declaration of Tawheed — the foundation of Islam and the heaviest statement on the scales on the Day of Judgment.",
 practiceReflection:"Let this declaration shape what you rely on, love, and fear today.",
 difficulty:"easy",
-icon:"☪️",
+ icon:"",
 source:"Jami' at-Tirmidhi 3383",
 moment:"Whenever you want to renew your center and intention.",
 reflection:"What would change if your heart had one true anchor today?"
+ ,words:[["لَا","la","no / there is not"],["إِلَٰهَ","ilaha","god"],["إِلَّا","illa","except"],["ٱللَّهُ","Allahu","Allah"]]
 },
 {
 id:"subhanallah",
@@ -43,10 +45,11 @@ category:"Glorification",
 significance:"SubhanAllah fills the scales of good deeds. The Prophet ﷺ said: 'Two words that are light on the tongue, heavy on the scales, and beloved to the Most Merciful: SubhanAllahi wa bihamdihi, SubhanAllahil Azeem.' (Bukhari & Muslim)",
 practiceReflection:"Let glorifying Allah interrupt the assumption that you see the whole picture.",
 difficulty:"easy",
-icon:"✨",
+ icon:"",
 source:"Sahih al-Bukhari 6682; Sahih Muslim 2694",
 moment:"A quiet reset while walking, waiting, or finishing a task.",
 reflection:"Notice one sign of Allah's perfection around you."
+ ,words:[["سُبْحَانَ","subhana","Glory be"],["ٱللَّهِ","Allahi","of Allah"]]
 },
 {
 id:"alhamdulillah",
@@ -59,10 +62,11 @@ category:"Gratitude",
 significance:"Alhamdulillah fills the space between the heavens and the earth (Muslim). Gratitude (shukr) is one of the highest stations of the soul — it transforms perspective and brings increase in blessings.",
 practiceReflection:"Name one blessing without rushing past it; praise can become a way of noticing.",
 difficulty:"easy",
-icon:"💛",
+ icon:"",
 source:"Sahih Muslim 223",
 moment:"After receiving a blessing, small or immense.",
 reflection:"Name one blessing you received today without earning it."
+ ,words:[["ٱلْحَمْدُ","al-hamdu","all praise"],["لِلَّهِ","lillahi","belongs to Allah"]]
 },
 {
 id:"allahu_akbar",
@@ -75,10 +79,11 @@ category:"Magnification",
 significance:"Completing SubhanAllah 33×, Alhamdulillah 33×, and Allahu Akbar 33× after every salah is a sunnah that the Prophet ﷺ taught to the Companions when they asked for the best deeds.",
 practiceReflection:"Let “Allahu Akbar” put today's worries in their proper size, without denying the work still before you.",
 difficulty:"easy",
-icon:"🌙",
+ icon:"",
 source:"Sunan Abi Dawud 150",
 moment:"After salah or when fear makes the world feel too large.",
 reflection:"What worry becomes smaller when Allah is remembered as greater?"
+ ,words:[["ٱللَّهُ","Allahu","Allah"],["أَكْبَرُ","akbar","is the Greatest"]]
 },
 {
 id:"quran_reading",
@@ -91,11 +96,12 @@ category:"Qur'an",
 significance:"The Prophet ﷺ taught that whoever recites a letter from the Book of Allah receives a multiplied reward, and he said: 'The best of you are those who learn the Qur'an and teach it.' Regular recitation is an act of closeness, learning, and reflection.",
 practiceReflection:"Approach Qur'an recitation with attention, humility, and a willingness to learn.",
 difficulty:"medium",
-icon:"📖",
+ icon:"",
 unit:"ayahs",
 source:"Jami' at-Tirmidhi 2910; Sahih al-Bukhari 5027",
 moment:"In a focused window when you can read with presence.",
 reflection:"Take one meaning from the passage into the rest of your day."
+ ,words:[["تِلَاوَةُ","tilawatu","recitation"],["الْقُرْآنِ","al-Qur'ani","of the Qur'an"]]
 },
 {
 id:"salawat",
@@ -108,10 +114,11 @@ category:"Salawat",
 significance:"Whoever sends one salawat upon me, Allah sends ten blessings upon him (Muslim). Friday is especially virtuous for abundant salawat upon the Prophet ﷺ.",
 practiceReflection:"Let love for the Prophet ﷺ show up as gratitude, good character, and following his guidance.",
 difficulty:"easy",
-icon:"🕌",
+ icon:"",
 source:"Sahih Muslim 408",
 moment:"Especially on Friday, and whenever love for the Prophet ﷺ rises.",
 reflection:"Let gratitude for the Prophet ﷺ soften one interaction today."
+ ,words:[["اللَّهُمَّ","Allahumma","O Allah"],["صَلِّ","salli","send blessings"],["عَلَى","'ala","upon"],["مُحَمَّدٍ","Muhammad","Muhammad"]]
 },
 {
 id:"hawqala",
@@ -124,21 +131,12 @@ category:"Tawakkul",
 significance:"The Prophet ﷺ called this phrase a 'treasure from the treasures of Paradise' (Bukhari & Muslim). It is the ultimate expression of reliance upon Allah in every matter.",
 practiceReflection:"Say this while taking the next responsible step, then release what is outside your control.",
 difficulty:"easy",
-icon:"🌟",
+ icon:"",
 source:"Sahih al-Bukhari 6409; Sahih Muslim 2704",
 moment:"When effort feels beyond you and you need to rely on Allah.",
 reflection:"What can you release after doing the next right thing?"
+ ,words:[["لَا","la","no"],["حَوْلَ","hawla","power / change"],["وَلَا","wa la","and no"],["قُوَّةَ","quwwata","strength"],["إِلَّا","illa","except"],["بِٱللَّهِ","billahi","through Allah"]]
 },
-];
-const RANKS=[
-{level:1,name:"Beginning",arabic:"بِدَايَة",min:0,icon:"🌱"},
-{level:2,name:"Returning",arabic:"رُجُوع",min:200,icon:"🚶"},
-{level:3,name:"Steady practice",arabic:"ثَبَات",min:500,icon:"📿"},
-{level:4,name:"A gentle rhythm",arabic:"إِيقَاع",min:1000,icon:"🌙"},
-{level:5,name:"Growing presence",arabic:"حُضُور",min:2000,icon:"⭐"},
-{level:6,name:"Gratitude in practice",arabic:"شُكْر",min:3500,icon:"💛"},
-{level:7,name:"Deepening",arabic:"تَعَمُّق",min:5500,icon:"✨"},
-{level:8,name:"Rooted practice",arabic:"رُسُوخ",min:8000,icon:"🌟"},
 ];
 const HADITHS=[
 {
@@ -215,6 +213,23 @@ reference:"Qur’an 3:159",
 meaning:"Consult, decide, and then place your reliance upon Allah.",
 },
 ];
+const QURAN_READING_PATHS=[
+{
+ title:"When the heart feels crowded",
+ description:"A three-passage path through remembrance, capacity, and ease.",
+ items:["remembrance","burden","ease"],
+},
+{
+ title:"A return after mistakes",
+ description:"Read mercy first, then remembrance and reliance.",
+ items:["mercy","remember","reliance"],
+},
+{
+ title:"Gratitude with steadiness",
+ description:"A short path from remembering to trusting the next step.",
+ items:["remember","remembrance","reliance"],
+},
+];
 const SEARCH_TOPIC_ALIASES={
 anxiety:["anxiety","worry","stress","overwhelmed","sad","fear","calm","peace"],
 repentance:["repent","sin","forgive","forgiveness","mistake","guilt","astaghfirullah"],
@@ -242,10 +257,12 @@ const results=[
 ...QURAN_REFERENCES.map(item=>({...item,type:"Qur’an",searchText:`${item.theme} ${item.reference} ${item.meaning}`})),
 ...HADITHS.map(item=>({...item,type:"Hadith",searchText:`${item.theme} ${item.title} ${item.text} ${item.reference}`})),
 ...ADHKAR.map(item=>({...item,type:"Dhikr",searchText:`${item.category} ${item.transliteration} ${item.meaning} ${item.moment} ${item.reflection} ${item.significance}`})),
-].map(item=>({...item,score:score(item.searchText)}))
+].map(item=>{
+ const matchedTerms=terms.filter(term=>item.searchText.toLowerCase().includes(term));
+ return{...item,matchedTerms,score:score(item.searchText)};
+})
 .filter(item=>item.score>0)
-.sort((a,b)=>b.score-a.score)
-.slice(0,6);
+.sort((a,b)=>b.score-a.score);
 const lawPrompt=terms.some(term=>["law","fiqh","halal","haram","ruling","fatwa","madhhab"].includes(term));
 if(lawPrompt){
 results.unshift({
@@ -256,18 +273,12 @@ theme:"Fiqh & law",
 meaning:"This search can point you toward sources, but it does not issue fatwas or decide between schools. Use the Library’s school-aware fiqh resources and include your context when asking a teacher.",
 reference:"School-aware guidance",
 score:99,
+matchedTerms:["fiqh"],
 });
 }
-return{results:results.slice(0,6),terms,lawPrompt};
+return{results,terms,lawPrompt};
 }
 const dailyHadith=()=>{
 const day=Math.floor((Date.parse(todayStr()+"T00:00:00Z")-Date.parse("2026-01-01T00:00:00Z"))/86400000);
 return HADITHS[((day%HADITHS.length)+HADITHS.length)%HADITHS.length];
-};
-const getRank=(xp)=>{
-let rank=RANKS[0];
-for(const r of RANKS){if(xp>=r.min)rank=r;else break;}
-const next=RANKS[RANKS.indexOf(rank)+1];
-const progress=next?((xp-rank.min)/(next.min-rank.min)):1;
-return{...rank,progress:Math.min(progress,1),next};
 };

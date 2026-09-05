@@ -11,9 +11,9 @@ This branch targets the existing Vercel project for `dhikrchallenge.com`.
    - The Vercel preview URL for this branch
 
 Email/password authentication is enabled. The schema applies row-level security,
-keeps progress private, assigns XP inside PostgreSQL, prevents duplicate daily
-completions, and exposes only display names and today's XP to authenticated
-people on the leaderboard.
+keeps progress and reflections private, prevents duplicate daily completions,
+and limits circles to member-only participation status without scores, counts,
+or last-active timestamps.
 
 ## Vercel environment
 
@@ -30,5 +30,8 @@ this application.
 
 1. Push `enhancement/supabase-auth`.
 2. Validate sign-up, email confirmation, sign-in, completion syncing, duplicate
-   prevention, the two daily releases, and the leaderboard on the Vercel preview.
-3. Merge into `main` only after the preview passes.
+   prevention, the personalized daily releases, and private circle participation
+   on the Vercel preview.
+3. Verify onboarding, reflection saving, bookmarks, private circle intentions,
+   and the curated Ask boundaries.
+4. Merge into `main` only after the preview passes.
