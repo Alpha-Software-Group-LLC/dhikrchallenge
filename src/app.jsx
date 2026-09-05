@@ -66,7 +66,7 @@ return(
 <div style={{position:"relative",zIndex:1}}>
 <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:12}}>
 <div>
-<div style={{fontSize:10,color:"var(--green2)",fontFamily:"var(--font)",fontWeight:600,textTransform:"uppercase",letterSpacing:".12em",marginBottom:6}}>Your daily path</div>
+<div style={{fontSize:10,color:"var(--green2)",fontFamily:"var(--font)",fontWeight:600,textTransform:"uppercase",letterSpacing:".12em",marginBottom:6}}>Today’s daily challenge</div>
 <div style={{fontFamily:"var(--serif)",fontSize:21,color:"var(--text)"}}>{window.icon} {window.label}</div>
 <div style={{fontSize:12,color:"var(--text2)",marginTop:4,lineHeight:1.5}}>{window.note}</div>
 </div>
@@ -76,7 +76,7 @@ return(
 <div style={{height:"100%",width:`${journeyProgress*100}%`,background:"linear-gradient(90deg,var(--green),var(--amber))",borderRadius:4,transition:"width .5s var(--ease)"}}/>
 </div>
 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:10,fontSize:11,color:"var(--text3)"}}>
-<span>{completedReleases===releasedDhikr.length?"Both practices complete — carry the calm with you.":"Two small practices. No pressure, just return."}</span>
+<span>{completedReleases===releasedDhikr.length?"Both challenge releases complete — carry the calm with you.":"Two focused releases. No pressure, just return."}</span>
 <span style={{color:"var(--green2)",fontWeight:600}}>{completedReleases===releasedDhikr.length?"Complete":"Begin"}</span>
 </div>
 </div>
@@ -378,7 +378,7 @@ return(
 <DhikrDetail/>
 <nav style={{display:"flex",justifyContent:"space-around",padding:"8px 0 env(safe-area-inset-bottom,8px)",background:"rgba(6,15,10,0.95)",backdropFilter:"blur(20px)",borderTop:"1px solid var(--border2)",position:"relative",zIndex:50}}>
 {[
-{k:"home",icon:"🕌",label:"Challenge"},
+{k:"home",icon:"🕌",label:"Daily Challenge"},
 {k:"progress",icon:"📿",label:"Journey"},
 {k:"learn",icon:"📖",label:"Learn"},
 ].map(n=>(
