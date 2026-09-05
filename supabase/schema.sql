@@ -107,7 +107,7 @@ end;
 $$;
 
 create or replace function public.daily_leaderboard()
-returns table(rank bigint, name text, xp bigint, current_user boolean)
+returns table(rank bigint, name text, xp bigint, "current_user" boolean)
 language sql
 security definer
 set search_path = public
@@ -126,8 +126,8 @@ as $$
   limit 25;
 $$;
 
-revoke all on function public.complete_daily_dhikr(text) from public;
-revoke all on function public.my_dhikr_progress() from public;
+revoke all on function public.complete_daily_dhikr(text) from public, anon;
+revoke all on function public.my_dhikr_progress() from public, anon;
 grant execute on function public.complete_daily_dhikr(text) to authenticated;
 grant execute on function public.my_dhikr_progress() to authenticated;
 revoke all on function public.daily_leaderboard() from public, anon;
