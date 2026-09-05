@@ -8,7 +8,13 @@ This branch targets the existing Vercel project for `dhikrchallenge.com`.
 2. Run `supabase/schema.sql` once.
 3. In Authentication settings, add these redirect URLs:
    - `https://dhikrchallenge.com`
+   - `https://www.dhikrchallenge.com`
    - The Vercel preview URL for this branch
+
+   Sign-up confirmation emails redirect to whichever origin the person signed up
+   from (`window.location.origin`), so every hostname that serves the app must be
+   in this list. The Site URL is only a fallback and should point at the
+   canonical hostname.
 
 Email/password authentication is enabled. The schema applies row-level security,
 keeps progress private, assigns XP inside PostgreSQL, prevents duplicate daily

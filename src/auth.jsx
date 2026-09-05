@@ -23,7 +23,7 @@ try{
 const client=await getSupabase();
 if(mode==="signup"){
 const{data,error}=await client.auth.signUp({
-email:e,password:pass,options:{data:{display_name:name.trim()}}
+email:e,password:pass,options:{data:{display_name:name.trim()},emailRedirectTo:window.location.origin}
 });
 if(error)throw error;
 if(data.user){
