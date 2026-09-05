@@ -102,6 +102,7 @@ finally{setCircleBusy(false);}
 function HomePage(){
 const challengeCompleted=completedDhikr.includes(currentDhikr.id);
 const window=practiceWindow();
+const todaysHadith=dailyHadith();
 const completedReleases=releasedDhikr.filter(d=>completedDhikr.includes(d.id)).length;
 const journeyProgress=completedReleases/releasedDhikr.length;
 return(
@@ -205,6 +206,17 @@ return <div className="anim-up d2" style={{background:"var(--surface)",borderRad
 <div style={{fontSize:10,color:"var(--amber)",fontFamily:"var(--font)",fontWeight:500,textTransform:"uppercase",letterSpacing:"0.12em",marginBottom:6}}>A reflection for practice</div>
 <p style={{fontFamily:"var(--serif)",fontSize:14,fontStyle:"italic",lineHeight:1.7,color:"var(--text2)"}}>{currentDhikr.practiceReflection}</p>
 <div style={{fontSize:10,color:"var(--text3)",lineHeight:1.5,marginTop:8}}>A meditation, not a hadith or fatwa. For rulings or personal guidance, ask a qualified scholar.</div>
+</div>
+</div>
+<div className="anim-up d3" style={{background:"linear-gradient(135deg,var(--bg2),var(--surface))",borderRadius:16,padding:20,border:"1px solid var(--green-mid)",marginBottom:16}}>
+<div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:10,marginBottom:10}}>
+<div style={{fontSize:11,color:"var(--green2)",fontFamily:"var(--font)",fontWeight:600,textTransform:"uppercase",letterSpacing:".1em"}}>A hadith to carry</div>
+<div style={{fontSize:10,color:"var(--text3)"}}>{todaysHadith.theme}</div>
+</div>
+<div style={{fontFamily:"var(--serif)",fontSize:15,lineHeight:1.7,color:"var(--text)"}}>{todaysHadith.text}</div>
+<div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:10,marginTop:12}}>
+<div style={{fontSize:10,color:"var(--text3)"}}>Paraphrase · {todaysHadith.reference}</div>
+<a href={sourceSearchUrl(todaysHadith.reference)} target="_blank" rel="noreferrer" style={{fontSize:10,color:"var(--amber)",textDecoration:"none",whiteSpace:"nowrap"}}>Check source ↗</a>
 </div>
 </div>
 <div className="anim-up d4" style={{marginBottom:16}}>
@@ -449,9 +461,16 @@ Return gently to remembrance, and let it shape how you meet the next moment.
 );
 }
 function LearnPage(){
+const[section,setSection]=useState("adhkar");
 const[category,setCategory]=useState("All");
 const categories=["All",...new Set(ADHKAR.map(d=>d.category))];
 const visibleDhikr=category==="All"?ADHKAR:ADHKAR.filter(d=>d.category===category);
+const sections=[
+{id:"adhkar",label:"Adhkar"},
+{id:"hadith",label:"Hadith"},
+{id:"resources",label:"Resources"},
+{id:"tools",label:"Tools"},
+];
 return(
 <div style={{height:"100%",overflowY:"auto",padding:"16px 16px 100px"}}>
 <div className="anim-up" style={{marginBottom:24}}>
@@ -461,14 +480,22 @@ return(
 <div style={{marginTop:12,padding:"11px 13px",borderRadius:10,background:"var(--amber-dim)",border:"1px solid var(--amber-mid)",fontSize:11,color:"var(--text2)",lineHeight:1.55}}>Sources are starting points for learning, not a substitute for a qualified scholar. Where a passage is a reflection, it is labeled as such.</div>
 </div>
 <div style={{display:"flex",gap:7,overflowX:"auto",paddingBottom:12,marginBottom:8,scrollbarWidth:"none"}}>
-{categories.map(item=>(
-<button key={item} onClick={()=>setCategory(item)}
-style={{whiteSpace:"nowrap",padding:"7px 11px",borderRadius:16,border:`1px solid ${category===item?"var(--amber-mid)":"var(--border2)"}`,background:category===item?"var(--amber-dim)":"var(--surface)",color:category===item?"var(--amber2)":"var(--text3)",fontSize:11,fontFamily:"var(--font)",fontWeight:category===item?600:400}}>
-{item}
+{sections.map(item=>(
+<button key={item.id} onClick={()=>setSection(item.id)}
+style={{whiteSpace:"nowrap",padding:"8px 13px",borderRadius:16,border:`1px solid ${section===item.id?"var(--amber-mid)":"var(--border2)"}`,background:section===item.id?"var(--amber-dim)":"var(--surface)",color:section===item.id?"var(--amber2)":"var(--text3)",fontSize:11,fontFamily:"var(--font)",fontWeight:section===item.id?600:400}}>
+{item.label}
 </button>
 ))}
 </div>
-{visibleDhikr.map((d,i)=>(
+{section==="adhkar"&&<div style={{display:"flex",gap:7,overflowX:"auto",paddingBottom:12,marginBottom:8,scrollbarWidth:"none"}}>
+{categories.map(item=>(
+<button key={item} onClick={()=>setCategory(item)}
+style={{whiteSpace:"nowrap",padding:"7px 11px",borderRadius:16,border:`1px solid ${category===item?"var(--green-mid)":"var(--border2)"}`,background:category===item?"var(--green-dim)":"var(--surface)",color:category===item?"var(--green2)":"var(--text3)",fontSize:11,fontFamily:"var(--font)",fontWeight:category===item?600:400}}>
+{item}
+</button>
+))}
+</div>}
+{section==="adhkar"&&visibleDhikr.map((d,i)=>(
 <div key={d.id} className={`anim-up d${Math.min(i+1,5)}`}
 onClick={()=>setShowDetail(d)}
 style={{background:"var(--surface)",borderRadius:14,padding:18,border:"1px solid var(--border)",marginBottom:10,cursor:"pointer",transition:"border-color 0.2s"}}
@@ -485,6 +512,64 @@ onMouseLeave={e=>e.currentTarget.style.borderColor="var(--border)"}>
 </div>
 </div>
 ))}
+{section==="hadith"&&(
+<div>
+<div style={{fontSize:12,color:"var(--text2)",lineHeight:1.6,marginBottom:14}}>Short, referenced reminders to study alongside today’s practice. The wording below is a paraphrase; open the collection before sharing it as a quotation.</div>
+{HADITHS.map((item,i)=>(
+<div key={item.id} className={`anim-up d${Math.min(i+1,5)}`} style={{background:"var(--surface)",borderRadius:14,padding:18,border:"1px solid var(--border)",marginBottom:10}}>
+<div style={{display:"flex",justifyContent:"space-between",gap:12,marginBottom:8}}>
+<div style={{fontSize:14,fontWeight:600,color:"var(--text)"}}>{item.title}</div>
+<div style={{fontSize:10,color:"var(--green2)",whiteSpace:"nowrap"}}>{item.theme}</div>
+</div>
+<div style={{fontFamily:"var(--serif)",fontSize:14,lineHeight:1.7,color:"var(--text2)"}}>{item.text}</div>
+<div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:10,marginTop:12}}>
+<div style={{fontSize:10,color:"var(--text3)"}}>{item.reference}</div>
+<a href={sourceSearchUrl(item.reference)} target="_blank" rel="noreferrer" style={{fontSize:10,color:"var(--amber)",textDecoration:"none",whiteSpace:"nowrap"}}>Open source ↗</a>
+</div>
+</div>
+))}
+</div>
+)}
+{section==="resources"&&(
+<div>
+<div style={{fontSize:12,color:"var(--text2)",lineHeight:1.6,marginBottom:14}}>A small, intentional doorway into resources that complement dhikr. External sites have their own editorial approaches—read the source and ask a teacher when the question is personal or consequential.</div>
+{RESOURCE_LINKS.map((item,i)=>(
+<a key={item.id} href={item.url} target="_blank" rel="noreferrer" className={`anim-up d${Math.min(i+1,5)}`} style={{display:"block",background:"var(--surface)",borderRadius:14,padding:18,border:"1px solid var(--border)",marginBottom:10,textDecoration:"none"}}>
+<div style={{display:"flex",alignItems:"flex-start",gap:14}}>
+<div style={{width:42,height:42,borderRadius:12,background:"var(--amber-dim)",border:"1px solid var(--amber-mid)",display:"grid",placeItems:"center",fontSize:20,flexShrink:0}}>{item.icon}</div>
+<div style={{minWidth:0}}>
+<div style={{fontSize:10,color:"var(--amber)",textTransform:"uppercase",letterSpacing:".08em",marginBottom:5}}>{item.category}</div>
+<div style={{fontSize:14,fontWeight:600,color:"var(--text)"}}>{item.title} <span style={{color:"var(--amber)",fontSize:12}}>↗</span></div>
+<div style={{fontSize:12,color:"var(--text2)",lineHeight:1.55,marginTop:4}}>{item.description}</div>
+<div style={{fontSize:10,color:"var(--text3)",marginTop:8}}>{item.source}</div>
+</div>
+</div>
+</a>
+))}
+</div>
+)}
+{section==="tools"&&(
+<div>
+<div style={{fontSize:12,color:"var(--text2)",lineHeight:1.6,marginBottom:14}}>Keep the utility layer close to the purpose: remember, learn, and practice together.</div>
+{[
+{icon:"📿",title:"Tasbih counter",description:"Count either daily release with Arabic audio, calm English, and progress sync.",action:()=>setPage("home"),label:"Open Today"},
+{icon:"🤝",title:"Private circles",description:"Invite family, friends, or a halaqah and see gentle daily participation.",action:()=>setPage("circles"),label:"Open Circles"},
+{icon:"🧭",title:"Prayer times & Qibla",description:"Use a dedicated location-aware tool for prayer calculations and direction.",url:"https://www.islamicfinder.org/",label:"Open Athan tools"},
+{icon:"📚",title:"Build a study habit",description:"Save this Library for dhikr, hadith, Qur’an study, and school-aware fiqh resources.",action:()=>setSection("resources"),label:"Browse resources"},
+].map((item,i)=>(
+<div key={item.title} className={`anim-up d${Math.min(i+1,5)}`} style={{background:"var(--surface)",borderRadius:14,padding:18,border:"1px solid var(--border)",marginBottom:10}}>
+<div style={{display:"flex",alignItems:"flex-start",gap:14}}>
+<div style={{width:42,height:42,borderRadius:12,background:"var(--green-dim)",border:"1px solid var(--green-mid)",display:"grid",placeItems:"center",fontSize:20,flexShrink:0}}>{item.icon}</div>
+<div style={{flex:1}}>
+<div style={{fontSize:14,fontWeight:600,color:"var(--text)"}}>{item.title}</div>
+<div style={{fontSize:12,color:"var(--text2)",lineHeight:1.55,marginTop:4}}>{item.description}</div>
+{item.url?<a href={item.url} target="_blank" rel="noreferrer" style={{display:"inline-block",marginTop:10,fontSize:11,color:"var(--amber)",textDecoration:"none"}}>{item.label} ↗</a>:<button onClick={item.action} style={{marginTop:10,padding:"7px 10px",borderRadius:8,border:"1px solid var(--green-mid)",background:"var(--green-dim)",color:"var(--green2)",fontSize:11,fontWeight:600}}>{item.label}</button>}
+</div>
+</div>
+</div>
+))}
+</div>
+)}
 </div>
 );
 }
