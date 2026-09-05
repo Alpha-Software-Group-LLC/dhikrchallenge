@@ -463,8 +463,16 @@ Return gently to remembrance, and let it shape how you meet the next moment.
 function LearnPage(){
 const[section,setSection]=useState("adhkar");
 const[category,setCategory]=useState("All");
+const[resourceCategory,setResourceCategory]=useState("All");
+const[resourceQuery,setResourceQuery]=useState("");
 const categories=["All",...new Set(ADHKAR.map(d=>d.category))];
 const visibleDhikr=category==="All"?ADHKAR:ADHKAR.filter(d=>d.category===category);
+const resourceCategories=["All",...new Set(RESOURCE_LINKS.map(item=>item.category))];
+const visibleResources=RESOURCE_LINKS.filter(item=>{
+const matchesCategory=resourceCategory==="All"||item.category===resourceCategory;
+const haystack=`${item.title} ${item.description} ${item.source} ${item.category} ${item.access} ${item.terms}`.toLowerCase();
+return matchesCategory&&(!resourceQuery.trim()||haystack.includes(resourceQuery.trim().toLowerCase()));
+});
 const sections=[
 {id:"adhkar",label:"Adhkar"},
 {id:"hadith",label:"Hadith"},
@@ -532,8 +540,21 @@ onMouseLeave={e=>e.currentTarget.style.borderColor="var(--border)"}>
 )}
 {section==="resources"&&(
 <div>
-<div style={{fontSize:12,color:"var(--text2)",lineHeight:1.6,marginBottom:14}}>A small, intentional doorway into resources that complement dhikr. External sites have their own editorial approaches—read the source and ask a teacher when the question is personal or consequential.</div>
-{RESOURCE_LINKS.map((item,i)=>(
+<div style={{fontSize:12,color:"var(--text2)",lineHeight:1.6,marginBottom:12}}>A deeper, intentional doorway into Qur’an study, hadith, tafsir, Arabic, seerah, research, and school-aware guidance. External sites have their own editorial approaches—read the source and ask a teacher when the question is personal or consequential.</div>
+<div style={{background:"var(--surface)",border:"1px solid var(--green-mid)",borderRadius:14,padding:15,marginBottom:14}}>
+<div style={{fontSize:11,color:"var(--green2)",fontWeight:600,letterSpacing:".08em",textTransform:"uppercase",marginBottom:6}}>How to read the labels</div>
+<div style={{fontSize:11,color:"var(--text2)",lineHeight:1.6}}>“Open text” means the publisher states a reuse license. “Free to read” means accessible online, not automatically free to copy. “Reference site” and “Rights vary” mean follow the source’s own terms before reusing anything.</div>
+</div>
+<label htmlFor="resource-search" style={{display:"block",fontSize:11,color:"var(--amber2)",fontWeight:600,marginBottom:7}}>Search the Library</label>
+<input id="resource-search" value={resourceQuery} onChange={event=>setResourceQuery(event.target.value)} placeholder="Try: tafsir, Arabic, hadith, fiqh…" style={{width:"100%",padding:"11px 13px",borderRadius:10,border:"1px solid var(--border2)",background:"var(--surface)",color:"var(--text)",fontFamily:"var(--font)",fontSize:12,outline:"none",marginBottom:10}}/>
+<div style={{display:"flex",gap:7,overflowX:"auto",paddingBottom:12,marginBottom:5,scrollbarWidth:"none"}}>
+{resourceCategories.map(item=>(
+<button key={item} onClick={()=>setResourceCategory(item)} style={{whiteSpace:"nowrap",padding:"7px 11px",borderRadius:16,border:`1px solid ${resourceCategory===item?"var(--green-mid)":"var(--border2)"}`,background:resourceCategory===item?"var(--green-dim)":"var(--surface)",color:resourceCategory===item?"var(--green2)":"var(--text3)",fontSize:11,fontFamily:"var(--font)",fontWeight:resourceCategory===item?600:400}}>{item}</button>
+))}
+</div>
+<div style={{fontSize:10,color:"var(--text3)",marginBottom:12}}>{visibleResources.length} {visibleResources.length===1?"resource":"resources"} shown</div>
+{!visibleResources.length&&<div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:14,padding:18,fontSize:13,color:"var(--text2)",lineHeight:1.6}}>No resources match that search yet. Try a subject such as Qur’an, tafsir, Arabic, hadith, seerah, fiqh, or research.</div>}
+{visibleResources.map((item,i)=>(
 <a key={item.id} href={item.url} target="_blank" rel="noreferrer" className={`anim-up d${Math.min(i+1,5)}`} style={{display:"block",background:"var(--surface)",borderRadius:14,padding:18,border:"1px solid var(--border)",marginBottom:10,textDecoration:"none"}}>
 <div style={{display:"flex",alignItems:"flex-start",gap:14}}>
 <div style={{width:42,height:42,borderRadius:12,background:"var(--amber-dim)",border:"1px solid var(--amber-mid)",display:"grid",placeItems:"center",fontSize:20,flexShrink:0}}>{item.icon}</div>
@@ -541,6 +562,10 @@ onMouseLeave={e=>e.currentTarget.style.borderColor="var(--border)"}>
 <div style={{fontSize:10,color:"var(--amber)",textTransform:"uppercase",letterSpacing:".08em",marginBottom:5}}>{item.category}</div>
 <div style={{fontSize:14,fontWeight:600,color:"var(--text)"}}>{item.title} <span style={{color:"var(--amber)",fontSize:12}}>↗</span></div>
 <div style={{fontSize:12,color:"var(--text2)",lineHeight:1.55,marginTop:4}}>{item.description}</div>
+<div style={{display:"flex",flexWrap:"wrap",gap:6,marginTop:10}}>
+<span style={{fontSize:10,color:"var(--green2)",background:"var(--green-dim)",border:"1px solid var(--green-mid)",borderRadius:5,padding:"3px 6px"}}>{item.access}</span>
+<span style={{fontSize:10,color:"var(--text3)",background:"var(--raised)",border:"1px solid var(--border2)",borderRadius:5,padding:"3px 6px"}}>{item.terms}</span>
+</div>
 <div style={{fontSize:10,color:"var(--text3)",marginTop:8}}>{item.source}</div>
 </div>
 </div>
