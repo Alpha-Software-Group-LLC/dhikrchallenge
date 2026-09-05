@@ -32,6 +32,52 @@ style={{transition:"stroke-dashoffset 1s var(--ease)",filter:`drop-shadow(0 0 6p
 </div>
 );
 }
+const arabicAudioCache={};
+async function loadArabicAudio(text){
+if(arabicAudioCache[text])return arabicAudioCache[text];
+const url=`https://translate.google.com/translate_tts?ie=UTF-8&tl=ar&client=tw-ob&q=${encodeURIComponent(text)}`;
+const response=await fetch(url);
+if(!response.ok)throw new Error("Audio unavailable");
+const blob=await response.blob();
+const objectUrl=URL.createObjectURL(blob);
+arabicAudioCache[text]=objectUrl;
+return objectUrl;
+}
+function ArabicAudioButton({text,compact=false}){
+const[playing,setPlaying]=useState(false);
+const[loading,setLoading]=useState(false);
+const audioRef=useRef(null);
+const play=async(ev)=>{
+ev.stopPropagation();
+if(audioRef.current){
+audioRef.current.pause();
+audioRef.current=null;
+setPlaying(false);
+return;
+}
+setLoading(true);
+try{
+const url=await loadArabicAudio(text);
+const audio=new Audio(url);
+audio.playbackRate=0.82;
+audio.onended=()=>{audioRef.current=null;setPlaying(false);};
+audio.onerror=()=>{audioRef.current=null;setPlaying(false);};
+audioRef.current=audio;
+await audio.play();
+setPlaying(true);
+}catch(error){
+setPlaying(false);
+}finally{setLoading(false);}
+};
+useEffect(()=>()=>audioRef.current?.pause(),[]);
+return(
+<button onClick={play} aria-label={playing?"Pause Arabic recitation":"Play Arabic recitation"}
+style={{display:"inline-flex",alignItems:"center",gap:7,padding:compact?"7px 10px":"9px 12px",borderRadius:9,border:"1px solid var(--amber-mid)",background:"var(--amber-dim)",color:"var(--amber2)",fontSize:compact?11:12,fontFamily:"var(--font)",fontWeight:600}}>
+<span>{loading?"…":playing?"Ⅱ":"▶"}</span>
+<span>{loading?"Loading":"Arabic recitation"}</span>
+</button>
+);
+}
 function TasbihCounter({dhikr,onComplete,onClose}){
 const[count,setCount]=useState(0);
 const[ripples,setRipples]=useState([]);
@@ -131,26 +177,23 @@ const done=()=>{ if(!fired){fired=true; if(onEnd) onEnd();} };
 utt.onend=done; utt.onerror=done;
 window.speechSynthesis.speak(utt);
 };
-const speakArabicThenEnglish=async(dhikrId,onDone)=>{
+const speakArabic=async(dhikrId,onDone)=>{
 const arabicText=DHIKR_ARABIC[dhikrId]||"";
-const englishText=DHIKR_ENGLISH[dhikrId]||"";
 const arabicUrl=await fetchArabicAudio(arabicText);
 if(arabicUrl){
-playAudio(arabicUrl,()=>{
-setTimeout(()=>speakEnglish(englishText,onDone),2500);
-});
+playAudio(arabicUrl,onDone);
 } else {
-speakEnglish(englishText,onDone);
+if(onDone)onDone();
 }
 };
 const playTapAudio=()=>{
 if(muted)return;
 playTapClick();
-setTimeout(()=>speakArabicThenEnglish(dhikr.id,null),80);
+setTimeout(()=>speakArabic(dhikr.id,null),80);
 };
 const playCompletionAudio=(onDone)=>{
 if(muted){if(onDone)onDone();return;}
-speakArabicThenEnglish(dhikr.id,onDone);
+speakArabic(dhikr.id,onDone);
 };
 const tap=()=>{
 if(completed)return;
@@ -281,4 +324,12 @@ function dailyDhikr(){
 const day=Math.floor((Date.parse(todayStr()+"T00:00:00Z")-Date.parse("2026-01-01T00:00:00Z"))/86400000);
 const first=((day%ADHKAR.length)+ADHKAR.length)%ADHKAR.length;
 return[ADHKAR[first],ADHKAR[(first+1)%ADHKAR.length]];
+}
+function practiceWindow(){
+const hour=new Date().getHours();
+if(hour<5)return{label:"Before dawn",icon:"🌌",note:"A quiet moment before the day begins."};
+if(hour<12)return{label:"Morning remembrance",icon:"🌤️",note:"Begin with a heart turned toward Allah."};
+if(hour<18)return{label:"Midday reset",icon:"☀️",note:"Return to presence between the day's demands."};
+if(hour<22)return{label:"Evening remembrance",icon:"🌙",note:"Close the day with calm and gratitude."};
+return{label:"Night reflection",icon:"✨",note:"A soft landing before rest."};
 }

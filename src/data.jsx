@@ -11,7 +11,10 @@ category:"Repentance",
 significance:"The Prophet ﷺ said: 'By Allah, I seek forgiveness from Allah and turn to Him in repentance more than seventy times a day.' (Bukhari). Istighfar purifies the heart, removes anxiety, opens doors of mercy, and brings relief from every difficulty.",
 ghazali:"Al-Ghazali wrote in Ihya Ulum al-Din that istighfar is the polish of the heart — just as a mirror tarnishes without cleaning, the heart darkens without sincere repentance.",
 difficulty:"easy",
-icon:"🤲"
+icon:"🤲",
+source:"Sahih al-Bukhari 6307",
+moment:"A gentle return after a mistake or a heavy moment.",
+reflection:"What would it feel like to place this burden down before Allah?"
 },
 {
 id:"la_ilaha_illallah",
@@ -24,7 +27,10 @@ category:"Tawheed",
 significance:"The best dhikr is La ilaha illallah (Tirmidhi). This is the declaration of Tawheed — the foundation of Islam and the heaviest statement on the scales on the Day of Judgment.",
 ghazali:"Al-Ghazali taught that this kalimah is not merely spoken by the tongue but must penetrate the heart until there is no attachment, hope, or fear except through Allah alone.",
 difficulty:"easy",
-icon:"☪️"
+icon:"☪️",
+source:"Jami' at-Tirmidhi 3383",
+moment:"Whenever you want to renew your center and intention.",
+reflection:"What would change if your heart had one true anchor today?"
 },
 {
 id:"subhanallah",
@@ -37,7 +43,10 @@ category:"Glorification",
 significance:"SubhanAllah fills the scales of good deeds. The Prophet ﷺ said: 'Two words that are light on the tongue, heavy on the scales, and beloved to the Most Merciful: SubhanAllahi wa bihamdihi, SubhanAllahil Azeem.' (Bukhari & Muslim)",
 ghazali:"Al-Ghazali explained that tasbeeh is the soul's recognition that Allah is far above any imperfection — when the heart truly grasps this, every creation becomes a sign of His perfection.",
 difficulty:"easy",
-icon:"✨"
+icon:"✨",
+source:"Sahih al-Bukhari 6682; Sahih Muslim 2694",
+moment:"A quiet reset while walking, waiting, or finishing a task.",
+reflection:"Notice one sign of Allah's perfection around you."
 },
 {
 id:"alhamdulillah",
@@ -50,7 +59,10 @@ category:"Gratitude",
 significance:"Alhamdulillah fills the space between the heavens and the earth (Muslim). Gratitude (shukr) is one of the highest stations of the soul — it transforms perspective and brings increase in blessings.",
 ghazali:"In the Ihya, al-Ghazali teaches that true hamd is not just verbal praise but a state of the heart that recognizes every blessing — even trials — as coming from the All-Wise.",
 difficulty:"easy",
-icon:"💛"
+icon:"💛",
+source:"Sahih Muslim 223",
+moment:"After receiving a blessing, small or immense.",
+reflection:"Name one blessing you received today without earning it."
 },
 {
 id:"allahu_akbar",
@@ -63,7 +75,10 @@ category:"Magnification",
 significance:"Completing SubhanAllah 33×, Alhamdulillah 33×, and Allahu Akbar 33× after every salah is a sunnah that the Prophet ﷺ taught to the Companions when they asked for the best deeds.",
 ghazali:"Al-Ghazali writes that when the servant says Allahu Akbar with true presence of heart, everything other than Allah diminishes in their sight — this is the essence of spiritual freedom.",
 difficulty:"easy",
-icon:"🌙"
+icon:"🌙",
+source:"Sunan Abi Dawud 150",
+moment:"After salah or when fear makes the world feel too large.",
+reflection:"What worry becomes smaller when Allah is remembered as greater?"
 },
 {
 id:"quran_reading",
@@ -77,7 +92,10 @@ significance:"Every letter of the Qur'an earns 10 hasanat. The Prophet ﷺ said:
 ghazali:"Al-Ghazali dedicated an entire chapter to the etiquettes of Qur'an recitation — approaching it with wudu, in a state of reflection, allowing the verses to penetrate beyond the tongue into the chambers of the heart.",
 difficulty:"medium",
 icon:"📖",
-unit:"ayahs"
+unit:"ayahs",
+source:"Sahih al-Bukhari 5027",
+moment:"In a focused window when you can read with presence.",
+reflection:"Take one meaning from the passage into the rest of your day."
 },
 {
 id:"salawat",
@@ -90,7 +108,10 @@ category:"Salawat",
 significance:"Whoever sends one salawat upon me, Allah sends ten blessings upon him (Muslim). Friday is especially virtuous for abundant salawat upon the Prophet ﷺ.",
 ghazali:"Al-Ghazali explains in the Ihya that love of the Prophet ﷺ is incomplete without frequent remembrance of him — and the highest form of remembrance is salawat, which connects the servant to the best of creation.",
 difficulty:"easy",
-icon:"🕌"
+icon:"🕌",
+source:"Sahih Muslim 408",
+moment:"Especially on Friday, and whenever love for the Prophet ﷺ rises.",
+reflection:"Let gratitude for the Prophet ﷺ soften one interaction today."
 },
 {
 id:"hawqala",
@@ -103,7 +124,10 @@ category:"Tawakkul",
 significance:"The Prophet ﷺ called this phrase a 'treasure from the treasures of Paradise' (Bukhari & Muslim). It is the ultimate expression of reliance upon Allah in every matter.",
 ghazali:"Al-Ghazali described this as the station of true tawakkul — the servant who internalizes this dhikr ceases to see any power in creation and relies entirely upon the Creator.",
 difficulty:"easy",
-icon:"🌟"
+icon:"🌟",
+source:"Sahih al-Bukhari 6409; Sahih Muslim 2704",
+moment:"When effort feels beyond you and you need to rely on Allah.",
+reflection:"What can you release after doing the next right thing?"
 },
 ];
 const CHALLENGES=[

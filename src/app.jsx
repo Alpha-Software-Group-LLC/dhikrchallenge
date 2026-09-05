@@ -6,8 +6,6 @@ const[progressError,setProgressError]=useState("");
 const[leaders,setLeaders]=useState([]);
 const[activeTasbih,setActiveTasbih]=useState(null);
 const[showDetail,setShowDetail]=useState(null);
-const[pollVotes,setPollVotes]=useState({yes:32,no:15});
-const[voted,setVoted]=useState(false);
 const userName=(user.user_metadata?.display_name||user.email?.split("@")[0]||"Friend").split(" ")[0];
 useEffect(()=>{
 let active=true;
@@ -43,7 +41,9 @@ setProgressError(error.message||"Completion could not be saved.");
 };
 function HomePage(){
 const challengeCompleted=completedDhikr.includes(currentDhikr.id);
-const totalVotes=pollVotes.yes+pollVotes.no;
+const window=practiceWindow();
+const completedReleases=releasedDhikr.filter(d=>completedDhikr.includes(d.id)).length;
+const journeyProgress=completedReleases/releasedDhikr.length;
 return(
 <div style={{height:"100%",overflowY:"auto",padding:"16px 16px 100px"}}>
 <div className="anim-up" style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:24}}>
@@ -61,7 +61,27 @@ return(
 )}
 </div>
 </div>
-<div className="anim-up d1" style={{background:"linear-gradient(135deg,var(--surface),var(--bg2))",borderRadius:20,padding:24,border:"1px solid var(--amber-mid)",marginBottom:16,position:"relative",overflow:"hidden"}}>
+<div className="anim-up d1" style={{background:"linear-gradient(135deg,var(--surface),var(--bg2))",borderRadius:18,padding:20,border:"1px solid var(--green-mid)",marginBottom:16,position:"relative",overflow:"hidden"}}>
+<div style={{position:"absolute",right:-26,top:-26,width:120,height:120,borderRadius:"50%",background:"radial-gradient(circle,var(--green-dim),transparent 70%)",pointerEvents:"none"}}/>
+<div style={{position:"relative",zIndex:1}}>
+<div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:12}}>
+<div>
+<div style={{fontSize:10,color:"var(--green2)",fontFamily:"var(--font)",fontWeight:600,textTransform:"uppercase",letterSpacing:".12em",marginBottom:6}}>Your daily path</div>
+<div style={{fontFamily:"var(--serif)",fontSize:21,color:"var(--text)"}}>{window.icon} {window.label}</div>
+<div style={{fontSize:12,color:"var(--text2)",marginTop:4,lineHeight:1.5}}>{window.note}</div>
+</div>
+<div style={{fontFamily:"var(--mono)",fontSize:12,color:"var(--green2)",whiteSpace:"nowrap"}}>{completedReleases}/{releasedDhikr.length}</div>
+</div>
+<div style={{height:6,background:"var(--raised)",borderRadius:4,overflow:"hidden",marginTop:16}}>
+<div style={{height:"100%",width:`${journeyProgress*100}%`,background:"linear-gradient(90deg,var(--green),var(--amber))",borderRadius:4,transition:"width .5s var(--ease)"}}/>
+</div>
+<div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:10,fontSize:11,color:"var(--text3)"}}>
+<span>{completedReleases===releasedDhikr.length?"Both practices complete — carry the calm with you.":"Two small practices. No pressure, just return."}</span>
+<span style={{color:"var(--green2)",fontWeight:600}}>{completedReleases===releasedDhikr.length?"Complete":"Begin"}</span>
+</div>
+</div>
+</div>
+<div className="anim-up d2" style={{background:"linear-gradient(135deg,var(--surface),var(--bg2))",borderRadius:20,padding:24,border:"1px solid var(--amber-mid)",marginBottom:16,position:"relative",overflow:"hidden"}}>
 <div className="geo-pattern" style={{position:"absolute",inset:0,opacity:0.5,pointerEvents:"none"}}/>
 <div style={{position:"absolute",top:-40,right:-40,width:140,height:140,borderRadius:"50%",background:"radial-gradient(circle,var(--amber-dim),transparent 70%)",animation:"breathe 6s ease-in-out infinite",pointerEvents:"none"}}/>
 <div style={{position:"relative",zIndex:2}}>
@@ -74,6 +94,10 @@ return(
 </div>
 <div style={{fontFamily:"var(--serif)",fontSize:15,fontStyle:"italic",color:"var(--text)",marginBottom:4}}>{currentDhikr.transliteration}</div>
 <div style={{fontSize:13,color:"var(--text2)",marginBottom:16}}>{currentDhikr.meaning} — {currentDhikr.target}×</div>
+<div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:10,marginBottom:16}}>
+<span style={{fontSize:10,color:"var(--text3)"}}>Arabic-only recitation available</span>
+<ArabicAudioButton text={currentDhikr.arabic} compact/>
+</div>
 {!challengeCompleted?(
 <button onClick={()=>setActiveTasbih(currentDhikr)} style={{width:"100%",padding:"14px",borderRadius:10,border:"none",background:"var(--amber)",color:"var(--bg)",fontSize:14,fontWeight:600,fontFamily:"var(--font)",letterSpacing:"0.02em"}}>
 Begin Dhikr · {currentDhikr.target}× 📿
@@ -99,48 +123,12 @@ return <div className="anim-up d2" style={{background:"var(--surface)",borderRad
 <div style={{fontFamily:"var(--arabic)",fontSize:22,color:"var(--text)",direction:"rtl",textAlign:"left"}}>{d.arabic}</div>
 <div style={{fontSize:12,color:"var(--text2)"}}>{d.transliteration} · {d.target}{d.unit?" "+d.unit:"×"}</div>
 </div>
+<ArabicAudioButton text={d.arabic} compact/>
 </div>
 {!done?<button onClick={()=>setActiveTasbih(d)} style={{width:"100%",padding:12,borderRadius:9,border:"1px solid var(--green-mid)",background:"var(--green-dim)",color:"var(--green2)",fontWeight:600}}>Begin Dhikr · +{d.xp} XP</button>
 :<div style={{padding:11,borderRadius:9,background:"var(--green-dim)",color:"var(--green)",textAlign:"center",fontSize:12}}>Completed — MashaAllah! ✅</div>}
 </div>;
 })()}
-<div className="anim-up d2" style={{background:"var(--surface)",borderRadius:16,padding:20,border:"1px solid var(--border)",marginBottom:16}}>
-<div style={{fontSize:12,color:"var(--text2)",fontWeight:500,marginBottom:12}}>Community Poll — Did you complete today's challenge?</div>
-{!voted?(
-<div style={{display:"flex",gap:8}}>
-<button onClick={()=>{setPollVotes(p=>({...p,yes:p.yes+1}));setVoted(true)}}
-style={{flex:1,padding:"12px",borderRadius:8,border:"1px solid var(--border2)",background:"var(--green-dim)",color:"var(--green)",fontSize:13,fontWeight:600,fontFamily:"var(--font)"}}>
-Yes, Alhamdulillah ✓
-</button>
-<button onClick={()=>{setPollVotes(p=>({...p,no:p.no+1}));setVoted(true)}}
-style={{flex:1,padding:"12px",borderRadius:8,border:"1px solid var(--border2)",background:"var(--raised)",color:"var(--text2)",fontSize:13,fontWeight:500,fontFamily:"var(--font)"}}>
-Not yet
-</button>
-</div>
-):(
-<div>
-<div style={{marginBottom:8}}>
-<div style={{display:"flex",justifyContent:"space-between",fontSize:12,marginBottom:4}}>
-<span style={{color:"var(--green)"}}>Completed ✓</span>
-<span style={{color:"var(--text3)"}}>{Math.round(pollVotes.yes/totalVotes*100)}%</span>
-</div>
-<div style={{height:6,background:"var(--raised)",borderRadius:3,overflow:"hidden"}}>
-<div style={{height:"100%",width:`${pollVotes.yes/totalVotes*100}%`,background:"var(--green)",borderRadius:3,transition:"width 0.5s"}}/>
-</div>
-</div>
-<div>
-<div style={{display:"flex",justifyContent:"space-between",fontSize:12,marginBottom:4}}>
-<span style={{color:"var(--text3)"}}>Not yet</span>
-<span style={{color:"var(--text3)"}}>{Math.round(pollVotes.no/totalVotes*100)}%</span>
-</div>
-<div style={{height:6,background:"var(--raised)",borderRadius:3,overflow:"hidden"}}>
-<div style={{height:"100%",width:`${pollVotes.no/totalVotes*100}%`,background:"var(--text3)",borderRadius:3,transition:"width 0.5s"}}/>
-</div>
-</div>
-<div style={{fontSize:11,color:"var(--text3)",marginTop:8,textAlign:"center"}}>{totalVotes} participants</div>
-</div>
-)}
-</div>
 <div className="anim-up d3" style={{background:"var(--surface)",borderRadius:16,padding:20,border:"1px solid var(--border)",marginBottom:16}}>
 <div style={{fontSize:12,color:"var(--amber)",fontWeight:600,marginBottom:12}}>🏆 Today's Leaderboard</div>
 {leaders.length?leaders.map(row=><div key={`${row.rank}-${row.name}`} style={{display:"grid",gridTemplateColumns:"28px 1fr auto",gap:8,padding:"9px 0",borderBottom:"1px solid var(--border)",fontSize:12}}>
@@ -293,13 +281,25 @@ return(
 );
 }
 function LearnPage(){
+const[category,setCategory]=useState("All");
+const categories=["All",...new Set(ADHKAR.map(d=>d.category))];
+const visibleDhikr=category==="All"?ADHKAR:ADHKAR.filter(d=>d.category===category);
 return(
 <div style={{height:"100%",overflowY:"auto",padding:"16px 16px 100px"}}>
 <div className="anim-up" style={{marginBottom:24}}>
 <div style={{fontSize:11,color:"var(--amber)",fontFamily:"var(--font)",fontWeight:500,textTransform:"uppercase",letterSpacing:"0.12em",marginBottom:6}}>Knowledge</div>
-<div style={{fontFamily:"var(--serif)",fontSize:26,fontWeight:400}}>The Science of Dhikr</div>
+<div style={{fontFamily:"var(--serif)",fontSize:26,fontWeight:400}}>A living practice</div>
+<div style={{fontSize:13,color:"var(--text2)",marginTop:6,lineHeight:1.6}}>Learn the meaning, source, and moment behind each remembrance before you begin.</div>
 </div>
-{ADHKAR.map((d,i)=>(
+<div style={{display:"flex",gap:7,overflowX:"auto",paddingBottom:12,marginBottom:8,scrollbarWidth:"none"}}>
+{categories.map(item=>(
+<button key={item} onClick={()=>setCategory(item)}
+style={{whiteSpace:"nowrap",padding:"7px 11px",borderRadius:16,border:`1px solid ${category===item?"var(--amber-mid)":"var(--border2)"}`,background:category===item?"var(--amber-dim)":"var(--surface)",color:category===item?"var(--amber2)":"var(--text3)",fontSize:11,fontFamily:"var(--font)",fontWeight:category===item?600:400}}>
+{item}
+</button>
+))}
+</div>
+{visibleDhikr.map((d,i)=>(
 <div key={d.id} className={`anim-up d${Math.min(i+1,5)}`}
 onClick={()=>setShowDetail(d)}
 style={{background:"var(--surface)",borderRadius:14,padding:18,border:"1px solid var(--border)",marginBottom:10,cursor:"pointer",transition:"border-color 0.2s"}}
@@ -311,7 +311,7 @@ onMouseLeave={e=>e.currentTarget.style.borderColor="var(--border)"}>
 <div style={{fontFamily:"var(--arabic)",fontSize:20,color:"var(--amber2)",direction:"rtl",textAlign:"left",lineHeight:1.3}}>{d.arabic}</div>
 <div style={{fontSize:14,fontWeight:500,color:"var(--text)",marginTop:4}}>{d.transliteration}</div>
 <div style={{fontSize:12,color:"var(--text3)",marginTop:2}}>{d.meaning}</div>
-<div style={{fontSize:10,color:"var(--amber)",marginTop:6,fontFamily:"var(--font)",textTransform:"uppercase",letterSpacing:"0.08em"}}>{d.category} · Tap to learn more →</div>
+<div style={{fontSize:10,color:"var(--amber)",marginTop:6,fontFamily:"var(--font)",textTransform:"uppercase",letterSpacing:"0.08em"}}>{d.category} · {d.source}</div>
 </div>
 </div>
 </div>
@@ -332,10 +332,19 @@ return(
 <div style={{fontFamily:"var(--arabic)",fontSize:32,color:"var(--amber2)",direction:"rtl",lineHeight:1.3}}>{d.arabic}</div>
 <div style={{fontFamily:"var(--serif)",fontSize:18,color:"var(--text)",marginTop:6,fontStyle:"italic"}}>{d.transliteration}</div>
 <div style={{fontSize:13,color:"var(--text2)",marginTop:4}}>{d.meaning}</div>
+<div style={{display:"flex",justifyContent:"center",marginTop:14}}>
+<ArabicAudioButton text={d.arabic}/>
+</div>
+</div>
+<div style={{background:"var(--green-dim)",borderRadius:12,padding:16,marginBottom:16,border:"1px solid var(--green-mid)"}}>
+<div style={{fontSize:10,color:"var(--green2)",fontFamily:"var(--font)",fontWeight:600,textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:7}}>A moment for this dhikr</div>
+<p style={{fontFamily:"var(--body)",fontSize:14,lineHeight:1.65,color:"var(--text)"}}>{d.moment}</p>
+<p style={{fontFamily:"var(--serif)",fontSize:14,fontStyle:"italic",lineHeight:1.6,color:"var(--text2)",marginTop:9}}>“{d.reflection}”</p>
 </div>
 <div style={{background:"var(--surface)",borderRadius:12,padding:18,marginBottom:16,border:"1px solid var(--border)"}}>
 <div style={{fontSize:10,color:"var(--amber)",fontFamily:"var(--font)",fontWeight:500,textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:8}}>Significance</div>
 <p style={{fontFamily:"var(--body)",fontSize:14,lineHeight:1.75,color:"var(--text)"}}>{d.significance}</p>
+<div style={{fontSize:11,color:"var(--text3)",marginTop:12,paddingTop:10,borderTop:"1px solid var(--border)"}}>Source: {d.source}</div>
 </div>
 <div style={{background:"var(--surface)",borderRadius:12,padding:18,marginBottom:20,border:"1px solid var(--amber-dim)"}}>
 <div style={{fontSize:10,color:"var(--amber)",fontFamily:"var(--font)",fontWeight:500,textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:8}}>Imam Al-Ghazali</div>
