@@ -16,19 +16,23 @@ const[showDetail,setShowDetail]=useState(null);
 const userName=(user.user_metadata?.display_name||user.email?.split("@")[0]||"Friend").split(" ")[0];
 useEffect(()=>{
 let active=true;
-Promise.all([
+Promise.allSettled([
 loadUserData(),
 getSupabase().then(client=>client.rpc("daily_leaderboard")),
 getSupabase().then(client=>client.rpc("my_dhikr_circles"))
 ])
-.then(([next,board,circleData])=>{if(active){
-setData(next);
-setLeaders(board.data||[]);
-const nextCircles=Array.isArray(circleData.data)?circleData.data:[];
+.then(results=>{if(!active)return;
+const[progressResult,boardResult,circleResult]=results;
+if(progressResult.status==="fulfilled")setData(progressResult.value);
+else setProgressError("Your progress could not be loaded. Your account is safe — try refreshing.");
+if(boardResult.status==="fulfilled"&&!boardResult.value.error)setLeaders(boardResult.value.data||[]);
+else setCircleError("Community activity is temporarily unavailable.");
+if(circleResult.status==="fulfilled"&&!circleResult.value.error){
+const nextCircles=Array.isArray(circleResult.value.data)?circleResult.value.data:[];
 setCircles(nextCircles);
 setSelectedCircle(current=>current||nextCircles[0]||null);
-}})
-.catch(error=>{if(active)setProgressError(error.message||"Could not load progress.");})
+}else setCircleError("Your circles are temporarily unavailable.");
+})
 .finally(()=>{if(active)setLoadingProgress(false);});
 return()=>{active=false;};
 },[user.id]);
@@ -38,7 +42,6 @@ const totalCompletions=data.totalCompletions;
 const totalXP=data.xp;
 const rank=useMemo(()=>getRank(totalXP),[totalXP]);
 const releasedDhikr=useMemo(dailyDhikr,[]);
-const currentChallenge=CHALLENGES.find(c=>c.active);
 const currentDhikr=releasedDhikr[0];
 const completeDhikr=async(dhikr)=>{
 try{
@@ -47,7 +50,7 @@ const{data:next,error}=await client.rpc("complete_daily_dhikr",{p_dhikr_id:dhikr
 if(error)throw error;
 setData(await loadUserData());
 const{data:board}=await client.rpc("daily_leaderboard");
-setLeaders(board||[]);
+setLeaders(board.data||[]);
 setActiveTasbih(null);
 }catch(error){
 setProgressError(error.message||"Completion could not be saved.");
@@ -144,7 +147,7 @@ return(
 <div style={{position:"relative",zIndex:2}}>
 <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:16}}>
 <div>
-<div style={{fontSize:11,color:"var(--amber)",fontFamily:"var(--font)",fontWeight:500,textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:6}}>Today's Challenge · Day {currentChallenge?.day}</div>
+<div style={{fontSize:11,color:"var(--amber)",fontFamily:"var(--font)",fontWeight:500,textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:6}}>Today's Challenge · Day {dailyChallengeNumber()}</div>
 <div style={{fontFamily:"var(--arabic)",fontSize:30,color:"var(--amber2)",direction:"rtl",lineHeight:1.3}}>{currentDhikr.arabic}</div>
 </div>
 <span style={{fontSize:28}}>{currentDhikr.icon}</span>
@@ -188,6 +191,7 @@ return <div className="anim-up d2" style={{background:"var(--surface)",borderRad
 })()}
 <div className="anim-up d3" style={{background:"var(--surface)",borderRadius:16,padding:20,border:"1px solid var(--border)",marginBottom:16}}>
 <div style={{fontSize:12,color:"var(--amber)",fontWeight:600,marginBottom:12}}>🏆 Today's Leaderboard</div>
+<div style={{fontSize:11,color:"var(--text3)",lineHeight:1.5,marginBottom:10}}>A friendly progress view — XP is an app measure, never a measure of faith or closeness to Allah.</div>
 {leaders.length?leaders.map(row=><div key={`${row.rank}-${row.name}`} style={{display:"grid",gridTemplateColumns:"28px 1fr auto",gap:8,padding:"9px 0",borderBottom:"1px solid var(--border)",fontSize:12}}>
 <span style={{color:"var(--text3)"}}>#{row.rank}</span>
 <span style={{color:row.current_user?"var(--amber2)":"var(--text)"}}>{row.name}{row.current_user?" (you)":""}</span>
@@ -198,8 +202,9 @@ return <div className="anim-up d2" style={{background:"var(--surface)",borderRad
 <div style={{fontSize:11,color:"var(--amber)",fontFamily:"var(--font)",fontWeight:500,textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:10}}>Why This Dhikr Matters</div>
 <p style={{fontFamily:"var(--body)",fontSize:14,lineHeight:1.75,color:"var(--text)",marginBottom:16}}>{currentDhikr.significance}</p>
 <div style={{borderTop:"1px solid var(--border2)",paddingTop:14}}>
-<div style={{fontSize:10,color:"var(--amber)",fontFamily:"var(--font)",fontWeight:500,textTransform:"uppercase",letterSpacing:"0.12em",marginBottom:6}}>From Imam Al-Ghazali</div>
-<p style={{fontFamily:"var(--serif)",fontSize:14,fontStyle:"italic",lineHeight:1.7,color:"var(--text2)"}}>{currentDhikr.ghazali}</p>
+<div style={{fontSize:10,color:"var(--amber)",fontFamily:"var(--font)",fontWeight:500,textTransform:"uppercase",letterSpacing:"0.12em",marginBottom:6}}>A reflection for practice</div>
+<p style={{fontFamily:"var(--serif)",fontSize:14,fontStyle:"italic",lineHeight:1.7,color:"var(--text2)"}}>{currentDhikr.practiceReflection}</p>
+<div style={{fontSize:10,color:"var(--text3)",lineHeight:1.5,marginTop:8}}>A meditation, not a hadith or fatwa. For rulings or personal guidance, ask a qualified scholar.</div>
 </div>
 </div>
 <div className="anim-up d4" style={{marginBottom:16}}>
@@ -231,6 +236,7 @@ style={{display:"flex",alignItems:"center",gap:14,padding:"14px 0",borderBottom:
 }
 function CirclesPage(){
 const[copied,setCopied]=useState(false);
+const[shared,setShared]=useState(false);
 const copyInvite=async()=>{
 if(!selectedCircle?.inviteCode)return;
 try{
@@ -238,6 +244,21 @@ await navigator.clipboard.writeText(selectedCircle.inviteCode);
 setCopied(true);
 setTimeout(()=>setCopied(false),1800);
 }catch(error){setCopied(false);}
+};
+const shareInvite=async()=>{
+if(!selectedCircle?.inviteCode)return;
+const text=`Join my private Dhikr Challenge circle “${selectedCircle.name}” with invite code ${selectedCircle.inviteCode}.`;
+try{
+if(navigator.share){
+await navigator.share({title:"Join my Dhikr Challenge circle",text});
+setShared(true);
+setTimeout(()=>setShared(false),1800);
+}else{
+await navigator.clipboard.writeText(text);
+setShared(true);
+setTimeout(()=>setShared(false),1800);
+}
+}catch(error){}
 };
 return(
 <div style={{height:"100%",overflowY:"auto",padding:"24px 20px 110px",maxWidth:720,margin:"0 auto"}}>
@@ -252,7 +273,7 @@ return(
 <div style={{display:"flex",gap:7}}>
 <input value={circleName} onChange={e=>setCircleName(e.target.value)} onKeyDown={e=>e.key==="Enter"&&createCircle()} placeholder="Family, friends, halaqah"
 style={{flex:1,minWidth:0,padding:"10px 11px",borderRadius:8,border:"1px solid var(--border2)",background:"var(--bg2)",color:"var(--text)",fontFamily:"var(--font)",fontSize:12,outline:"none"}}/>
-<button onClick={createCircle} disabled={circleBusy||!circleName.trim()} style={{padding:"10px 12px",borderRadius:8,border:"none",background:"var(--amber)",color:"var(--bg)",fontWeight:600,fontSize:11,opacity:circleBusy||!circleName.trim()?.6:1}}>Create</button>
+<button onClick={createCircle} disabled={circleBusy||!circleName.trim()} style={{padding:"10px 12px",borderRadius:8,border:"none",background:"var(--amber)",color:"var(--bg)",fontWeight:600,fontSize:11,opacity:(circleBusy||!circleName.trim())?.6:1}}>Create</button>
 </div>
 </div>
 <div style={{background:"var(--surface)",border:"1px solid var(--border2)",borderRadius:14,padding:16}}>
@@ -260,7 +281,7 @@ style={{flex:1,minWidth:0,padding:"10px 11px",borderRadius:8,border:"1px solid v
 <div style={{display:"flex",gap:7}}>
 <input value={inviteCode} onChange={e=>setInviteCode(e.target.value.toUpperCase())} onKeyDown={e=>e.key==="Enter"&&joinCircle()} placeholder="8-character code" maxLength={8}
 style={{flex:1,minWidth:0,padding:"10px 11px",borderRadius:8,border:"1px solid var(--border2)",background:"var(--bg2)",color:"var(--text)",fontFamily:"var(--mono)",fontSize:12,letterSpacing:".12em",outline:"none"}}/>
-<button onClick={joinCircle} disabled={circleBusy||inviteCode.trim().length<8} style={{padding:"10px 12px",borderRadius:8,border:"1px solid var(--green-mid)",background:"var(--green-dim)",color:"var(--green2)",fontWeight:600,fontSize:11,opacity:circleBusy||inviteCode.trim().length<8?.6:1}}>Join</button>
+<button onClick={joinCircle} disabled={circleBusy||inviteCode.trim().length<8} style={{padding:"10px 12px",borderRadius:8,border:"1px solid var(--green-mid)",background:"var(--green-dim)",color:"var(--green2)",fontWeight:600,fontSize:11,opacity:(circleBusy||inviteCode.trim().length<8)?.6:1}}>Join</button>
 </div>
 </div>
 </div>
@@ -289,9 +310,14 @@ style={{whiteSpace:"nowrap",padding:"9px 13px",borderRadius:18,border:`1px solid
 <div style={{fontFamily:"var(--serif)",fontSize:25}}>{selectedCircle.name}</div>
 <div style={{fontSize:11,color:"var(--text3)",marginTop:4}}>{selectedCircle.memberCount} {selectedCircle.memberCount===1?"member":"members"} · private circle</div>
 </div>
-<button onClick={copyInvite} style={{padding:"8px 10px",borderRadius:8,border:"1px solid var(--border2)",background:"var(--bg2)",color:"var(--text2)",fontSize:10,fontFamily:"var(--mono)"}}>
+<div style={{display:"flex",gap:6,flexWrap:"wrap",justifyContent:"flex-end"}}>
+<button onClick={copyInvite} aria-label="Copy circle invite code" style={{padding:"8px 10px",borderRadius:8,border:"1px solid var(--border2)",background:"var(--bg2)",color:"var(--text2)",fontSize:10,fontFamily:"var(--mono)"}}>
 {copied?"Copied!":"Invite "+selectedCircle.inviteCode}
 </button>
+<button onClick={shareInvite} aria-label="Share circle invite" style={{padding:"8px 10px",borderRadius:8,border:"1px solid var(--green-mid)",background:"var(--green-dim)",color:"var(--green2)",fontSize:10,fontFamily:"var(--mono)"}}>
+{shared?"Shared!":"Share"}
+</button>
+</div>
 </div>
 <div style={{fontSize:11,color:"var(--text3)",lineHeight:1.5,marginBottom:14}}>A gentle view of who has engaged with today’s Daily Challenge. No streaks or personal details are shared.</div>
 <div style={{borderTop:"1px solid var(--border)",paddingTop:4}}>
@@ -302,7 +328,7 @@ style={{whiteSpace:"nowrap",padding:"9px 13px",borderRadius:18,border:`1px solid
 <div style={{fontSize:13,color:member.current_user?"var(--amber2)":"var(--text)",fontWeight:member.current_user?600:400}}>{member.name}{member.current_user?" · you":""}</div>
 <div style={{fontSize:10,color:"var(--text3)",marginTop:2}}>{member.completed_today?`${member.completed_today} challenge ${member.completed_today===1?"release":"releases"} completed today`:"Not yet today"}</div>
 </div>
-<div style={{fontSize:11,color:member.completed_today?"var(--green2)":"var(--text3)",fontFamily:"var(--mono)"}}>{member.xp_today||0} XP</div>
+<div style={{fontSize:11,color:member.completed_today?"var(--green2)":"var(--text3)",fontFamily:"var(--mono)"}}>{member.xp_today||0} app pts</div>
 </div>
 )):<div style={{padding:"22px 0",textAlign:"center",fontSize:12,color:"var(--text3)"}}>Loading your circle…</div>}
 </div>
@@ -348,7 +374,7 @@ Sign Out
 <div style={{fontFamily:"var(--arabic)",fontSize:22,color:"var(--amber2)",marginTop:12}}>{rank.arabic}</div>
 <div style={{fontFamily:"var(--serif)",fontSize:18,color:"var(--text)",marginTop:4,fontWeight:400}}>{rank.name}</div>
 <div style={{fontSize:12,color:"var(--text2)",marginTop:6}}>
-{totalXP} XP{rank.next?` · ${rank.next.min-totalXP} to ${rank.next.name}`:" · Highest Station"}
+{totalXP} app points{rank.next?` · ${rank.next.min-totalXP} to ${rank.next.name}`:" · Highest milestone"}
 </div>
 </div>
 </div>
@@ -395,7 +421,8 @@ transition:"height 0.5s var(--ease)"}}/>
 )}
 </div>
 <div className="anim-up d3" style={{background:"var(--surface)",borderRadius:16,padding:20,border:"1px solid var(--border)",marginBottom:16}}>
-<div style={{fontSize:11,color:"var(--amber)",fontFamily:"var(--font)",fontWeight:500,textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:14}}>Stations of the Soul</div>
+<div style={{fontSize:11,color:"var(--amber)",fontFamily:"var(--font)",fontWeight:500,textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:6}}>Practice milestones</div>
+<div style={{fontSize:11,color:"var(--text3)",lineHeight:1.5,marginBottom:14}}>Gentle app milestones for returning to practice — not a measure of spiritual rank.</div>
 {RANKS.map((r,i)=>{
 const reached=totalXP>=r.min;
 const current=rank.level===r.level;
@@ -406,17 +433,17 @@ return(
 <div style={{fontSize:13,fontWeight:reached?600:400,color:current?"var(--amber2)":"var(--text)"}}>{r.name}</div>
 <div style={{fontFamily:"var(--arabic)",fontSize:13,color:"var(--text3)",direction:"rtl",textAlign:"left"}}>{r.arabic}</div>
 </div>
-<div style={{fontSize:11,color:"var(--text3)",fontFamily:"var(--font)"}}>{r.min} XP</div>
+<div style={{fontSize:11,color:"var(--text3)",fontFamily:"var(--font)"}}>{r.min} app points</div>
 </div>
 );
 })}
 </div>
 <div className="anim-up d4" style={{background:"linear-gradient(135deg,var(--bg2),var(--surface))",borderRadius:16,padding:24,border:"1px solid var(--amber-dim)",textAlign:"center"}}>
-<div style={{fontSize:11,color:"var(--amber)",fontFamily:"var(--mono)",fontWeight:500,textTransform:"uppercase",letterSpacing:"0.12em",marginBottom:12}}>Imam Al-Ghazali</div>
+<div style={{fontSize:11,color:"var(--amber)",fontFamily:"var(--mono)",fontWeight:500,textTransform:"uppercase",letterSpacing:"0.12em",marginBottom:12}}>A quiet reminder</div>
 <p style={{fontFamily:"var(--serif)",fontSize:16,fontStyle:"italic",lineHeight:1.7,color:"var(--text)",fontWeight:300}}>
-"The heart is like a mirror. When it is polished with dhikr, it reflects the light of the Divine. When it is neglected, it gathers rust until nothing of truth can be seen."
+Return gently to remembrance, and let it shape how you meet the next moment.
 </p>
-<div style={{fontSize:11,color:"var(--text3)",marginTop:10}}>— Ihya Ulum al-Din</div>
+<div style={{fontSize:11,color:"var(--text3)",marginTop:10}}>A reflection from The Dhikr Challenge · not a historical quotation</div>
 </div>
 </div>
 );
@@ -431,6 +458,7 @@ return(
 <div style={{fontSize:11,color:"var(--amber)",fontFamily:"var(--font)",fontWeight:500,textTransform:"uppercase",letterSpacing:"0.12em",marginBottom:6}}>Knowledge</div>
 <div style={{fontFamily:"var(--serif)",fontSize:26,fontWeight:400}}>A living practice</div>
 <div style={{fontSize:13,color:"var(--text2)",marginTop:6,lineHeight:1.6}}>Learn the meaning, source, and moment behind each remembrance before you begin.</div>
+<div style={{marginTop:12,padding:"11px 13px",borderRadius:10,background:"var(--amber-dim)",border:"1px solid var(--amber-mid)",fontSize:11,color:"var(--text2)",lineHeight:1.55}}>Sources are starting points for learning, not a substitute for a qualified scholar. Where a passage is a reflection, it is labeled as such.</div>
 </div>
 <div style={{display:"flex",gap:7,overflowX:"auto",paddingBottom:12,marginBottom:8,scrollbarWidth:"none"}}>
 {categories.map(item=>(
@@ -485,11 +513,15 @@ return(
 <div style={{background:"var(--surface)",borderRadius:12,padding:18,marginBottom:16,border:"1px solid var(--border)"}}>
 <div style={{fontSize:10,color:"var(--amber)",fontFamily:"var(--font)",fontWeight:500,textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:8}}>Significance</div>
 <p style={{fontFamily:"var(--body)",fontSize:14,lineHeight:1.75,color:"var(--text)"}}>{d.significance}</p>
-<div style={{fontSize:11,color:"var(--text3)",marginTop:12,paddingTop:10,borderTop:"1px solid var(--border)"}}>Source: {d.source}</div>
+<div style={{fontSize:11,color:"var(--text3)",marginTop:12,paddingTop:10,borderTop:"1px solid var(--border)"}}>
+Source: {d.source}
+<a href={sourceSearchUrl(d.source)} target="_blank" rel="noreferrer" style={{display:"inline-block",marginLeft:7,color:"var(--amber)",textDecoration:"none"}}>Open reference search ↗</a>
+</div>
 </div>
 <div style={{background:"var(--surface)",borderRadius:12,padding:18,marginBottom:20,border:"1px solid var(--amber-dim)"}}>
-<div style={{fontSize:10,color:"var(--amber)",fontFamily:"var(--font)",fontWeight:500,textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:8}}>Imam Al-Ghazali</div>
-<p style={{fontFamily:"var(--serif)",fontSize:14,fontStyle:"italic",lineHeight:1.75,color:"var(--text2)"}}>{d.ghazali}</p>
+<div style={{fontSize:10,color:"var(--amber)",fontFamily:"var(--font)",fontWeight:500,textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:8}}>A reflection for practice</div>
+<p style={{fontFamily:"var(--serif)",fontSize:14,fontStyle:"italic",lineHeight:1.75,color:"var(--text2)"}}>{d.practiceReflection}</p>
+<div style={{fontSize:10,color:"var(--text3)",lineHeight:1.5,marginTop:8}}>This is a meditation, not a hadith or fatwa.</div>
 </div>
 <div style={{display:"flex",gap:10}}>
 {!done&&releasedDhikr.some(item=>item.id===d.id)&&(

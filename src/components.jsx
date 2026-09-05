@@ -53,9 +53,10 @@ arabicAudioCache[text]=url;
 return url;
 }
 function RecitationControls({dhikr,compact=false}){
-const[mode,setMode]=useState("arabic");
+const[mode,setMode]=useState(()=>{try{return localStorage.getItem("dhikr-recitation-mode")||"arabic";}catch(error){return"arabic";}});
 const[playing,setPlaying]=useState(false);
 const[loading,setLoading]=useState(false);
+const[audioError,setAudioError]=useState("");
 const audioRef=useRef(null);
 const timeoutRef=useRef(null);
 const stop=()=>{
@@ -63,6 +64,7 @@ if(audioRef.current){audioRef.current.pause();audioRef.current=null;}
 if(window.speechSynthesis)window.speechSynthesis.cancel();
 if(timeoutRef.current)clearTimeout(timeoutRef.current);
 setPlaying(false);
+setLoading(false);
 };
 const speakBrowser=(text,lang,onEnd)=>{
 if(!window.speechSynthesis){if(onEnd)onEnd();return;}
@@ -85,19 +87,25 @@ utterance.onerror=onEnd;
 window.speechSynthesis.speak(utterance);
 };
 const playArabic=(onEnd)=>{
+const failed=()=>{
+audioRef.current=null;
+setAudioError("Arabic audio could not play. Try again.");
+if(onEnd)onEnd();
+};
 loadArabicAudio(dhikr.arabic).then(url=>{
 const audio=new Audio(url);
 audio.playbackRate=1;
 audio.onended=()=>{audioRef.current=null;if(onEnd)onEnd();};
-audio.onerror=()=>{audioRef.current=null;speakBrowser(dhikr.arabic,"ar-SA",onEnd);};
+audio.onerror=failed;
 audioRef.current=audio;
-audio.play().catch(()=>{audioRef.current=null;speakBrowser(dhikr.arabic,"ar-SA",onEnd);});
-}).catch(()=>speakBrowser(dhikr.arabic,"ar-SA",onEnd));
+audio.play().catch(failed);
+}).catch(failed);
 };
 const playEnglish=(onEnd)=>speakBrowser(dhikr.meaning,"en-US",onEnd);
 const play=async(ev)=>{
 ev.stopPropagation();
 if(playing){stop();return;}
+setAudioError("");
 setLoading(true);
 setPlaying(true);
 const done=()=>{setPlaying(false);setLoading(false);};
@@ -108,7 +116,7 @@ else playArabic(done);
 useEffect(()=>()=>stop(),[]);
 return(
 <div onClick={ev=>ev.stopPropagation()} style={{display:"inline-flex",alignItems:"center",gap:6}}>
-<select value={mode} onChange={ev=>{stop();setMode(ev.target.value);}} aria-label="Recitation language"
+<select value={mode} onChange={ev=>{stop();setMode(ev.target.value);try{localStorage.setItem("dhikr-recitation-mode",ev.target.value);}catch(error){}}} aria-label="Recitation language"
 style={{padding:compact?"6px 7px":"8px 9px",borderRadius:8,border:"1px solid var(--amber-mid)",background:"var(--amber-dim)",color:"var(--amber2)",fontSize:compact?10:11,fontFamily:"var(--font)",fontWeight:600,outline:"none"}}>
 <option value="arabic">Arabic</option>
 <option value="english">Calm English</option>
@@ -120,6 +128,7 @@ style={{display:"inline-flex",alignItems:"center",gap:6,padding:compact?"7px 9px
 <span>{loading?"Loading":playing?"Stop":"Play"}</span>
 </button>
 {!compact&&<div style={{fontSize:10,color:"var(--text3)",whiteSpace:"nowrap"}}>{ARABIC_AUDIO_CREDIT}</div>}
+{audioError&&<div role="status" style={{fontSize:10,color:"var(--rose)",whiteSpace:"nowrap"}}>{audioError}</div>}
 </div>
 );
 }
@@ -141,13 +150,13 @@ quran_reading:    "بسم الله الرحمن الرحيم",
 };
 const DHIKR_ENGLISH={
 astaghfirullah:   "I seek forgiveness from Allah",
-la_ilaha_illallah:"There is no god... but Allah",
+la_ilaha_illallah:"There is no god but Allah",
 subhanallah:      "Glory be to Allah",
 alhamdulillah:    "All praise is due to Allah",
-allahu_akbar:     "Allah... is the Greatest",
-salawat:          "O Allah... send blessings upon Muhammad",
-hawqala:          "There is no power... nor strength... except with Allah",
-quran_reading:    "In the name of Allah... the Most Gracious... the Most Merciful",
+allahu_akbar:     "Allah is the Greatest",
+salawat:          "O Allah, send blessings upon Muhammad",
+hawqala:          "There is no power nor strength except with Allah",
+quran_reading:    "In the name of Allah, the Most Gracious, the Most Merciful",
 };
 const audioCache=useRef({});
 const activeAudio=useRef(null);
@@ -176,12 +185,11 @@ if(window.speechSynthesis) window.speechSynthesis.cancel();
 if(activeAudio.current){ activeAudio.current.pause(); activeAudio.current=null; }
 };
 },[]);
-const fetchArabicAudio=async(text)=>{
-if(audioCache.current[text]) return audioCache.current[text];
+const fetchArabicAudio=async(dhikrId)=>{
+if(audioCache.current[dhikrId]) return audioCache.current[dhikrId];
 try{
-const dhikr=ADHKAR.find(item=>item.arabic===text);
-const url=dhikr&&ARABIC_AUDIO[dhikr.id];
-if(url)audioCache.current[text]=url;
+const url=ARABIC_AUDIO[dhikrId];
+if(url)audioCache.current[dhikrId]=url;
 return url||null;
 }catch(e){ return null; }
 };
@@ -219,9 +227,14 @@ const done=()=>{ if(!fired){fired=true; if(onEnd) onEnd();} };
 utt.onend=done; utt.onerror=done;
 window.speechSynthesis.speak(utt);
 };
+useEffect(()=>{
+try{
+const saved=localStorage.getItem("dhikr-recitation-mode");
+if(saved)setRecitationMode(saved);
+}catch(error){}
+},[]);
 const speakArabic=async(dhikrId,onDone)=>{
-const arabicText=DHIKR_ARABIC[dhikrId]||"";
-const arabicUrl=await fetchArabicAudio(arabicText);
+const arabicUrl=await fetchArabicAudio(dhikrId);
 if(arabicUrl){
 playAudio(arabicUrl,onDone);
 } else {
@@ -268,11 +281,11 @@ return(
 <button onClick={onClose} style={{background:"var(--surface)",border:"1px solid var(--border2)",borderRadius:8,padding:"8px 16px",color:"var(--text2)",fontSize:11,fontFamily:"var(--mono)",letterSpacing:"0.04em",textTransform:"uppercase"}}>← BACK</button>
 <div style={{display:"flex",alignItems:"center",gap:10}}>
 <div style={{fontSize:12,color:"var(--text3)",fontFamily:"var(--font)"}}>{dhikr.category}</div>
-<select value={recitationMode} onChange={ev=>{if(window.speechSynthesis)window.speechSynthesis.cancel();setRecitationMode(ev.target.value);}}
+<select value={recitationMode} onChange={ev=>{if(window.speechSynthesis)window.speechSynthesis.cancel();setRecitationMode(ev.target.value);try{localStorage.setItem("dhikr-recitation-mode",ev.target.value);}catch(error){}}}
 aria-label="Choose recitation language"
 style={{background:"var(--amber-dim)",border:"1px solid var(--amber-mid)",borderRadius:8,padding:"7px 8px",fontSize:11,color:"var(--amber2)",fontFamily:"var(--font)",fontWeight:600,outline:"none"}}>
 <option value="arabic">Arabic</option>
-<option value="english">English</option>
+<option value="english">Calm English</option>
 <option value="both">Both</option>
 </select>
 </div>
@@ -295,7 +308,7 @@ style={{background:"var(--amber-dim)",border:"1px solid var(--amber-mid)",border
 {ripples.map(id=>(
 <div key={id} style={{position:"absolute",inset:-20,borderRadius:"50%",border:"2px solid var(--green)",animation:"ripple 0.8s ease-out forwards",pointerEvents:"none"}}/>
 ))}
-<div onClick={handleTap}
+<div onClick={handleTap} role="button" tabIndex={0} aria-label={`Count ${dhikr.transliteration}`} onKeyDown={event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();handleTap();}}}
 style={{width:180,height:180,borderRadius:"50%",
 background:`conic-gradient(var(--green) ${pct*360}deg, var(--surface) ${pct*360}deg)`,
 display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",
@@ -322,10 +335,13 @@ animation:count>0?"countPulse 0.3s ease":"none"}}>
 <div style={{marginTop:32,fontSize:11,color:"var(--text3)",textAlign:"center",fontFamily:"var(--mono)",letterSpacing:"0.08em",textTransform:"uppercase"}}>
 {completed?"MashaAllah! May Allah accept it.":"Tap the circle to count"}
 </div>
+{!completed&&<div style={{marginTop:12,fontSize:12,color:"var(--text2)",textAlign:"center",fontFamily:"var(--serif)",fontStyle:"italic",maxWidth:280,lineHeight:1.5}}>
+Take a breath. Let the meaning arrive before the number.
+</div>}
 </div>
 <div style={{padding:"16px 24px",textAlign:"center"}}>
 <div style={{fontSize:11,color:"var(--green2)",fontFamily:"var(--mono)",fontWeight:400,letterSpacing:"0.08em"}}>
-+{dhikr.xp} XP ON COMPLETION
++{dhikr.xp} app points on completion
 </div>
 </div>
 </div>
@@ -371,6 +387,10 @@ function dailyDhikr(){
 const day=Math.floor((Date.parse(todayStr()+"T00:00:00Z")-Date.parse("2026-01-01T00:00:00Z"))/86400000);
 const first=((day%ADHKAR.length)+ADHKAR.length)%ADHKAR.length;
 return[ADHKAR[first],ADHKAR[(first+1)%ADHKAR.length]];
+}
+function dailyChallengeNumber(){
+const day=Math.floor((Date.parse(todayStr()+"T00:00:00Z")-Date.parse("2026-01-01T00:00:00Z"))/86400000);
+return((day%ADHKAR.length)+ADHKAR.length)%ADHKAR.length+1;
 }
 function practiceWindow(){
 const hour=new Date().getHours();
