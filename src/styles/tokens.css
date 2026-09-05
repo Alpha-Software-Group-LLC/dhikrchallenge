@@ -1,0 +1,81 @@
+/* Dhikr Challenge design tokens — sacred calm, modern Islamic technology.
+   Dark: deep black-green, restrained gold, living emerald. Light: warm paper. */
+:root {
+  --font: "Outfit", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --serif: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  --body: "Lora", Georgia, serif;
+  --arabic: "Amiri", "Scheherazade New", "Noto Naskh Arabic", "Traditional Arabic", serif;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --radius: 18px;
+  --radius-sm: 12px;
+  --radius-xs: 8px;
+  --nav-height: 64px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-top: env(safe-area-inset-top, 0px);
+  --content-max: 640px;
+  --shadow: 0 10px 40px rgba(0, 0, 0, 0.28);
+  --shadow-soft: 0 2px 12px rgba(0, 0, 0, 0.16);
+}
+
+:root,
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #070d0a;
+  --bg2: #0c1510;
+  --surface: #101c15;
+  --surface2: #142219;
+  --raised: #182a20;
+  --border: rgba(236, 228, 205, 0.09);
+  --border2: rgba(236, 228, 205, 0.16);
+  --text: #f1ecdc;
+  --text2: #b9c2b5;
+  --text3: #7f8c82;
+  --gold: #c9a55a;
+  --gold2: #e2c078;
+  --gold-dim: rgba(201, 165, 90, 0.12);
+  --gold-mid: rgba(201, 165, 90, 0.32);
+  --gold-glow: rgba(201, 165, 90, 0.22);
+  --green: #3aa56b;
+  --green2: #6fd39a;
+  --green-dim: rgba(58, 165, 107, 0.12);
+  --green-mid: rgba(58, 165, 107, 0.3);
+  --green-glow: rgba(58, 165, 107, 0.2);
+  --rose: #d9938f;
+  --rose-dim: rgba(217, 147, 143, 0.12);
+  --on-gold: #12190f;
+  --nav-bg: rgba(7, 13, 10, 0.86);
+  --scrim: rgba(3, 7, 5, 0.66);
+  --ring-track: rgba(236, 228, 205, 0.08);
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f7f4ec;
+  --bg2: #efebe0;
+  --surface: #ffffff;
+  --surface2: #faf8f2;
+  --raised: #f1ede3;
+  --border: rgba(20, 40, 28, 0.1);
+  --border2: rgba(20, 40, 28, 0.18);
+  --text: #14211a;
+  --text2: #43554b;
+  --text3: #6f7f75;
+  --gold: #9a7a2e;
+  --gold2: #7d6221;
+  --gold-dim: rgba(154, 122, 46, 0.1);
+  --gold-mid: rgba(154, 122, 46, 0.3);
+  --gold-glow: rgba(154, 122, 46, 0.18);
+  --green: #1f7a4a;
+  --green2: #196741;
+  --green-dim: rgba(31, 122, 74, 0.1);
+  --green-mid: rgba(31, 122, 74, 0.28);
+  --green-glow: rgba(31, 122, 74, 0.16);
+  --rose: #b0524d;
+  --rose-dim: rgba(176, 82, 77, 0.1);
+  --on-gold: #ffffff;
+  --nav-bg: rgba(247, 244, 236, 0.88);
+  --scrim: rgba(20, 33, 26, 0.5);
+  --ring-track: rgba(20, 40, 28, 0.1);
+  --shadow: 0 10px 40px rgba(20, 33, 26, 0.12);
+  --shadow-soft: 0 2px 12px rgba(20, 33, 26, 0.08);
+}

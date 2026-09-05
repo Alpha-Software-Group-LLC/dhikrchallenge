@@ -1,3 +1,10 @@
 .replit
 dist/
+dev-dist/
+node_modules/
 screenshots/
+.vite/
+supabase/test/.pgdata/
+*.log
+dist-mock/
+tests/e2e/shots/

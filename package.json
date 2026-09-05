@@ -1,7 +1,32 @@
 {
   "name": "dhikrchallenge",
   "private": true,
+  "version": "2.0.0",
+  "type": "module",
   "scripts": {
-    "build": "node build.js"
+    "dev": "vite",
+    "build": "tsc --noEmit -p tsconfig.json && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "db:test": "bash supabase/test/run.sh"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.57.4",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "jsdom": "^25.0.1",
+    "playwright": "^1.49.0",
+    "typescript": "^5.6.3",
+    "vite": "^6.0.0",
+    "vite-plugin-pwa": "^0.21.1",
+    "vitest": "^2.1.8"
   }
 }

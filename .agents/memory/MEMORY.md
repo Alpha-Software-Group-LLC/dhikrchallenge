@@ -1,3 +1,4 @@
 - [Product trust guardrails](product-trust-guardrails.md) — progress is app activity only; circles and Ask must preserve privacy and scholarly boundaries.
 - [Production release path](production-release-path.md) — production ships atomically from GitHub main to Vercel; database changes use named Supabase migrations.
 - [GitHub write transport](github-write-transport.md) — connector reads work, but current writes are blocked upstream and the shell remote has no credentials.
+- [Stack and testing](stack-and-testing.md) — Vite/TypeScript build, typed content, Backend interface, and the required verification commands.

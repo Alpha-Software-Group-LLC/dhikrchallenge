@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+    <meta name="theme-color" content="#070d0a" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#f7f4ec" media="(prefers-color-scheme: light)" />
+    <title>Dhikr Challenge — Remember Allah. Together.</title>
+    <meta name="description" content="Dhikr Challenge helps you build a daily practice of remembrance, understand what you are saying, and encourage the people you love to remember Allah with you. 30 Days to a Stronger Heart." />
+    <meta name="robots" content="index, follow" />
+    <meta property="og:title" content="Dhikr Challenge — Remember Allah. Together." />
+    <meta property="og:description" content="A private daily practice of remembrance with authentic sources, understanding, and small Circles of family and friends." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Dhikr" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Lora:ital,wght@0,400;0,500;1,400&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/icons/icon-192.png" sizes="192x192" />
+    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem("dhikr:theme") || "system";
+          var dark = t === "dark" || (t === "system" && matchMedia("(prefers-color-scheme: dark)").matches);
+          document.documentElement.dataset.theme = dark ? "dark" : "light";
+        } catch (e) { document.documentElement.dataset.theme = "dark"; }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <noscript>Dhikr Challenge needs JavaScript enabled to keep your practice private and in sync.</noscript>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
