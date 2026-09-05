@@ -214,9 +214,8 @@ return <div className="anim-up d2" style={{background:"var(--surface)",borderRad
 <div style={{fontSize:10,color:"var(--text3)"}}>{todaysHadith.theme}</div>
 </div>
 <div style={{fontFamily:"var(--serif)",fontSize:15,lineHeight:1.7,color:"var(--text)"}}>{todaysHadith.text}</div>
-<div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:10,marginTop:12}}>
+<div style={{marginTop:12}}>
 <div style={{fontSize:10,color:"var(--text3)"}}>Paraphrase · {todaysHadith.reference}</div>
-<a href={sourceSearchUrl(todaysHadith.reference)} target="_blank" rel="noreferrer" style={{fontSize:10,color:"var(--amber)",textDecoration:"none",whiteSpace:"nowrap"}}>Check source ↗</a>
 </div>
 </div>
 <div className="anim-up d4" style={{marginBottom:16}}>
@@ -463,20 +462,14 @@ Return gently to remembrance, and let it shape how you meet the next moment.
 function LearnPage(){
 const[section,setSection]=useState("adhkar");
 const[category,setCategory]=useState("All");
-const[resourceCategory,setResourceCategory]=useState("All");
-const[resourceQuery,setResourceQuery]=useState("");
 const categories=["All",...new Set(ADHKAR.map(d=>d.category))];
 const visibleDhikr=category==="All"?ADHKAR:ADHKAR.filter(d=>d.category===category);
-const resourceCategories=["All",...new Set(RESOURCE_LINKS.map(item=>item.category))];
-const visibleResources=RESOURCE_LINKS.filter(item=>{
-const matchesCategory=resourceCategory==="All"||item.category===resourceCategory;
-const haystack=`${item.title} ${item.description} ${item.source} ${item.category} ${item.access} ${item.terms}`.toLowerCase();
-return matchesCategory&&(!resourceQuery.trim()||haystack.includes(resourceQuery.trim().toLowerCase()));
-});
 const sections=[
 {id:"adhkar",label:"Adhkar"},
+{id:"quran",label:"Qur’an"},
 {id:"hadith",label:"Hadith"},
-{id:"resources",label:"Resources"},
+{id:"arabic",label:"Arabic"},
+{id:"guidance",label:"Guidance"},
 {id:"tools",label:"Tools"},
 ];
 return(
@@ -520,9 +513,24 @@ onMouseLeave={e=>e.currentTarget.style.borderColor="var(--border)"}>
 </div>
 </div>
 ))}
+{section==="quran"&&(
+<div>
+<div style={{fontSize:12,color:"var(--text2)",lineHeight:1.6,marginBottom:14}}>Study Qur’an references inside Dhikr Challenge by the themes that meet daily life. These concise notes point to the passage; they are not translations or tafsir.</div>
+{QURAN_REFERENCES.map((item,i)=>(
+<div key={item.id} className={`anim-up d${Math.min(i+1,5)}`} style={{background:"var(--surface)",borderRadius:14,padding:18,border:"1px solid var(--border)",marginBottom:10}}>
+<div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:12,marginBottom:9}}>
+<div style={{fontFamily:"var(--serif)",fontSize:18,color:"var(--green2)",fontWeight:500}}>{item.reference}</div>
+<div style={{fontSize:10,color:"var(--text3)",textAlign:"right",maxWidth:"48%"}}>{item.theme}</div>
+</div>
+<div style={{fontSize:13,color:"var(--text2)",lineHeight:1.7}}>{item.meaning}</div>
+<div style={{fontSize:10,color:"var(--amber)",marginTop:11,paddingTop:9,borderTop:"1px solid var(--border)"}}>Read the full passage in a trusted Qur’an edition before quoting it.</div>
+</div>
+))}
+</div>
+)}
 {section==="hadith"&&(
 <div>
-<div style={{fontSize:12,color:"var(--text2)",lineHeight:1.6,marginBottom:14}}>Short, referenced reminders to study alongside today’s practice. The wording below is a paraphrase; open the collection before sharing it as a quotation.</div>
+<div style={{fontSize:12,color:"var(--text2)",lineHeight:1.6,marginBottom:14}}>Short, referenced reminders to study alongside today’s practice. The wording below is a paraphrase; keep the collection and reference with it before sharing.</div>
 {HADITHS.map((item,i)=>(
 <div key={item.id} className={`anim-up d${Math.min(i+1,5)}`} style={{background:"var(--surface)",borderRadius:14,padding:18,border:"1px solid var(--border)",marginBottom:10}}>
 <div style={{display:"flex",justifyContent:"space-between",gap:12,marginBottom:8}}>
@@ -530,46 +538,46 @@ onMouseLeave={e=>e.currentTarget.style.borderColor="var(--border)"}>
 <div style={{fontSize:10,color:"var(--green2)",whiteSpace:"nowrap"}}>{item.theme}</div>
 </div>
 <div style={{fontFamily:"var(--serif)",fontSize:14,lineHeight:1.7,color:"var(--text2)"}}>{item.text}</div>
-<div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:10,marginTop:12}}>
+<div style={{marginTop:12}}>
 <div style={{fontSize:10,color:"var(--text3)"}}>{item.reference}</div>
-<a href={sourceSearchUrl(item.reference)} target="_blank" rel="noreferrer" style={{fontSize:10,color:"var(--amber)",textDecoration:"none",whiteSpace:"nowrap"}}>Open source ↗</a>
 </div>
 </div>
 ))}
 </div>
 )}
-{section==="resources"&&(
+{section==="arabic"&&(
 <div>
-<div style={{fontSize:12,color:"var(--text2)",lineHeight:1.6,marginBottom:12}}>A deeper, intentional doorway into Qur’an study, hadith, tafsir, Arabic, seerah, research, and school-aware guidance. External sites have their own editorial approaches—read the source and ask a teacher when the question is personal or consequential.</div>
-<div style={{background:"var(--surface)",border:"1px solid var(--green-mid)",borderRadius:14,padding:15,marginBottom:14}}>
-<div style={{fontSize:11,color:"var(--green2)",fontWeight:600,letterSpacing:".08em",textTransform:"uppercase",marginBottom:6}}>How to read the labels</div>
-<div style={{fontSize:11,color:"var(--text2)",lineHeight:1.6}}>“Open text” means the publisher states a reuse license. “Free to read” means accessible online, not automatically free to copy. “Reference site” and “Rights vary” mean follow the source’s own terms before reusing anything.</div>
+<div style={{fontSize:12,color:"var(--text2)",lineHeight:1.6,marginBottom:14}}>Learn the Arabic already used in your daily practice. Open any phrase to hear its recitation, review its meaning, and connect the words to a moment in your day.</div>
+{ADHKAR.map((item,i)=>(
+<button key={item.id} onClick={()=>setShowDetail(item)} className={`anim-up d${Math.min(i+1,5)}`} style={{display:"block",width:"100%",textAlign:"left",background:"var(--surface)",borderRadius:14,padding:18,border:"1px solid var(--border)",marginBottom:10,color:"inherit"}}>
+<div style={{display:"flex",alignItems:"center",gap:14}}>
+<div style={{width:42,height:42,borderRadius:12,background:"var(--green-dim)",border:"1px solid var(--green-mid)",display:"grid",placeItems:"center",fontSize:20,flexShrink:0}}>{item.icon}</div>
+<div style={{minWidth:0,flex:1}}>
+<div style={{fontFamily:"var(--arabic)",fontSize:21,color:"var(--amber2)",direction:"rtl",textAlign:"left",lineHeight:1.3}}>{item.arabic}</div>
+<div style={{fontSize:13,color:"var(--text)",fontWeight:600,marginTop:4}}>{item.transliteration}</div>
+<div style={{fontSize:11,color:"var(--text3)",marginTop:2}}>{item.meaning}</div>
 </div>
-<label htmlFor="resource-search" style={{display:"block",fontSize:11,color:"var(--amber2)",fontWeight:600,marginBottom:7}}>Search the Library</label>
-<input id="resource-search" value={resourceQuery} onChange={event=>setResourceQuery(event.target.value)} placeholder="Try: tafsir, Arabic, hadith, fiqh…" style={{width:"100%",padding:"11px 13px",borderRadius:10,border:"1px solid var(--border2)",background:"var(--surface)",color:"var(--text)",fontFamily:"var(--font)",fontSize:12,outline:"none",marginBottom:10}}/>
-<div style={{display:"flex",gap:7,overflowX:"auto",paddingBottom:12,marginBottom:5,scrollbarWidth:"none"}}>
-{resourceCategories.map(item=>(
-<button key={item} onClick={()=>setResourceCategory(item)} style={{whiteSpace:"nowrap",padding:"7px 11px",borderRadius:16,border:`1px solid ${resourceCategory===item?"var(--green-mid)":"var(--border2)"}`,background:resourceCategory===item?"var(--green-dim)":"var(--surface)",color:resourceCategory===item?"var(--green2)":"var(--text3)",fontSize:11,fontFamily:"var(--font)",fontWeight:resourceCategory===item?600:400}}>{item}</button>
+<div style={{fontSize:16,color:"var(--green2)"}}>›</div>
+</div>
+</button>
 ))}
 </div>
-<div style={{fontSize:10,color:"var(--text3)",marginBottom:12}}>{visibleResources.length} {visibleResources.length===1?"resource":"resources"} shown</div>
-{!visibleResources.length&&<div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:14,padding:18,fontSize:13,color:"var(--text2)",lineHeight:1.6}}>No resources match that search yet. Try a subject such as Qur’an, tafsir, Arabic, hadith, seerah, fiqh, or research.</div>}
-{visibleResources.map((item,i)=>(
-<a key={item.id} href={item.url} target="_blank" rel="noreferrer" className={`anim-up d${Math.min(i+1,5)}`} style={{display:"block",background:"var(--surface)",borderRadius:14,padding:18,border:"1px solid var(--border)",marginBottom:10,textDecoration:"none"}}>
+)}
+{section==="guidance"&&(
+<div>
+<div style={{fontSize:12,color:"var(--text2)",lineHeight:1.6,marginBottom:14}}>Use the Library with humility and clarity about what the app can—and cannot—do.</div>
+{[
+{icon:"📚",title:"References before summaries",description:"Keep the Qur’an passage or hadith collection and number attached to anything you learn here. In-app notes are concise study aids, not replacements for the full source."},
+{icon:"⚖️",title:"Fiqh depends on context",description:"Dhikr Challenge does not issue fatwas or choose between schools. Personal rulings can depend on your madhhab, circumstances, and details that an app cannot responsibly infer."},
+{icon:"🧭",title:"Ask a qualified person when it matters",description:"For worship, family, finance, health, or other consequential questions, take the exact situation to a qualified scholar or trusted local teacher."},
+{icon:"🌱",title:"Practice progress is not spiritual rank",description:"Points, milestones, circles, and history describe activity inside this app only. They do not measure sincerity, faith, acceptance, or closeness to Allah."},
+].map((item,i)=>(
+<div key={item.title} className={`anim-up d${Math.min(i+1,5)}`} style={{background:"var(--surface)",borderRadius:14,padding:18,border:"1px solid var(--border)",marginBottom:10}}>
 <div style={{display:"flex",alignItems:"flex-start",gap:14}}>
 <div style={{width:42,height:42,borderRadius:12,background:"var(--amber-dim)",border:"1px solid var(--amber-mid)",display:"grid",placeItems:"center",fontSize:20,flexShrink:0}}>{item.icon}</div>
-<div style={{minWidth:0}}>
-<div style={{fontSize:10,color:"var(--amber)",textTransform:"uppercase",letterSpacing:".08em",marginBottom:5}}>{item.category}</div>
-<div style={{fontSize:14,fontWeight:600,color:"var(--text)"}}>{item.title} <span style={{color:"var(--amber)",fontSize:12}}>↗</span></div>
-<div style={{fontSize:12,color:"var(--text2)",lineHeight:1.55,marginTop:4}}>{item.description}</div>
-<div style={{display:"flex",flexWrap:"wrap",gap:6,marginTop:10}}>
-<span style={{fontSize:10,color:"var(--green2)",background:"var(--green-dim)",border:"1px solid var(--green-mid)",borderRadius:5,padding:"3px 6px"}}>{item.access}</span>
-<span style={{fontSize:10,color:"var(--text3)",background:"var(--raised)",border:"1px solid var(--border2)",borderRadius:5,padding:"3px 6px"}}>{item.terms}</span>
-</div>
-<div style={{fontSize:10,color:"var(--text3)",marginTop:8}}>{item.source}</div>
+<div><div style={{fontSize:14,fontWeight:600,color:"var(--text)"}}>{item.title}</div><div style={{fontSize:12,color:"var(--text2)",lineHeight:1.6,marginTop:5}}>{item.description}</div></div>
 </div>
 </div>
-</a>
 ))}
 </div>
 )}
@@ -579,8 +587,8 @@ onMouseLeave={e=>e.currentTarget.style.borderColor="var(--border)"}>
 {[
 {icon:"📿",title:"Tasbih counter",description:"Count either daily release with Arabic audio, calm English, and progress sync.",action:()=>setPage("home"),label:"Open Today"},
 {icon:"🤝",title:"Private circles",description:"Invite family, friends, or a halaqah and see gentle daily participation.",action:()=>setPage("circles"),label:"Open Circles"},
-{icon:"🧭",title:"Prayer times & Qibla",description:"Use a dedicated location-aware tool for prayer calculations and direction.",url:"https://www.islamicfinder.org/",label:"Open Athan tools"},
-{icon:"📚",title:"Build a study habit",description:"Save this Library for dhikr, hadith, Qur’an study, and school-aware fiqh resources.",action:()=>setSection("resources"),label:"Browse resources"},
+{icon:"🔎",title:"Ask the Library",description:"Describe what you are carrying and search the app’s own Qur’an references, hadith context, and dhikr.",action:()=>setPage("ask"),label:"Ask a question"},
+{icon:"🔤",title:"Arabic practice",description:"Review the Arabic, transliteration, meaning, and recitation for every dhikr in the app.",action:()=>setSection("arabic"),label:"Study Arabic"},
 ].map((item,i)=>(
 <div key={item.title} className={`anim-up d${Math.min(i+1,5)}`} style={{background:"var(--surface)",borderRadius:14,padding:18,border:"1px solid var(--border)",marginBottom:10}}>
 <div style={{display:"flex",alignItems:"flex-start",gap:14}}>
@@ -588,7 +596,7 @@ onMouseLeave={e=>e.currentTarget.style.borderColor="var(--border)"}>
 <div style={{flex:1}}>
 <div style={{fontSize:14,fontWeight:600,color:"var(--text)"}}>{item.title}</div>
 <div style={{fontSize:12,color:"var(--text2)",lineHeight:1.55,marginTop:4}}>{item.description}</div>
-{item.url?<a href={item.url} target="_blank" rel="noreferrer" style={{display:"inline-block",marginTop:10,fontSize:11,color:"var(--amber)",textDecoration:"none"}}>{item.label} ↗</a>:<button onClick={item.action} style={{marginTop:10,padding:"7px 10px",borderRadius:8,border:"1px solid var(--green-mid)",background:"var(--green-dim)",color:"var(--green2)",fontSize:11,fontWeight:600}}>{item.label}</button>}
+<button onClick={item.action} style={{marginTop:10,padding:"7px 10px",borderRadius:8,border:"1px solid var(--green-mid)",background:"var(--green-dim)",color:"var(--green2)",fontSize:11,fontWeight:600}}>{item.label}</button>
 </div>
 </div>
 </div>
@@ -643,11 +651,10 @@ style={{width:"100%",boxSizing:"border-box",resize:"vertical",minHeight:94,paddi
 <div style={{fontSize:12,color:"var(--green2)",fontWeight:600}}>Matches from the verified library</div>
 <button onClick={()=>{setAnswer(null);setPrompt("");}} style={{background:"none",border:"none",color:"var(--text3)",fontSize:11}}>Clear</button>
 </div>
-{answer.lawPrompt&&<div style={{background:"var(--amber-dim)",border:"1px solid var(--amber-mid)",borderRadius:12,padding:13,marginBottom:10,fontSize:11,color:"var(--text2)",lineHeight:1.55}}>This is a study search, not a fatwa. Fiqh answers can differ by school and depend on personal circumstances; open the guidance resource and ask a qualified teacher for a ruling.</div>}
+{answer.lawPrompt&&<div style={{background:"var(--amber-dim)",border:"1px solid var(--amber-mid)",borderRadius:12,padding:13,marginBottom:10,fontSize:11,color:"var(--text2)",lineHeight:1.55}}>This is a study search, not a fatwa. Fiqh answers can differ by school and depend on personal circumstances; use the Library’s Guidance section and ask a qualified teacher for a ruling.</div>}
 {!answer.results.length&&<div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:14,padding:18,fontSize:13,color:"var(--text2)",lineHeight:1.6}}>I couldn’t find a close match in the verified library yet. Try naming a topic such as anxiety, repentance, gratitude, hardship, dhikr, prayer, Qur’an, or fiqh.</div>}
 {answer.results.map((item,index)=>{
 const isDhikr=item.type==="Dhikr";
-const referenceUrl=item.url||sourceSearchUrl(item.reference||item.source||"");
 return <div key={`${item.type}-${item.id}-${index}`} style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:14,padding:16,marginBottom:9}}>
 <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:10,marginBottom:7}}>
 <div style={{fontSize:10,color:item.type==="Qur’an"?"var(--green2)":item.type==="Hadith"?"var(--amber)":"var(--text3)",fontFamily:"var(--font)",fontWeight:600,textTransform:"uppercase",letterSpacing:".08em"}}>{item.type}</div>
@@ -656,9 +663,8 @@ return <div key={`${item.type}-${item.id}-${index}`} style={{background:"var(--s
 <div style={{fontSize:15,fontWeight:600,color:"var(--text)",marginBottom:6}}>{item.title||item.transliteration||item.reference}</div>
 <div style={{fontSize:13,color:"var(--text2)",lineHeight:1.65}}>{item.text||item.meaning||item.significance}</div>
 {isDhikr&&<button onClick={()=>setShowDetail(item)} style={{marginTop:10,padding:"7px 10px",borderRadius:8,border:"1px solid var(--green-mid)",background:"var(--green-dim)",color:"var(--green2)",fontSize:11,fontWeight:600}}>Open dhikr</button>}
-<div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:10,marginTop:11,paddingTop:9,borderTop:"1px solid var(--border)"}}>
+<div style={{marginTop:11,paddingTop:9,borderTop:"1px solid var(--border)"}}>
 <div style={{fontSize:10,color:"var(--text3)"}}>{item.reference||item.source}</div>
-<a href={referenceUrl} target="_blank" rel="noreferrer" style={{fontSize:10,color:"var(--amber)",textDecoration:"none",whiteSpace:"nowrap"}}>Open source ↗</a>
 </div>
 </div>;
 })}
@@ -694,7 +700,6 @@ return(
 <p style={{fontFamily:"var(--body)",fontSize:14,lineHeight:1.75,color:"var(--text)"}}>{d.significance}</p>
 <div style={{fontSize:11,color:"var(--text3)",marginTop:12,paddingTop:10,borderTop:"1px solid var(--border)"}}>
 Source: {d.source}
-<a href={sourceSearchUrl(d.source)} target="_blank" rel="noreferrer" style={{display:"inline-block",marginLeft:7,color:"var(--amber)",textDecoration:"none"}}>Open reference search ↗</a>
 </div>
 </div>
 <div style={{background:"var(--surface)",borderRadius:12,padding:18,marginBottom:20,border:"1px solid var(--amber-dim)"}}>
