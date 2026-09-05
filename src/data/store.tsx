@@ -123,7 +123,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         setHome(data);
         setError(null);
       } catch (e) {
-        setError(friendlyError(e, "Your progress could not be loaded. Your account is safe; try again."));
+        const msg = e instanceof Error ? e.message : String(e);
+        // The client is ahead of the database (migration not yet applied): say so calmly.
+        if (/does not exist|Could not find the function|PGRST202|schema cache/i.test(msg)) {
+          setError("Dhikr Challenge is being updated right now. Your account and progress are safe. Please check back in a little while.");
+        } else setError(friendlyError(e, "Your progress could not be loaded. Your account is safe; try again."));
       } finally {
         setLoading(false);
       }
