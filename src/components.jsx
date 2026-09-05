@@ -69,11 +69,16 @@ if(!window.speechSynthesis){if(onEnd)onEnd();return;}
 window.speechSynthesis.cancel();
 const utterance=new SpeechSynthesisUtterance(text);
 utterance.lang=lang;
-utterance.rate=lang.startsWith("ar")?.78:.84;
-utterance.pitch=lang.startsWith("ar")?1:.9;
+utterance.rate=lang.startsWith("ar")?.78:.78;
+utterance.pitch=lang.startsWith("ar")?1:.72;
 const voices=window.speechSynthesis.getVoices();
-const voice=voices.find(item=>item.lang.toLowerCase().startsWith(lang.slice(0,2)))||
-voices.find(item=>item.lang.toLowerCase().startsWith(lang.slice(0,2)));
+const matching=voices.filter(item=>item.lang.toLowerCase().startsWith(lang.slice(0,2)));
+const voice=lang.startsWith("en")
+? matching.find(item=>/daniel|alex|fred|david|guy|ryan|google uk english male|microsoft/i.test(item.name))
+||matching.find(item=>item.lang.toLowerCase()==="en-gb"&&item.localService)
+||matching.find(item=>item.lang.toLowerCase()==="en-us"&&item.localService)
+||matching[0]
+: matching[0];
 if(voice)utterance.voice=voice;
 utterance.onend=onEnd;
 utterance.onerror=onEnd;
@@ -106,7 +111,7 @@ return(
 <select value={mode} onChange={ev=>{stop();setMode(ev.target.value);}} aria-label="Recitation language"
 style={{padding:compact?"6px 7px":"8px 9px",borderRadius:8,border:"1px solid var(--amber-mid)",background:"var(--amber-dim)",color:"var(--amber2)",fontSize:compact?10:11,fontFamily:"var(--font)",fontWeight:600,outline:"none"}}>
 <option value="arabic">Arabic</option>
-<option value="english">English</option>
+<option value="english">Calm English</option>
 <option value="both">Both</option>
 </select>
 <button onClick={play} aria-label={playing?"Stop recitation":"Play recitation"}
@@ -206,7 +211,7 @@ const speakEnglish=(text,onEnd)=>{
 if(!window.speechSynthesis){ if(onEnd) onEnd(); return; }
 window.speechSynthesis.cancel();
 const utt=new SpeechSynthesisUtterance(text);
-utt.lang="en-US"; utt.rate=0.82; utt.pitch=0.65; utt.volume=1.0;
+utt.lang="en-US"; utt.rate=0.78; utt.pitch=0.7; utt.volume=1.0;
 const voice=getDeepEnglishVoice();
 if(voice) utt.voice=voice;
 let fired=false;
