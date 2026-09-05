@@ -178,6 +178,96 @@ text:"The Prophet ﷺ described La hawla wa la quwwata illa billah as a treasure
 reference:"Sahih al-Bukhari 6409; Sahih Muslim 2704",
 },
 ];
+const QURAN_REFERENCES=[
+{
+id:"ease",
+theme:"hardship, patience, hope",
+reference:"Qur’an 94:5–6",
+meaning:"With hardship comes ease; the reminder is repeated as comfort, not as a promise that difficulty is imaginary.",
+url:"https://quran.com/94/5-6",
+},
+{
+id:"remembrance",
+theme:"peace, anxiety, dhikr, heart",
+reference:"Qur’an 13:28",
+meaning:"Hearts find rest in the remembrance of Allah.",
+url:"https://quran.com/13/28",
+},
+{
+id:"mercy",
+theme:"sin, repentance, despair, forgiveness",
+reference:"Qur’an 39:53",
+meaning:"Do not despair of Allah’s mercy; the verse calls those who have wronged themselves back toward repentance.",
+url:"https://quran.com/39/53",
+},
+{
+id:"remember",
+theme:"dhikr, gratitude, closeness",
+reference:"Qur’an 2:152",
+meaning:"Remember Allah and He will remember you; be grateful and do not deny His blessings.",
+url:"https://quran.com/2/152",
+},
+{
+id:"burden",
+theme:"stress, responsibility, hardship, capacity",
+reference:"Qur’an 2:286",
+meaning:"Allah does not burden a soul beyond its capacity; the verse closes with a prayer for help, forgiveness, and mercy.",
+url:"https://quran.com/2/286",
+},
+{
+id:"reliance",
+theme:"decision, effort, tawakkul, trust",
+reference:"Qur’an 3:159",
+meaning:"Consult, decide, and then place your reliance upon Allah.",
+url:"https://quran.com/3/159",
+},
+];
+const SEARCH_TOPIC_ALIASES={
+anxiety:["anxiety","worry","stress","overwhelmed","sad","fear","calm","peace"],
+repentance:["repent","sin","forgive","forgiveness","mistake","guilt","astaghfirullah"],
+gratitude:["grateful","gratitude","blessing","thank","alhamdulillah","praise"],
+hardship:["hardship","difficulty","difficult","trial","struggle","patience","stress"],
+dhikr:["dhikr","zikr","remember","remembrance","tasbeeh","tasbih","peace"],
+reliance:["rely","reliance","trust","tawakkul","decision","help","strength"],
+prayer:["prayer","salah","salaah","after salah","worship"],
+prophet:["prophet","muhammad","salawat","blessing"],
+quran:["quran","qur'an","verse","ayah","recite","recitation"],
+law:["law","fiqh","halal","haram","ruling","fatwa","madhhab","school"],
+};
+function searchIslamicLibrary(prompt){
+const normalized=prompt.trim().toLowerCase();
+const directTerms=normalized.split(/[^a-z0-9']+/).filter(term=>term.length>2);
+const expanded=Object.entries(SEARCH_TOPIC_ALIASES)
+.filter(([,aliases])=>aliases.some(alias=>normalized.includes(alias)))
+.flatMap(([topic])=>[topic,...SEARCH_TOPIC_ALIASES[topic]]);
+const terms=[...new Set([...directTerms,...expanded])];
+const score=(text)=>{
+const haystack=text.toLowerCase();
+return terms.reduce((total,term)=>total+(haystack.includes(term)?(term.length>5?3:1):0),0);
+};
+const results=[
+...QURAN_REFERENCES.map(item=>({...item,type:"Qur’an",searchText:`${item.theme} ${item.reference} ${item.meaning}`})),
+...HADITHS.map(item=>({...item,type:"Hadith",searchText:`${item.theme} ${item.title} ${item.text} ${item.reference}`})),
+...ADHKAR.map(item=>({...item,type:"Dhikr",searchText:`${item.category} ${item.transliteration} ${item.meaning} ${item.moment} ${item.reflection} ${item.significance}`})),
+].map(item=>({...item,score:score(item.searchText)}))
+.filter(item=>item.score>0)
+.sort((a,b)=>b.score-a.score)
+.slice(0,6);
+const lawPrompt=terms.some(term=>["law","fiqh","halal","haram","ruling","fatwa","madhhab"].includes(term));
+if(lawPrompt){
+results.unshift({
+id:"law-boundary",
+type:"Guidance",
+title:"For a personal ruling, use a qualified scholar",
+theme:"Fiqh & law",
+meaning:"This search can point you toward sources, but it does not issue fatwas or decide between schools. Use the Library’s school-aware fiqh resources and include your context when asking a teacher.",
+reference:"SeekersGuidance · IslamQA.org",
+url:"https://seekersguidance.org/submit-a-question/",
+score:99,
+});
+}
+return{results:results.slice(0,6),terms,lawPrompt};
+}
 const RESOURCE_LINKS=[
 {
 id:"quran",

@@ -573,6 +573,75 @@ onMouseLeave={e=>e.currentTarget.style.borderColor="var(--border)"}>
 </div>
 );
 }
+function AskPage(){
+const[prompt,setPrompt]=useState("");
+const[answer,setAnswer]=useState(null);
+const examples=[
+"I feel anxious and need a reminder",
+"What does the Qur’an say about hardship?",
+"Which dhikr helps me return after a mistake?",
+"What should I know before asking a fiqh question?",
+];
+const submit=(event)=>{
+event?.preventDefault();
+if(!prompt.trim())return;
+setAnswer(searchIslamicLibrary(prompt));
+};
+const applyExample=(example)=>{
+setPrompt(example);
+setAnswer(searchIslamicLibrary(example));
+};
+return(
+<div style={{height:"100%",overflowY:"auto",padding:"16px 16px 100px"}}>
+<div className="anim-up" style={{marginBottom:22}}>
+<div style={{fontSize:11,color:"var(--amber)",fontFamily:"var(--font)",fontWeight:600,textTransform:"uppercase",letterSpacing:".12em",marginBottom:7}}>Study with care</div>
+<div style={{fontFamily:"var(--serif)",fontSize:30}}>Ask the library</div>
+<div style={{fontSize:13,color:"var(--text2)",lineHeight:1.65,marginTop:6}}>Describe what you’re carrying or what you want to learn. The library returns nearby Qur’an references, hadith references, and dhikr—not invented answers.</div>
+</div>
+<form onSubmit={submit} className="anim-up d1" style={{background:"linear-gradient(135deg,var(--surface),var(--bg2))",border:"1px solid var(--amber-mid)",borderRadius:18,padding:16,marginBottom:14}}>
+<label htmlFor="ask-library-prompt" style={{display:"block",fontSize:11,color:"var(--amber2)",fontWeight:600,marginBottom:8}}>What would you like to explore?</label>
+<textarea id="ask-library-prompt" value={prompt} onChange={event=>setPrompt(event.target.value)} placeholder="Try: “I’m overwhelmed. What can I read and remember?”" rows={4}
+style={{width:"100%",boxSizing:"border-box",resize:"vertical",minHeight:94,padding:12,borderRadius:11,border:"1px solid var(--border2)",background:"var(--bg2)",color:"var(--text)",fontFamily:"var(--body)",fontSize:14,lineHeight:1.55,outline:"none"}}/>
+<div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:10,marginTop:10}}>
+<div style={{fontSize:10,color:"var(--text3)"}}>Searches the verified in-app library</div>
+<button type="submit" disabled={!prompt.trim()} style={{padding:"10px 14px",borderRadius:9,border:"none",background:"var(--amber)",color:"var(--bg)",fontWeight:600,fontSize:12,opacity:prompt.trim()?.1:0.5}}>Search sources</button>
+</div>
+</form>
+{!answer&&<div className="anim-up d2" style={{marginBottom:18}}>
+<div style={{fontSize:11,color:"var(--text3)",marginBottom:8}}>Try a prompt</div>
+<div style={{display:"flex",flexWrap:"wrap",gap:7}}>
+{examples.map(example=><button key={example} onClick={()=>applyExample(example)} style={{padding:"8px 10px",borderRadius:16,border:"1px solid var(--border2)",background:"var(--surface)",color:"var(--text2)",fontSize:11,textAlign:"left"}}>{example}</button>)}
+</div>
+</div>}
+{answer&&<div className="anim-up d2">
+<div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:12,marginBottom:10}}>
+<div style={{fontSize:12,color:"var(--green2)",fontWeight:600}}>Matches from the verified library</div>
+<button onClick={()=>{setAnswer(null);setPrompt("");}} style={{background:"none",border:"none",color:"var(--text3)",fontSize:11}}>Clear</button>
+</div>
+{answer.lawPrompt&&<div style={{background:"var(--amber-dim)",border:"1px solid var(--amber-mid)",borderRadius:12,padding:13,marginBottom:10,fontSize:11,color:"var(--text2)",lineHeight:1.55}}>This is a study search, not a fatwa. Fiqh answers can differ by school and depend on personal circumstances; open the guidance resource and ask a qualified teacher for a ruling.</div>}
+{!answer.results.length&&<div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:14,padding:18,fontSize:13,color:"var(--text2)",lineHeight:1.6}}>I couldn’t find a close match in the verified library yet. Try naming a topic such as anxiety, repentance, gratitude, hardship, dhikr, prayer, Qur’an, or fiqh.</div>}
+{answer.results.map((item,index)=>{
+const isDhikr=item.type==="Dhikr";
+const referenceUrl=item.url||sourceSearchUrl(item.reference||item.source||"");
+return <div key={`${item.type}-${item.id}-${index}`} style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:14,padding:16,marginBottom:9}}>
+<div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:10,marginBottom:7}}>
+<div style={{fontSize:10,color:item.type==="Qur’an"?"var(--green2)":item.type==="Hadith"?"var(--amber)":"var(--text3)",fontFamily:"var(--font)",fontWeight:600,textTransform:"uppercase",letterSpacing:".08em"}}>{item.type}</div>
+{item.theme&&<div style={{fontSize:10,color:"var(--text3)",textAlign:"right"}}>{item.theme}</div>}
+</div>
+<div style={{fontSize:15,fontWeight:600,color:"var(--text)",marginBottom:6}}>{item.title||item.transliteration||item.reference}</div>
+<div style={{fontSize:13,color:"var(--text2)",lineHeight:1.65}}>{item.text||item.meaning||item.significance}</div>
+{isDhikr&&<button onClick={()=>setShowDetail(item)} style={{marginTop:10,padding:"7px 10px",borderRadius:8,border:"1px solid var(--green-mid)",background:"var(--green-dim)",color:"var(--green2)",fontSize:11,fontWeight:600}}>Open dhikr</button>}
+<div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:10,marginTop:11,paddingTop:9,borderTop:"1px solid var(--border)"}}>
+<div style={{fontSize:10,color:"var(--text3)"}}>{item.reference||item.source}</div>
+<a href={referenceUrl} target="_blank" rel="noreferrer" style={{fontSize:10,color:"var(--amber)",textDecoration:"none",whiteSpace:"nowrap"}}>Open source ↗</a>
+</div>
+</div>;
+})}
+<div style={{fontSize:10,color:"var(--text3)",lineHeight:1.5,marginTop:12}}>This page retrieves from a limited, curated index. It is not trained on all Islamic knowledge and it does not replace a qualified scholar.</div>
+</div>}
+</div>
+);
+}
 function DhikrDetail(){
 if(!showDetail)return null;
 const d=showDetail;
@@ -632,6 +701,7 @@ return(
 {page==="circles"&&<CirclesPage/>}
 {page==="progress"&&<ProgressPage/>}
 {page==="learn"&&<LearnPage/>}
+{page==="ask"&&<AskPage/>}
 </div>
 {activeTasbih&&<TasbihCounter dhikr={activeTasbih} onComplete={completeDhikr} onClose={()=>setActiveTasbih(null)}/>}
 <DhikrDetail/>
@@ -641,6 +711,7 @@ return(
 {k:"circles",icon:"🤝",label:"Circles"},
 {k:"progress",icon:"📿",label:"Journey"},
 {k:"learn",icon:"📖",label:"Library"},
+{k:"ask",icon:"🔎",label:"Ask"},
 ].map(n=>(
 <button key={n.k} onClick={()=>setPage(n.k)} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:2,background:"none",border:"none",padding:"6px 20px",borderRadius:8,
 color:page===n.k?"var(--green2)":"var(--text3)",fontFamily:"var(--font)",fontSize:10,fontWeight:page===n.k?600:400,transition:"color 0.2s",minWidth:88}}>
