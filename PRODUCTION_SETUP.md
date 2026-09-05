@@ -32,6 +32,6 @@ this application.
 2. Validate sign-up, email confirmation, sign-in, completion syncing, duplicate
    prevention, the personalized daily releases, and private circle participation
    on the Vercel preview.
-3. Verify onboarding, reflection saving, bookmarks, private circle intentions,
+3. Verify direct entry to Today, reflection saving, bookmarks, private circle intentions,
    and the curated Ask boundaries.
 4. Merge into `main` only after the preview passes.

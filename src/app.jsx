@@ -1,28 +1,3 @@
-function OnboardingScreen({onComplete}){
-const[step,setStep]=useState(0);
-const[prefs,setPrefs]=useState({goals:[],duration:3,audio:"arabic",reminder:"",school:""});
-const[busy,setBusy]=useState(false);
-const[error,setError]=useState("");
-const goals=["A calmer daily rhythm","Understanding the words","Returning after salah","A private practice with family"];
-const update=(key,value)=>setPrefs(current=>({...current,[key]:value}));
-const finish=async()=>{
- setBusy(true);setError("");
- try{const client=await getSupabase();const{error:rpcError}=await client.rpc("save_dhikr_preferences",{p_preferences:{...prefs,onboardingCompleted:true}});if(rpcError)throw rpcError;onComplete({onboardingCompleted:true,preferences:prefs,reflections:[],savedItems:[]});}
- catch(err){setError(err.message||"Your preferences could not be saved. Please try again.");}
- finally{setBusy(false);}
-};
-return <main className="onboarding-shell">
- <section className="onboarding-card anim-up" aria-labelledby="welcome-title">
-  <div className="eyebrow">A private daily practice</div><div className="ornament" aria-hidden="true">✦</div>
-  <div className="step-count">0{step+1} / 03</div>
-  {step===0&&<><h1 id="welcome-title">Begin at your own pace.</h1><p>Choose what you hope remembrance makes room for. These preferences are private and can be changed later.</p><div className="choice-list">{goals.map(goal=><label className={`choice ${prefs.goals.includes(goal)?"selected":""}`} key={goal}><input type="checkbox" checked={prefs.goals.includes(goal)} onChange={()=>update("goals",prefs.goals.includes(goal)?prefs.goals.filter(item=>item!==goal):[...prefs.goals,goal])}/><span>{goal}</span></label>)}</div></>}
-  {step===1&&<><h1>A practice that fits today.</h1><p>Small and consistent is enough. You can always linger when the moment allows.</p><div className="duration-grid">{[1,3,5].map(minutes=><button className={`duration ${prefs.duration===minutes?"selected":""}`} onClick={()=>update("duration",minutes)} key={minutes}><strong>{minutes}</strong><span>minute{minutes>1?"s":""}</span></button>)}</div><label className="field-label">Recitation preference<select value={prefs.audio} onChange={e=>update("audio",e.target.value)}><option value="arabic">Arabic recitation</option><option value="both">Arabic with English meaning</option><option value="english">English meaning</option></select></label></>}
-  {step===2&&<><h1>Set a gentle invitation.</h1><p>A reminder is optional. The purpose is to make returning easier, never to make you feel behind.</p><label className="field-label">Preferred reminder time<input type="time" value={prefs.reminder} onChange={e=>update("reminder",e.target.value)}/></label><label className="field-label">School of thought <small>(optional)</small><select value={prefs.school} onChange={e=>update("school",e.target.value)}><option value="">No preference</option><option>Hanafi</option><option>Maliki</option><option>Shafi'i</option><option>Hanbali</option><option>Other / prefer not to say</option></select></label><div className="boundary-note">The Dhikr Challenge supports practice and learning. It does not give personal religious rulings.</div></>}
-  {error&&<div role="alert" className="form-error">{error}</div>}
-  <div className="onboard-actions">{step>0&&<button className="quiet-button" onClick={()=>setStep(step-1)}>Back</button>}<button className="primary-button" disabled={busy} onClick={step===2?finish:()=>setStep(step+1)}>{busy?"Saving…":step===2?"Enter today’s practice":"Continue"}</button></div>
- </section>
-</main>;
-}
 function App({user,onLogout}){
 const[page,setPage]=useState("home");
 const[data,setData]=useState(freshData);
@@ -40,8 +15,7 @@ const[circleBusy,setCircleBusy]=useState(false);
 const[circleError,setCircleError]=useState("");
 const[activeTasbih,setActiveTasbih]=useState(null);
 const[showDetail,setShowDetail]=useState(null);
-const[experience,setExperience]=useState(null);
-const[experienceError,setExperienceError]=useState("");
+const[experience,setExperience]=useState({onboardingCompleted:true,preferences:{goals:[],duration:3,audio:"arabic",reminder:"",school:""},reflections:[],savedItems:[]});
 const[showSettings,setShowSettings]=useState(false);
 const[arabicSize,setArabicSize]=useState(()=>Number(localStorage.getItem("dhikr-arabic-size")||32));
 const[showTransliteration,setShowTransliteration]=useState(true);
@@ -66,8 +40,8 @@ const nextCircles=Array.isArray(circleResult.value.data)?circleResult.value.data
 setCircles(nextCircles);
 setSelectedCircle(current=>current||nextCircles[0]||null);
 }else setCircleError("Your circles are temporarily unavailable.");
- if(experienceResult.status==="fulfilled"&&!experienceResult.value.error)setExperience(experienceResult.value.data||{});
- else {setExperience({onboardingCompleted:true});setExperienceError("Preferences are temporarily unavailable.");}
+  if(experienceResult.status==="fulfilled"&&!experienceResult.value.error)setExperience(experienceResult.value.data||{onboardingCompleted:true,preferences:{goals:[],duration:3,audio:"arabic",reminder:"",school:""},reflections:[],savedItems:[]});
+  else setProgressError("Preferences are temporarily unavailable.");
 })
 .finally(()=>{if(active)setLoadingProgress(false);});
 return()=>{active=false;};
@@ -76,8 +50,6 @@ useEffect(()=>{
  const preferred=experience?.preferences?.audio;
  if(preferred)try{localStorage.setItem("dhikr-recitation-mode",preferred);}catch(error){}
 },[experience?.preferences?.audio]);
-if(experience===null)return <div className="app-loading"><div className="loading-line"/><span>Preparing your practice</span></div>;
-if(!experience.onboardingCompleted)return <OnboardingScreen onComplete={setExperience}/>;
 const completedDhikr=data.completedToday;
 const totalCompletions=data.totalCompletions;
 const releasedDhikr=useMemo(dailyDhikr,[]);
@@ -186,7 +158,7 @@ function SettingsPanel(){
  const goals=["A calmer daily rhythm","Understanding the words","Returning after salah","A private practice with family"];
  const toggleGoal=goal=>setForm(current=>({...current,goals:(current.goals||[]).includes(goal)?current.goals.filter(item=>item!==goal):[...(current.goals||[]),goal]}));
  const submit=async()=>{setSaving(true);try{await savePreferences({...form,onboardingCompleted:true});setShowSettings(false);}catch(error){setProgressError(error.message||"Preferences could not be saved.");}finally{setSaving(false);}};
- return <div className="settings-overlay" onClick={()=>setShowSettings(false)}><section className="settings-panel" onClick={event=>event.stopPropagation()}><div className="eyebrow">Your practice</div><h2>Preferences</h2><p className="panel-copy">Adjust the shape of your daily return. Nothing here is public.</p><div className="field-label">Practice intentions<div className="choice-list compact">{goals.map(goal=><label className={`choice ${(form.goals||[]).includes(goal)?"selected":""}`} key={goal}><input type="checkbox" checked={(form.goals||[]).includes(goal)} onChange={()=>toggleGoal(goal)}/><span>{goal}</span></label>)}</div></div><label className="field-label">Practice duration<select value={form.duration||3} onChange={e=>setForm({...form,duration:Number(e.target.value)})}>{[1,3,5].map(value=><option key={value} value={value}>{value} minutes</option>)}</select></label><label className="field-label">Audio preference<select value={form.audio||"arabic"} onChange={e=>setForm({...form,audio:e.target.value})}><option value="arabic">Arabic recitation</option><option value="both">Arabic with English meaning</option><option value="english">English meaning</option></select></label><label className="field-label">Reminder time<input type="time" value={form.reminder||""} onChange={e=>setForm({...form,reminder:e.target.value})}/></label><label className="field-label">School of thought <small>(optional)</small><select value={form.school||""} onChange={e=>setForm({...form,school:e.target.value})}><option value="">No preference</option><option>Hanafi</option><option>Maliki</option><option>Shafi'i</option><option>Hanbali</option><option>Other / prefer not to say</option></select></label><div className="onboard-actions"><button className="quiet-button" onClick={()=>setShowSettings(false)}>Cancel</button><button className="primary-button" onClick={submit} disabled={saving}>{saving?"Saving…":"Save preferences"}</button></div></section></div>;
+ return <div className="settings-overlay" onClick={()=>setShowSettings(false)}><section className="settings-panel" onClick={event=>event.stopPropagation()}><div className="eyebrow">Your practice</div><h2>Preferences</h2><p className="panel-copy">Adjust the shape of your daily return. Nothing here is public.</p><div className="field-label">Practice intentions<div className="choice-list compact">{goals.map(goal=><label className={`choice ${(form.goals||[]).includes(goal)?"selected":""}`} key={goal}><input type="checkbox" checked={(form.goals||[]).includes(goal)} onChange={()=>toggleGoal(goal)}/><span>{goal}</span></label>)}</div></div><label className="field-label">Practice duration<select value={form.duration||3} onChange={e=>setForm({...form,duration:Number(e.target.value)})}>{[1,3,5].map(value=><option key={value} value={value}>{value} minutes</option>)}</select></label><label className="field-label">Audio preference<select value={form.audio||"arabic"} onChange={e=>setForm({...form,audio:e.target.value})}><option value="arabic">Arabic recitation</option><option value="both">Arabic with English meaning</option><option value="english">English meaning</option></select></label><label className="field-label">Reminder time<input type="time" value={form.reminder||""} onChange={e=>setForm({...form,reminder:e.target.value})}/></label><label className="field-label">School of thought <small>(optional)</small><select value={form.school||""} onChange={e=>setForm({...form,school:e.target.value})}><option value="">No preference</option><option>Hanafi</option><option>Maliki</option><option>Shafi'i</option><option>Hanbali</option><option>Other / prefer not to say</option></select></label><div className="panel-actions"><button className="quiet-button" onClick={()=>setShowSettings(false)}>Cancel</button><button className="primary-button" onClick={submit} disabled={saving}>{saving?"Saving…":"Save preferences"}</button></div></section></div>;
 }
 function HomePage(){
 const challengeCompleted=completedDhikr.includes(currentDhikr.id);
@@ -820,7 +792,7 @@ return(
 {activeTasbih&&<TasbihCounter dhikr={activeTasbih} onComplete={completeDhikr} onClose={()=>setActiveTasbih(null)}/>}
 <DhikrDetail/>
 {showSettings&&<SettingsPanel/>}
-{pendingReflection&&<div className="settings-overlay" onClick={()=>setPendingReflection(null)}><section className="settings-panel reflection-panel" onClick={event=>event.stopPropagation()}><div className="eyebrow">Practice complete</div><h2>Carry one thing forward.</h2><p className="panel-copy">This reflection is private to your account. The note is optional.</p><div className="mood-grid">{[["peaceful","Peaceful"],["reflective","Reflective"],["grateful","Grateful"],["focused","Focused"],["heavy","Heavy"]].map(([value,label])=><button className={reflectionMood===value?"active":""} key={value} onClick={()=>setReflectionMood(value)}>{label}</button>)}</div><label className="field-label">Private note <small>(optional)</small><textarea maxLength="500" value={reflectionNote} onChange={event=>setReflectionNote(event.target.value)} placeholder="One line to remember from this practice…"/></label><div className="onboard-actions"><button className="quiet-button" onClick={()=>setPendingReflection(null)}>Not now</button><button className="primary-button" onClick={saveReflection} disabled={reflectionBusy}>{reflectionBusy?"Saving…":"Save reflection"}</button></div></section></div>}
+ {pendingReflection&&<div className="settings-overlay" onClick={()=>setPendingReflection(null)}><section className="settings-panel reflection-panel" onClick={event=>event.stopPropagation()}><div className="eyebrow">Practice complete</div><h2>Carry one thing forward.</h2><p className="panel-copy">This reflection is private to your account. The note is optional.</p><div className="mood-grid">{[["peaceful","Peaceful"],["reflective","Reflective"],["grateful","Grateful"],["focused","Focused"],["heavy","Heavy"]].map(([value,label])=><button className={reflectionMood===value?"active":""} key={value} onClick={()=>setReflectionMood(value)}>{label}</button>)}</div><label className="field-label">Private note <small>(optional)</small><textarea maxLength="500" value={reflectionNote} onChange={event=>setReflectionNote(event.target.value)} placeholder="One line to remember from this practice…"/></label><div className="panel-actions"><button className="quiet-button" onClick={()=>setPendingReflection(null)}>Not now</button><button className="primary-button" onClick={saveReflection} disabled={reflectionBusy}>{reflectionBusy?"Saving…":"Save reflection"}</button></div></section></div>}
 <nav style={{display:"flex",justifyContent:"center",gap:4,padding:"8px 0 env(safe-area-inset-bottom,8px)",background:"rgba(9,17,31,0.95)",backdropFilter:"blur(20px)",borderTop:"1px solid var(--border2)",position:"relative",zIndex:50}}>
 {[
 {k:"home",icon:"01",label:"Today"},
