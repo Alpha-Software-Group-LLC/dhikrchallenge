@@ -36,12 +36,8 @@ const arabicAudioCache={};
 async function loadArabicAudio(text){
 if(arabicAudioCache[text])return arabicAudioCache[text];
 const url=`https://translate.google.com/translate_tts?ie=UTF-8&tl=ar&client=tw-ob&q=${encodeURIComponent(text)}`;
-const response=await fetch(url);
-if(!response.ok)throw new Error("Audio unavailable");
-const blob=await response.blob();
-const objectUrl=URL.createObjectURL(blob);
-arabicAudioCache[text]=objectUrl;
-return objectUrl;
+arabicAudioCache[text]=url;
+return url;
 }
 function RecitationControls({dhikr,compact=false}){
 const[mode,setMode]=useState("arabic");

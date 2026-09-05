@@ -4,6 +4,13 @@ const[data,setData]=useState(freshData);
 const[loadingProgress,setLoadingProgress]=useState(true);
 const[progressError,setProgressError]=useState("");
 const[leaders,setLeaders]=useState([]);
+const[circles,setCircles]=useState([]);
+const[selectedCircle,setSelectedCircle]=useState(null);
+const[circleMembers,setCircleMembers]=useState([]);
+const[circleName,setCircleName]=useState("");
+const[inviteCode,setInviteCode]=useState("");
+const[circleBusy,setCircleBusy]=useState(false);
+const[circleError,setCircleError]=useState("");
 const[activeTasbih,setActiveTasbih]=useState(null);
 const[showDetail,setShowDetail]=useState(null);
 const userName=(user.user_metadata?.display_name||user.email?.split("@")[0]||"Friend").split(" ")[0];
@@ -11,9 +18,16 @@ useEffect(()=>{
 let active=true;
 Promise.all([
 loadUserData(),
-getSupabase().then(client=>client.rpc("daily_leaderboard"))
+getSupabase().then(client=>client.rpc("daily_leaderboard")),
+getSupabase().then(client=>client.rpc("my_dhikr_circles"))
 ])
-.then(([next,board])=>{if(active){setData(next);setLeaders(board.data||[]);}})
+.then(([next,board,circleData])=>{if(active){
+setData(next);
+setLeaders(board.data||[]);
+const nextCircles=Array.isArray(circleData.data)?circleData.data:[];
+setCircles(nextCircles);
+setSelectedCircle(current=>current||nextCircles[0]||null);
+}})
 .catch(error=>{if(active)setProgressError(error.message||"Could not load progress.");})
 .finally(()=>{if(active)setLoadingProgress(false);});
 return()=>{active=false;};
@@ -38,6 +52,49 @@ setActiveTasbih(null);
 }catch(error){
 setProgressError(error.message||"Completion could not be saved.");
 }
+};
+useEffect(()=>{
+if(!selectedCircle||page!=="circles")return;
+let active=true;
+getSupabase().then(client=>client.rpc("circle_engagement",{p_circle_id:selectedCircle.id}))
+.then(({data:members,error})=>{if(error)throw error;if(active)setCircleMembers(members||[]);})
+.catch(error=>{if(active)setCircleError(error.message||"Could not load circle activity.");});
+return()=>{active=false;};
+},[selectedCircle?.id,page]);
+const refreshCircles=async()=>{
+const client=await getSupabase();
+const{data,error}=await client.rpc("my_dhikr_circles");
+if(error)throw error;
+const next=Array.isArray(data)?data:[];
+setCircles(next);
+setSelectedCircle(current=>next.find(c=>c.id===current?.id)||next[0]||null);
+return next;
+};
+const createCircle=async()=>{
+if(!circleName.trim())return;
+setCircleBusy(true);setCircleError("");
+try{
+const client=await getSupabase();
+const{data,error}=await client.rpc("create_dhikr_circle",{p_name:circleName.trim()});
+if(error)throw error;
+setCircleName("");
+const next=await refreshCircles();
+setSelectedCircle(next.find(c=>c.id===data?.id)||next[0]||null);
+}catch(error){setCircleError(error.message||"Could not create circle.");}
+finally{setCircleBusy(false);}
+};
+const joinCircle=async()=>{
+if(!inviteCode.trim())return;
+setCircleBusy(true);setCircleError("");
+try{
+const client=await getSupabase();
+const{data,error}=await client.rpc("join_dhikr_circle",{p_invite_code:inviteCode.trim()});
+if(error)throw error;
+setInviteCode("");
+const next=await refreshCircles();
+setSelectedCircle(next.find(c=>c.id===data?.id)||next[0]||null);
+}catch(error){setCircleError(error.message||"Could not join circle.");}
+finally{setCircleBusy(false);}
 };
 function HomePage(){
 const challengeCompleted=completedDhikr.includes(currentDhikr.id);
@@ -169,6 +226,90 @@ style={{display:"flex",alignItems:"center",gap:14,padding:"14px 0",borderBottom:
 );
 })}
 </div>
+</div>
+);
+}
+function CirclesPage(){
+const[copied,setCopied]=useState(false);
+const copyInvite=async()=>{
+if(!selectedCircle?.inviteCode)return;
+try{
+await navigator.clipboard.writeText(selectedCircle.inviteCode);
+setCopied(true);
+setTimeout(()=>setCopied(false),1800);
+}catch(error){setCopied(false);}
+};
+return(
+<div style={{height:"100%",overflowY:"auto",padding:"24px 20px 110px",maxWidth:720,margin:"0 auto"}}>
+<div className="anim-up" style={{marginBottom:24}}>
+<div style={{fontSize:11,color:"var(--amber)",fontFamily:"var(--font)",fontWeight:600,textTransform:"uppercase",letterSpacing:".12em",marginBottom:7}}>Practice together</div>
+<div style={{fontFamily:"var(--serif)",fontSize:30}}>Your circles</div>
+<div style={{fontSize:13,color:"var(--text2)",lineHeight:1.65,marginTop:6}}>Invite the people you love. See who has shown up for today’s challenge without turning worship into a competition.</div>
+</div>
+<div className="anim-up d1" style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(220px,1fr))",gap:10,marginBottom:18}}>
+<div style={{background:"var(--surface)",border:"1px solid var(--border2)",borderRadius:14,padding:16}}>
+<div style={{fontSize:11,color:"var(--green2)",fontWeight:600,marginBottom:10}}>Create a circle</div>
+<div style={{display:"flex",gap:7}}>
+<input value={circleName} onChange={e=>setCircleName(e.target.value)} onKeyDown={e=>e.key==="Enter"&&createCircle()} placeholder="Family, friends, halaqah"
+style={{flex:1,minWidth:0,padding:"10px 11px",borderRadius:8,border:"1px solid var(--border2)",background:"var(--bg2)",color:"var(--text)",fontFamily:"var(--font)",fontSize:12,outline:"none"}}/>
+<button onClick={createCircle} disabled={circleBusy||!circleName.trim()} style={{padding:"10px 12px",borderRadius:8,border:"none",background:"var(--amber)",color:"var(--bg)",fontWeight:600,fontSize:11,opacity:circleBusy||!circleName.trim()?.6:1}}>Create</button>
+</div>
+</div>
+<div style={{background:"var(--surface)",border:"1px solid var(--border2)",borderRadius:14,padding:16}}>
+<div style={{fontSize:11,color:"var(--green2)",fontWeight:600,marginBottom:10}}>Join with an invite code</div>
+<div style={{display:"flex",gap:7}}>
+<input value={inviteCode} onChange={e=>setInviteCode(e.target.value.toUpperCase())} onKeyDown={e=>e.key==="Enter"&&joinCircle()} placeholder="8-character code" maxLength={8}
+style={{flex:1,minWidth:0,padding:"10px 11px",borderRadius:8,border:"1px solid var(--border2)",background:"var(--bg2)",color:"var(--text)",fontFamily:"var(--mono)",fontSize:12,letterSpacing:".12em",outline:"none"}}/>
+<button onClick={joinCircle} disabled={circleBusy||inviteCode.trim().length<8} style={{padding:"10px 12px",borderRadius:8,border:"1px solid var(--green-mid)",background:"var(--green-dim)",color:"var(--green2)",fontWeight:600,fontSize:11,opacity:circleBusy||inviteCode.trim().length<8?.6:1}}>Join</button>
+</div>
+</div>
+</div>
+{circleError&&<div style={{background:"var(--rose-dim)",border:"1px solid rgba(196,122,122,.25)",color:"var(--rose)",borderRadius:10,padding:"10px 12px",fontSize:12,marginBottom:14}}>{circleError}</div>}
+{circles.length===0?(
+<div className="anim-up d2" style={{background:"linear-gradient(135deg,var(--surface),var(--bg2))",border:"1px dashed var(--border2)",borderRadius:18,padding:"34px 22px",textAlign:"center"}}>
+<div style={{fontSize:34,marginBottom:10}}>🤝</div>
+<div style={{fontFamily:"var(--serif)",fontSize:22,marginBottom:6}}>Make remembrance a shared habit</div>
+<div style={{fontSize:12,color:"var(--text2)",lineHeight:1.6,maxWidth:360,margin:"0 auto"}}>Create a circle for your household or join one with an invite code. Your circle will appear here after the first person joins.</div>
+</div>
+):(
+<>
+<div className="anim-up d2" style={{display:"flex",gap:8,overflowX:"auto",paddingBottom:8,marginBottom:12}}>
+{circles.map(circle=>(
+<button key={circle.id} onClick={()=>{setSelectedCircle(circle);setCircleError("");}}
+style={{whiteSpace:"nowrap",padding:"9px 13px",borderRadius:18,border:`1px solid ${selectedCircle?.id===circle.id?"var(--amber-mid)":"var(--border2)"}`,background:selectedCircle?.id===circle.id?"var(--amber-dim)":"var(--surface)",color:selectedCircle?.id===circle.id?"var(--amber2)":"var(--text2)",fontSize:12,fontFamily:"var(--font)",fontWeight:selectedCircle?.id===circle.id?600:400}}>
+{circle.name} · {circle.memberCount}
+</button>
+))}
+</div>
+{selectedCircle&&(
+<div className="anim-up d3" style={{background:"var(--surface)",border:"1px solid var(--amber-mid)",borderRadius:18,padding:20}}>
+<div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:12,marginBottom:18}}>
+<div>
+<div style={{fontSize:10,color:"var(--amber)",fontWeight:600,textTransform:"uppercase",letterSpacing:".12em",marginBottom:6}}>Today in</div>
+<div style={{fontFamily:"var(--serif)",fontSize:25}}>{selectedCircle.name}</div>
+<div style={{fontSize:11,color:"var(--text3)",marginTop:4}}>{selectedCircle.memberCount} {selectedCircle.memberCount===1?"member":"members"} · private circle</div>
+</div>
+<button onClick={copyInvite} style={{padding:"8px 10px",borderRadius:8,border:"1px solid var(--border2)",background:"var(--bg2)",color:"var(--text2)",fontSize:10,fontFamily:"var(--mono)"}}>
+{copied?"Copied!":"Invite "+selectedCircle.inviteCode}
+</button>
+</div>
+<div style={{fontSize:11,color:"var(--text3)",lineHeight:1.5,marginBottom:14}}>A gentle view of who has engaged with today’s Daily Challenge. No streaks or personal details are shared.</div>
+<div style={{borderTop:"1px solid var(--border)",paddingTop:4}}>
+{circleMembers.length?circleMembers.map((member,i)=>(
+<div key={`${member.name}-${i}`} style={{display:"flex",alignItems:"center",gap:11,padding:"12px 0",borderBottom:i<circleMembers.length-1?"1px solid var(--border)":"none"}}>
+<div style={{width:32,height:32,borderRadius:"50%",background:member.completed_today?"var(--green-dim)":"var(--raised)",border:`1px solid ${member.completed_today?"var(--green-mid)":"var(--border2)"}`,display:"grid",placeItems:"center",fontSize:13}}>{member.completed_today?"✓":"·"}</div>
+<div style={{flex:1,minWidth:0}}>
+<div style={{fontSize:13,color:member.current_user?"var(--amber2)":"var(--text)",fontWeight:member.current_user?600:400}}>{member.name}{member.current_user?" · you":""}</div>
+<div style={{fontSize:10,color:"var(--text3)",marginTop:2}}>{member.completed_today?`${member.completed_today} challenge ${member.completed_today===1?"release":"releases"} completed today`:"Not yet today"}</div>
+</div>
+<div style={{fontSize:11,color:member.completed_today?"var(--green2)":"var(--text3)",fontFamily:"var(--mono)"}}>{member.xp_today||0} XP</div>
+</div>
+)):<div style={{padding:"22px 0",textAlign:"center",fontSize:12,color:"var(--text3)"}}>Loading your circle…</div>}
+</div>
+</div>
+)}
+</>
+)}
 </div>
 );
 }
@@ -371,6 +512,7 @@ return(
 {progressError&&<button onClick={()=>setProgressError("")} style={{position:"absolute",top:12,left:16,right:16,zIndex:100,background:"var(--rose-dim)",border:"1px solid rgba(196,122,122,.25)",borderRadius:10,padding:"9px 12px",fontSize:11,color:"var(--rose)"}}>{progressError} · Dismiss</button>}
 <div style={{flex:1,overflow:"hidden",position:"relative",zIndex:1}}>
 {page==="home"&&<HomePage/>}
+{page==="circles"&&<CirclesPage/>}
 {page==="progress"&&<ProgressPage/>}
 {page==="learn"&&<LearnPage/>}
 </div>
@@ -378,9 +520,10 @@ return(
 <DhikrDetail/>
 <nav style={{display:"flex",justifyContent:"space-around",padding:"8px 0 env(safe-area-inset-bottom,8px)",background:"rgba(6,15,10,0.95)",backdropFilter:"blur(20px)",borderTop:"1px solid var(--border2)",position:"relative",zIndex:50}}>
 {[
-{k:"home",icon:"🕌",label:"Daily Challenge"},
+{k:"home",icon:"🕌",label:"Today"},
+{k:"circles",icon:"🤝",label:"Circles"},
 {k:"progress",icon:"📿",label:"Journey"},
-{k:"learn",icon:"📖",label:"Learn"},
+{k:"learn",icon:"📖",label:"Library"},
 ].map(n=>(
 <button key={n.k} onClick={()=>setPage(n.k)} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:2,background:"none",border:"none",padding:"6px 20px",borderRadius:8,
 color:page===n.k?"var(--green2)":"var(--text3)",fontFamily:"var(--font)",fontSize:10,fontWeight:page===n.k?600:400,transition:"color 0.2s"}}>
