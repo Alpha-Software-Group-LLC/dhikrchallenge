@@ -1,3 +1,111 @@
+function CirclesPage({circles,selectedCircle,setSelectedCircle,circleName,setCircleName,inviteCode,setInviteCode,circleBusy,circleError,setCircleError,circleMembers,circleToday,circleIntention,setCircleIntention,intentionBusy,user,createCircle,joinCircle,saveCircleIntention}){
+ const[copied,setCopied]=useState(false);
+ const[shared,setShared]=useState(false);
+ const copyInvite=async()=>{
+  if(!selectedCircle?.inviteCode)return;
+  try{
+   await navigator.clipboard.writeText(selectedCircle.inviteCode);
+   setCopied(true);
+   setTimeout(()=>setCopied(false),1800);
+  }catch(error){setCopied(false);}
+ };
+ const shareInvite=async()=>{
+  if(!selectedCircle?.inviteCode)return;
+  const text=`Join my private Dhikr Challenge circle “${selectedCircle.name}” with invite code ${selectedCircle.inviteCode}.`;
+  try{
+   if(navigator.share){
+    await navigator.share({title:"Join my Dhikr Challenge circle",text});
+    setShared(true);
+    setTimeout(()=>setShared(false),1800);
+   }else{
+    await navigator.clipboard.writeText(text);
+    setShared(true);
+    setTimeout(()=>setShared(false),1800);
+   }
+  }catch(error){}
+ };
+ return(
+ <div style={{height:"100%",overflowY:"auto",padding:"24px 20px 110px",maxWidth:720,margin:"0 auto"}}>
+ <div className="anim-up" style={{marginBottom:24}}>
+ <div style={{fontSize:11,color:"var(--amber)",fontFamily:"var(--font)",fontWeight:600,textTransform:"uppercase",letterSpacing:".12em",marginBottom:7}}>Practice together</div>
+ <div style={{fontFamily:"var(--serif)",fontSize:30}}>Your circles</div>
+ <div style={{fontSize:13,color:"var(--text2)",lineHeight:1.65,marginTop:6}}>Invite the people you love. See who has shown up for today’s challenge without turning worship into a competition.</div>
+ </div>
+ <div className="anim-up d1" style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(220px,1fr))",gap:10,marginBottom:18}}>
+ <div style={{background:"var(--surface)",border:"1px solid var(--border2)",borderRadius:14,padding:16}}>
+ <div style={{fontSize:11,color:"var(--green2)",fontWeight:600,marginBottom:10}}>Create a circle</div>
+ <div style={{display:"flex",gap:7}}>
+ <input value={circleName} onChange={e=>setCircleName(e.target.value)} onKeyDown={e=>e.key==="Enter"&&createCircle()} placeholder="Family, friends, halaqah"
+ style={{flex:1,minWidth:0,padding:"10px 11px",borderRadius:8,border:"1px solid var(--border2)",background:"var(--bg2)",color:"var(--text)",fontFamily:"var(--font)",fontSize:12,outline:"none"}}/>
+ <button onClick={createCircle} disabled={circleBusy||!circleName.trim()} style={{padding:"10px 12px",borderRadius:8,border:"none",background:"var(--amber)",color:"var(--bg)",fontWeight:600,fontSize:11,opacity:(circleBusy||!circleName.trim())?.6:1}}>Create</button>
+ </div>
+ </div>
+ <div style={{background:"var(--surface)",border:"1px solid var(--border2)",borderRadius:14,padding:16}}>
+ <div style={{fontSize:11,color:"var(--green2)",fontWeight:600,marginBottom:10}}>Join with an invite code</div>
+ <div style={{display:"flex",gap:7}}>
+ <input value={inviteCode} onChange={e=>setInviteCode(e.target.value.toUpperCase().replace(/[^A-F0-9]/g,""))} onKeyDown={e=>e.key==="Enter"&&joinCircle()} placeholder="Invite code" maxLength={32}
+ style={{flex:1,minWidth:0,padding:"10px 11px",borderRadius:8,border:"1px solid var(--border2)",background:"var(--bg2)",color:"var(--text)",fontFamily:"var(--mono)",fontSize:12,letterSpacing:".12em",outline:"none"}}/>
+ <button onClick={joinCircle} disabled={circleBusy||![8,32].includes(inviteCode.trim().length)} style={{padding:"10px 12px",borderRadius:8,border:"1px solid var(--green-mid)",background:"var(--green-dim)",color:"var(--green2)",fontWeight:600,fontSize:11,opacity:(circleBusy||![8,32].includes(inviteCode.trim().length))?.6:1}}>Join</button>
+ </div>
+ </div>
+ </div>
+ {circleError&&<div style={{background:"var(--rose-dim)",border:"1px solid rgba(196,122,122,.25)",color:"var(--rose)",borderRadius:10,padding:"10px 12px",fontSize:12,marginBottom:14}}>{circleError}</div>}
+ {circles.length===0?(
+ <div className="anim-up d2" style={{background:"linear-gradient(135deg,var(--surface),var(--bg2))",border:"1px dashed var(--border2)",borderRadius:18,padding:"34px 22px",textAlign:"center"}}>
+ <div style={{fontFamily:"var(--serif)",fontSize:22,marginBottom:6}}>Make remembrance a shared habit</div>
+ <div style={{fontSize:12,color:"var(--text2)",lineHeight:1.6,maxWidth:360,margin:"0 auto"}}>Create a circle for your household or join one with an invite code. Your circle will appear here after the first person joins.</div>
+ </div>
+ ):(
+ <>
+ <div className="anim-up d2" style={{display:"flex",gap:8,overflowX:"auto",paddingBottom:8,marginBottom:12}}>
+ {circles.map(circle=>(
+ <button key={circle.id} onClick={()=>{setSelectedCircle(circle);setCircleError("");}}
+ style={{whiteSpace:"nowrap",padding:"9px 13px",borderRadius:18,border:`1px solid ${selectedCircle?.id===circle.id?"var(--amber-mid)":"var(--border2)"}`,background:selectedCircle?.id===circle.id?"var(--amber-dim)":"var(--surface)",color:selectedCircle?.id===circle.id?"var(--amber2)":"var(--text2)",fontSize:12,fontFamily:"var(--font)",fontWeight:selectedCircle?.id===circle.id?600:400}}>
+ {circle.name} · {circle.memberCount}
+ </button>
+ ))}
+ </div>
+ {selectedCircle&&(
+ <div className="anim-up d3" style={{background:"var(--surface)",border:"1px solid var(--amber-mid)",borderRadius:18,padding:20}}>
+ <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:12,marginBottom:18}}>
+ <div>
+ <div style={{fontSize:10,color:"var(--amber)",fontWeight:600,textTransform:"uppercase",letterSpacing:".12em",marginBottom:6}}>Today in</div>
+ <div style={{fontFamily:"var(--serif)",fontSize:25}}>{selectedCircle.name}</div>
+ <div style={{fontSize:11,color:"var(--text3)",marginTop:4}}>{selectedCircle.memberCount} {selectedCircle.memberCount===1?"member":"members"} · private circle</div>
+ </div>
+ <div style={{display:"flex",gap:6,flexWrap:"wrap",justifyContent:"flex-end"}}>
+ <button onClick={copyInvite} aria-label="Copy circle invite code" style={{padding:"8px 10px",borderRadius:8,border:"1px solid var(--border2)",background:"var(--bg2)",color:"var(--text2)",fontSize:10,fontFamily:"var(--mono)"}}>
+ {copied?"Copied!":"Invite "+selectedCircle.inviteCode}
+ </button>
+ <button onClick={shareInvite} aria-label="Share circle invite" style={{padding:"8px 10px",borderRadius:8,border:"1px solid var(--green-mid)",background:"var(--green-dim)",color:"var(--green2)",fontSize:10,fontFamily:"var(--mono)"}}>
+ {shared?"Shared!":"Share"}
+ </button>
+ </div>
+ </div>
+ <div style={{fontSize:11,color:"var(--text3)",lineHeight:1.5,marginBottom:14}}>A gentle view of who has engaged with today’s Daily Challenge. No counts, streaks, scores, or personal details are shared.</div>
+ <div style={{margin:"0 0 16px",padding:"14px",background:"var(--bg2)",border:"1px solid var(--border)",borderRadius:10}}>
+ <div style={{fontSize:10,color:"var(--amber)",fontWeight:600,textTransform:"uppercase",letterSpacing:".1em",marginBottom:7}}>Today’s shared intention</div>
+ {selectedCircle.ownerId===user.id?<div style={{display:"flex",gap:8}}><input aria-label="Circle intention" value={circleIntention} onChange={e=>setCircleIntention(e.target.value)} onKeyDown={e=>e.key==="Enter"&&saveCircleIntention()} placeholder="A small intention for the circle" style={{flex:1,minWidth:0,padding:"10px",background:"var(--surface)",border:"1px solid var(--border2)",color:"var(--text)",fontFamily:"var(--font)"}}/><button onClick={saveCircleIntention} disabled={intentionBusy} style={{padding:"9px 12px",background:"var(--amber-dim)",border:"1px solid var(--amber-mid)",color:"var(--amber2)",fontWeight:600,fontSize:11}}>{intentionBusy?"Saving":"Save"}</button></div>:<div style={{fontFamily:"var(--body)",fontSize:13,color:"var(--text2)"}}>{circleToday?.intention||"The circle has not set an intention yet."}</div>}
+ {circleToday?.intention&&<div style={{fontFamily:"var(--body)",fontSize:12,color:"var(--text2)",marginTop:9}}>Held by the circle: {circleToday.intention}</div>}
+ </div>
+ <div style={{borderTop:"1px solid var(--border)",paddingTop:4}}>
+ {circleMembers.length?circleMembers.map((member,i)=>(
+ <div key={`${member.name}-${i}`} style={{display:"flex",alignItems:"center",gap:11,padding:"12px 0",borderBottom:i<circleMembers.length-1?"1px solid var(--border)":"none"}}>
+ <div style={{width:32,height:32,borderRadius:"50%",background:member.completedToday?"var(--green-dim)":"var(--raised)",border:`1px solid ${member.completedToday?"var(--green-mid)":"var(--border2)"}`,display:"grid",placeItems:"center",fontSize:13}}>{member.completedToday?"✓":"·"}</div>
+ <div style={{flex:1,minWidth:0}}>
+ <div style={{fontSize:13,color:member.currentUser?"var(--amber2)":"var(--text)",fontWeight:member.currentUser?600:400}}>{member.name}{member.currentUser?" · you":""}</div>
+ <div style={{fontSize:10,color:"var(--text3)",marginTop:2}}>{member.completedToday?"Joined today’s practice":"Not yet today"}</div>
+ </div>
+ </div>
+ )):<div style={{padding:"22px 0",textAlign:"center",fontSize:12,color:"var(--text3)"}}>Loading your circle…</div>}
+ </div>
+ </div>
+ )}
+ </>
+ )}
+ </div>
+ );
+}
 function App({user,onLogout}){
 const[page,setPage]=useState("home");
 const[data,setData]=useState(freshData);
@@ -17,6 +125,7 @@ const[activeTasbih,setActiveTasbih]=useState(null);
 const[showDetail,setShowDetail]=useState(null);
 const[experience,setExperience]=useState({onboardingCompleted:true,preferences:{goals:[],duration:3,audio:"arabic",reminder:"",school:""},reflections:[],savedItems:[]});
 const[showSettings,setShowSettings]=useState(false);
+const[menuOpen,setMenuOpen]=useState(false);
 const[arabicSize,setArabicSize]=useState(()=>Number(localStorage.getItem("dhikr-arabic-size")||32));
 const[showTransliteration,setShowTransliteration]=useState(true);
 const[pendingReflection,setPendingReflection]=useState(null);
@@ -62,6 +171,7 @@ const refreshExperience=async(clientArg)=>{
  return next||{};
 };
 const savedKeys=new Set((experience.savedItems||[]).map(item=>`${item.itemType||item.item_type||item.type}:${item.itemId||item.item_id||item.id}`));
+const navigateTo=nextPage=>{setPage(nextPage);setMenuOpen(false);};
 const toggleSavedItem=async(type,id)=>{
  try{
   const client=await getSupabase();
@@ -292,114 +402,6 @@ style={{display:"flex",alignItems:"center",gap:14,padding:"14px 0",borderBottom:
 );
 })}
 </div>
-</div>
-);
-}
-function CirclesPage(){
-const[copied,setCopied]=useState(false);
-const[shared,setShared]=useState(false);
-const copyInvite=async()=>{
-if(!selectedCircle?.inviteCode)return;
-try{
-await navigator.clipboard.writeText(selectedCircle.inviteCode);
-setCopied(true);
-setTimeout(()=>setCopied(false),1800);
-}catch(error){setCopied(false);}
-};
-const shareInvite=async()=>{
-if(!selectedCircle?.inviteCode)return;
-const text=`Join my private Dhikr Challenge circle “${selectedCircle.name}” with invite code ${selectedCircle.inviteCode}.`;
-try{
-if(navigator.share){
-await navigator.share({title:"Join my Dhikr Challenge circle",text});
-setShared(true);
-setTimeout(()=>setShared(false),1800);
-}else{
-await navigator.clipboard.writeText(text);
-setShared(true);
-setTimeout(()=>setShared(false),1800);
-}
-}catch(error){}
-};
-return(
-<div style={{height:"100%",overflowY:"auto",padding:"24px 20px 110px",maxWidth:720,margin:"0 auto"}}>
-<div className="anim-up" style={{marginBottom:24}}>
-<div style={{fontSize:11,color:"var(--amber)",fontFamily:"var(--font)",fontWeight:600,textTransform:"uppercase",letterSpacing:".12em",marginBottom:7}}>Practice together</div>
-<div style={{fontFamily:"var(--serif)",fontSize:30}}>Your circles</div>
-<div style={{fontSize:13,color:"var(--text2)",lineHeight:1.65,marginTop:6}}>Invite the people you love. See who has shown up for today’s challenge without turning worship into a competition.</div>
-</div>
-<div className="anim-up d1" style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(220px,1fr))",gap:10,marginBottom:18}}>
-<div style={{background:"var(--surface)",border:"1px solid var(--border2)",borderRadius:14,padding:16}}>
-<div style={{fontSize:11,color:"var(--green2)",fontWeight:600,marginBottom:10}}>Create a circle</div>
-<div style={{display:"flex",gap:7}}>
-<input value={circleName} onChange={e=>setCircleName(e.target.value)} onKeyDown={e=>e.key==="Enter"&&createCircle()} placeholder="Family, friends, halaqah"
-style={{flex:1,minWidth:0,padding:"10px 11px",borderRadius:8,border:"1px solid var(--border2)",background:"var(--bg2)",color:"var(--text)",fontFamily:"var(--font)",fontSize:12,outline:"none"}}/>
-<button onClick={createCircle} disabled={circleBusy||!circleName.trim()} style={{padding:"10px 12px",borderRadius:8,border:"none",background:"var(--amber)",color:"var(--bg)",fontWeight:600,fontSize:11,opacity:(circleBusy||!circleName.trim())?.6:1}}>Create</button>
-</div>
-</div>
-<div style={{background:"var(--surface)",border:"1px solid var(--border2)",borderRadius:14,padding:16}}>
-<div style={{fontSize:11,color:"var(--green2)",fontWeight:600,marginBottom:10}}>Join with an invite code</div>
-<div style={{display:"flex",gap:7}}>
-<input value={inviteCode} onChange={e=>setInviteCode(e.target.value.toUpperCase().replace(/[^A-F0-9]/g,""))} onKeyDown={e=>e.key==="Enter"&&joinCircle()} placeholder="Invite code" maxLength={32}
-style={{flex:1,minWidth:0,padding:"10px 11px",borderRadius:8,border:"1px solid var(--border2)",background:"var(--bg2)",color:"var(--text)",fontFamily:"var(--mono)",fontSize:12,letterSpacing:".12em",outline:"none"}}/>
-<button onClick={joinCircle} disabled={circleBusy||![8,32].includes(inviteCode.trim().length)} style={{padding:"10px 12px",borderRadius:8,border:"1px solid var(--green-mid)",background:"var(--green-dim)",color:"var(--green2)",fontWeight:600,fontSize:11,opacity:(circleBusy||![8,32].includes(inviteCode.trim().length))?.6:1}}>Join</button>
-</div>
-</div>
-</div>
-{circleError&&<div style={{background:"var(--rose-dim)",border:"1px solid rgba(196,122,122,.25)",color:"var(--rose)",borderRadius:10,padding:"10px 12px",fontSize:12,marginBottom:14}}>{circleError}</div>}
-{circles.length===0?(
-<div className="anim-up d2" style={{background:"linear-gradient(135deg,var(--surface),var(--bg2))",border:"1px dashed var(--border2)",borderRadius:18,padding:"34px 22px",textAlign:"center"}}>
-<div style={{fontFamily:"var(--serif)",fontSize:22,marginBottom:6}}>Make remembrance a shared habit</div>
-<div style={{fontSize:12,color:"var(--text2)",lineHeight:1.6,maxWidth:360,margin:"0 auto"}}>Create a circle for your household or join one with an invite code. Your circle will appear here after the first person joins.</div>
-</div>
-):(
-<>
-<div className="anim-up d2" style={{display:"flex",gap:8,overflowX:"auto",paddingBottom:8,marginBottom:12}}>
-{circles.map(circle=>(
-<button key={circle.id} onClick={()=>{setSelectedCircle(circle);setCircleError("");}}
-style={{whiteSpace:"nowrap",padding:"9px 13px",borderRadius:18,border:`1px solid ${selectedCircle?.id===circle.id?"var(--amber-mid)":"var(--border2)"}`,background:selectedCircle?.id===circle.id?"var(--amber-dim)":"var(--surface)",color:selectedCircle?.id===circle.id?"var(--amber2)":"var(--text2)",fontSize:12,fontFamily:"var(--font)",fontWeight:selectedCircle?.id===circle.id?600:400}}>
-{circle.name} · {circle.memberCount}
-</button>
-))}
-</div>
-{selectedCircle&&(
-<div className="anim-up d3" style={{background:"var(--surface)",border:"1px solid var(--amber-mid)",borderRadius:18,padding:20}}>
-<div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:12,marginBottom:18}}>
-<div>
-<div style={{fontSize:10,color:"var(--amber)",fontWeight:600,textTransform:"uppercase",letterSpacing:".12em",marginBottom:6}}>Today in</div>
-<div style={{fontFamily:"var(--serif)",fontSize:25}}>{selectedCircle.name}</div>
-<div style={{fontSize:11,color:"var(--text3)",marginTop:4}}>{selectedCircle.memberCount} {selectedCircle.memberCount===1?"member":"members"} · private circle</div>
-</div>
-<div style={{display:"flex",gap:6,flexWrap:"wrap",justifyContent:"flex-end"}}>
-<button onClick={copyInvite} aria-label="Copy circle invite code" style={{padding:"8px 10px",borderRadius:8,border:"1px solid var(--border2)",background:"var(--bg2)",color:"var(--text2)",fontSize:10,fontFamily:"var(--mono)"}}>
-{copied?"Copied!":"Invite "+selectedCircle.inviteCode}
-</button>
-<button onClick={shareInvite} aria-label="Share circle invite" style={{padding:"8px 10px",borderRadius:8,border:"1px solid var(--green-mid)",background:"var(--green-dim)",color:"var(--green2)",fontSize:10,fontFamily:"var(--mono)"}}>
-{shared?"Shared!":"Share"}
-</button>
-</div>
-</div>
-<div style={{fontSize:11,color:"var(--text3)",lineHeight:1.5,marginBottom:14}}>A gentle view of who has engaged with today’s Daily Challenge. No counts, streaks, scores, or personal details are shared.</div>
-<div style={{margin:"0 0 16px",padding:"14px",background:"var(--bg2)",border:"1px solid var(--border)",borderRadius:10}}>
-<div style={{fontSize:10,color:"var(--amber)",fontWeight:600,textTransform:"uppercase",letterSpacing:".1em",marginBottom:7}}>Today’s shared intention</div>
-{selectedCircle.ownerId===user.id?<div style={{display:"flex",gap:8}}><input aria-label="Circle intention" value={circleIntention} onChange={e=>setCircleIntention(e.target.value)} onKeyDown={e=>e.key==="Enter"&&saveCircleIntention()} placeholder="A small intention for the circle" style={{flex:1,minWidth:0,padding:"10px",background:"var(--surface)",border:"1px solid var(--border2)",color:"var(--text)",fontFamily:"var(--font)"}}/><button onClick={saveCircleIntention} disabled={intentionBusy} style={{padding:"9px 12px",background:"var(--amber-dim)",border:"1px solid var(--amber-mid)",color:"var(--amber2)",fontWeight:600,fontSize:11}}>{intentionBusy?"Saving":"Save"}</button></div>:<div style={{fontFamily:"var(--body)",fontSize:13,color:"var(--text2)"}}>{circleToday?.intention||"The circle has not set an intention yet."}</div>}
-{circleToday?.intention&&<div style={{fontFamily:"var(--body)",fontSize:12,color:"var(--text2)",marginTop:9}}>Held by the circle: {circleToday.intention}</div>}
-</div>
-<div style={{borderTop:"1px solid var(--border)",paddingTop:4}}>
-{circleMembers.length?circleMembers.map((member,i)=>(
-<div key={`${member.name}-${i}`} style={{display:"flex",alignItems:"center",gap:11,padding:"12px 0",borderBottom:i<circleMembers.length-1?"1px solid var(--border)":"none"}}>
-<div style={{width:32,height:32,borderRadius:"50%",background:member.completedToday?"var(--green-dim)":"var(--raised)",border:`1px solid ${member.completedToday?"var(--green-mid)":"var(--border2)"}`,display:"grid",placeItems:"center",fontSize:13}}>{member.completedToday?"✓":"·"}</div>
-<div style={{flex:1,minWidth:0}}>
-<div style={{fontSize:13,color:member.currentUser?"var(--amber2)":"var(--text)",fontWeight:member.currentUser?600:400}}>{member.name}{member.currentUser?" · you":""}</div>
-<div style={{fontSize:10,color:"var(--text3)",marginTop:2}}>{member.completedToday?"Joined today’s practice":"Not yet today"}</div>
-</div>
-</div>
-)):<div style={{padding:"22px 0",textAlign:"center",fontSize:12,color:"var(--text3)"}}>Loading your circle…</div>}
-</div>
-</div>
-)}
-</>
-)}
 </div>
 );
 }
@@ -779,12 +781,36 @@ Start Counting · {d.target}{d.unit?" "+d.unit:"×"}
 }
 return(
 <div style={{height:"100%",display:"flex",flexDirection:"column",background:"var(--bg)",maxWidth:1180,margin:"0 auto",position:"relative",boxShadow:"0 0 80px rgba(0,0,0,.18)"}}>
+<button className="menu-toggle" type="button" aria-label={menuOpen?"Close menu":"Open menu"} aria-expanded={menuOpen} aria-controls="app-menu" onClick={()=>setMenuOpen(!menuOpen)}>
+ <span/><span/><span/>
+</button>
+{menuOpen&&<>
+ <button className="menu-scrim" type="button" aria-label="Close menu" onClick={()=>setMenuOpen(false)}/>
+ <aside id="app-menu" className="menu-panel" aria-label="Main menu">
+  <div className="menu-header">
+   <div><div className="eyebrow">The Dhikr Challenge</div><div className="menu-user">{userName}</div></div>
+   <button className="menu-close" type="button" aria-label="Close menu" onClick={()=>setMenuOpen(false)}>×</button>
+  </div>
+  <div className="menu-links">
+   {[
+    {k:"home",label:"Today",note:"Your daily practice"},
+    {k:"circles",label:"Circles",note:"Practice with your people"},
+    {k:"progress",label:"Journey",note:"A quiet record of returning"},
+    {k:"learn",label:"Library",note:"Sources and study"},
+    {k:"ask",label:"Ask",note:"Search the curated library"},
+   ].map(item=><button key={item.k} className={`menu-link ${page===item.k?"active":""}`} type="button" onClick={()=>navigateTo(item.k)}><span>{item.label}</span><small>{item.note}</small></button>)}
+  </div>
+  <div className="menu-divider"/>
+  <button className="menu-link menu-secondary" type="button" onClick={()=>{setShowSettings(true);setMenuOpen(false);}}><span>Preferences</span><small>Shape your daily return</small></button>
+  <button className="menu-link menu-secondary menu-signout" type="button" onClick={()=>{setMenuOpen(false);onLogout();}}><span>Sign out</span><small>Leave this account</small></button>
+ </aside>
+</>}
 <div style={{position:"fixed",top:"20%",left:"50%",transform:"translateX(-50%)",width:560,height:380,borderRadius:"50%",background:"radial-gradient(ellipse,rgba(97,212,161,0.05),transparent 70%)",pointerEvents:"none",zIndex:0}}/>
 {loadingProgress&&<div style={{position:"absolute",top:12,left:"50%",transform:"translateX(-50%)",zIndex:100,background:"var(--surface)",border:"1px solid var(--border2)",borderRadius:20,padding:"7px 14px",fontSize:11,color:"var(--text2)"}}>Syncing your journey…</div>}
 {progressError&&<button onClick={()=>setProgressError("")} style={{position:"absolute",top:12,left:16,right:16,zIndex:100,background:"var(--rose-dim)",border:"1px solid rgba(196,122,122,.25)",borderRadius:10,padding:"9px 12px",fontSize:11,color:"var(--rose)"}}>{progressError} · Dismiss</button>}
 <div style={{flex:1,overflow:"hidden",position:"relative",zIndex:1}}>
 {page==="home"&&<HomePage/>}
-{page==="circles"&&<CirclesPage/>}
+{page==="circles"&&<CirclesPage circles={circles} selectedCircle={selectedCircle} setSelectedCircle={setSelectedCircle} circleName={circleName} setCircleName={setCircleName} inviteCode={inviteCode} setInviteCode={setInviteCode} circleBusy={circleBusy} circleError={circleError} setCircleError={setCircleError} circleMembers={circleMembers} circleToday={circleToday} circleIntention={circleIntention} setCircleIntention={setCircleIntention} intentionBusy={intentionBusy} user={user} createCircle={createCircle} joinCircle={joinCircle} saveCircleIntention={saveCircleIntention}/>}
 {page==="progress"&&<ProgressPage/>}
 {page==="learn"&&<LearnPage/>}
 {page==="ask"&&<AskPage/>}
