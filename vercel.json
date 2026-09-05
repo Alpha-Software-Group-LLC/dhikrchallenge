@@ -1,7 +1,6 @@
 {
-  "installCommand": "tar -xzf .release/production-tree.tar.gz && pnpm install --frozen-lockfile",
-  "buildCommand": "cd artifacts/dhikr-challenge-web && PORT=4173 BASE_PATH=/ pnpm run build",
-  "outputDirectory": "artifacts/dhikr-challenge-web/dist/public",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
   "rewrites": [
     {
       "source": "/platforms",
